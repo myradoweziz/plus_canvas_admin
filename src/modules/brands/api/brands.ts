@@ -34,7 +34,7 @@ async function deleteBrand(id: number): Promise<void> {
 }
 
 type ReorderBrandsPayload = {
-	orders: Array<{
+	items: Array<{
 		id: number
 		featured_order: number
 	}>
@@ -51,4 +51,3 @@ export const brandsApi = {
 	deleteBrand,
 	reorderBrands
 }
-

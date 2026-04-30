@@ -65,7 +65,7 @@
 	const reorderBrands = async (orderedBrands: Brand[]) => {
 		brands.value = orderedBrands
 		await brandsApi.reorderBrands({
-			orders: orderedBrands
+			items: orderedBrands
 				.filter((brand): brand is Brand & { id: number } => brand.id !== null)
 				.map((brand) => ({
 					id: brand.id,
@@ -90,13 +90,7 @@
 			</template>
 		</Banner>
 
-		<BrandsTable
-			:brands="brands"
-			:loading="loading"
-			@edit="editBrand"
-			@delete="deleteBrand"
-			@reorder="reorderBrands"
-		/>
+		<BrandsTable :brands="brands" :loading="loading" @edit="editBrand" @delete="deleteBrand" @reorder="reorderBrands" />
 
 		<BrandCreateModal :open="showBrandModal" :brand="selectedBrand" @close="closeBrandModal" @saved="load" />
 
@@ -110,4 +104,3 @@
 		/>
 	</div>
 </template>
-

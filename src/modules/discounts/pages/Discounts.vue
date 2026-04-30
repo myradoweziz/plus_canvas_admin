@@ -65,7 +65,7 @@
 	const reorderDiscounts = async (orderedDiscounts: Discount[]) => {
 		discounts.value = orderedDiscounts
 		await discountsApi.reorderDiscounts({
-			orders: orderedDiscounts
+			items: orderedDiscounts
 				.filter((discount): discount is Discount & { id: number } => discount.id !== null)
 				.map((discount) => ({
 					id: discount.id,
@@ -115,4 +115,3 @@
 		/>
 	</div>
 </template>
-

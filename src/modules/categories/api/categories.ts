@@ -34,7 +34,7 @@ async function deleteCategory(id: number): Promise<void> {
 }
 
 type ReorderCategoriesPayload = {
-	orders: Array<{
+	items: Array<{
 		id: number
 		featured_order: number
 	}>
@@ -51,4 +51,3 @@ export const categoriesApi = {
 	deleteCategory,
 	reorderCategories
 }
-

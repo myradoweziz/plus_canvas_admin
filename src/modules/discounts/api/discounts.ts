@@ -31,7 +31,7 @@ async function deleteDiscount(id: number): Promise<void> {
 }
 
 type ReorderDiscountsPayload = {
-	orders: Array<{
+	items: Array<{
 		id: number
 		order: number
 	}>
@@ -48,4 +48,3 @@ export const discountsApi = {
 	deleteDiscount,
 	reorderDiscounts
 }
-

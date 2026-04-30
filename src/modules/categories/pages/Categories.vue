@@ -65,7 +65,7 @@
 	const reorderCategories = async (orderedCategories: Category[]) => {
 		categories.value = orderedCategories
 		await categoriesApi.reorderCategories({
-			orders: orderedCategories
+			items: orderedCategories
 				.filter((category): category is Category & { id: number } => category.id !== null)
 				.map((category) => ({
 					id: category.id,
