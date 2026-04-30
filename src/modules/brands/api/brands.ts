@@ -3,9 +3,33 @@ import type { Brand, BrandPayload } from '../types/brand'
 
 const BRANDS_URL = '/api/admin/brands'
 
-async function listBrands(): Promise<Brand[]> {
-	const { data } = await request({ url: BRANDS_URL, method: 'GET' })
-	return data || []
+export type ListBrandsParams = {
+	name?: string
+	featured_order?: number
+	limit: number
+	offset: number
+}
+
+export type ListBrandsResult = {
+	items: Brand[]
+	total: number
+}
+
+const getTotal = (response: any, fallback: number) => {
+	return response?.total ?? response?.meta?.total ?? response?.pagination?.total ?? fallback
+}
+
+async function listBrands(params: ListBrandsParams): Promise<ListBrandsResult> {
+	const filteredParams = Object.fromEntries(
+		Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
+	)
+	const response = await request({ url: BRANDS_URL, method: 'GET', params: filteredParams })
+	const items = Array.isArray(response) ? response : response?.data || []
+
+	return {
+		items,
+		total: getTotal(response, items.length)
+	}
 }
 
 function toBrandPayload(brand: Brand): BrandPayload {

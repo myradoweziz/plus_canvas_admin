@@ -3,9 +3,33 @@ import type { Category, CategoryPayload } from '../types/category'
 
 const CATEGORIES_URL = '/api/admin/categories'
 
-async function listCategories(): Promise<Category[]> {
-	const { data } = await request({ url: CATEGORIES_URL, method: 'GET' })
-	return data || []
+export type ListCategoriesParams = {
+	search?: string
+	featured_order?: number
+	limit: number
+	offset: number
+}
+
+export type ListCategoriesResult = {
+	items: Category[]
+	total: number
+}
+
+const getTotal = (response: any, fallback: number) => {
+	return response?.meta?.total ?? fallback
+}
+
+async function listCategories(params: ListCategoriesParams): Promise<ListCategoriesResult> {
+	const filteredParams = Object.fromEntries(
+		Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
+	)
+	const response = await request({ url: CATEGORIES_URL, method: 'GET', params: filteredParams })
+	const items = Array.isArray(response) ? response : response?.data || []
+
+	return {
+		items,
+		total: getTotal(response, items.length)
+	}
 }
 
 function toCategoryPayload(category: Category): CategoryPayload {

@@ -3,9 +3,33 @@ import type { Discount } from '../types/discount'
 
 const DISCOUNTS_URL = '/api/admin/discounts'
 
-async function listDiscounts(): Promise<Discount[]> {
-	const { data } = await request({ url: DISCOUNTS_URL, method: 'GET' })
-	return data || []
+export type ListDiscountsParams = {
+	title?: string
+	order?: number
+	limit: number
+	offset: number
+}
+
+export type ListDiscountsResult = {
+	items: Discount[]
+	total: number
+}
+
+const getTotal = (response: any, fallback: number) => {
+	return response?.total ?? response?.meta?.total ?? response?.pagination?.total ?? fallback
+}
+
+async function listDiscounts(params: ListDiscountsParams): Promise<ListDiscountsResult> {
+	const filteredParams = Object.fromEntries(
+		Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
+	)
+	const response = await request({ url: DISCOUNTS_URL, method: 'GET', params: filteredParams })
+	const items = Array.isArray(response) ? response : response?.data || []
+
+	return {
+		items,
+		total: getTotal(response, items.length)
+	}
 }
 
 function toDiscountPayload(data: Discount) {
