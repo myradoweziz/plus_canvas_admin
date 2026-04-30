@@ -4,7 +4,7 @@ import type { Category, CategoryPayload } from '../types/category'
 const CATEGORIES_URL = '/api/admin/categories'
 
 export type ListCategoriesParams = {
-	search?: string
+	name?: string
 	featured_order?: number
 	limit: number
 	offset: number
