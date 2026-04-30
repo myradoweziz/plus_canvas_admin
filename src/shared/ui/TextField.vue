@@ -1,10 +1,22 @@
 <script setup lang="ts">
+	import { useAttrs } from 'vue'
+
+	defineOptions({
+		inheritAttrs: false
+	})
+
+	const attrs = useAttrs()
+
 	const props = withDefaults(
 		defineProps<{
 			label: string
 			name: string
 			placeholder?: string
-			modelValue?: string
+			modelValue?: string | number
+			modelModifiers?: {
+				trim?: boolean
+				number?: boolean
+			}
 			type?: string
 			errorMessage?: string
 			appendIcon?: object
@@ -19,7 +31,11 @@
 	const emit = defineEmits(['update:modelValue', 'togglePrependIcon', 'toggleAppendIcon'])
 
 	const changeInput = (e: Event) => {
-		emit('update:modelValue', (e.target as HTMLInputElement).value)
+		const inputValue = (e.target as HTMLInputElement).value
+		const trimmedValue = props.modelModifiers?.trim ? inputValue.trim() : inputValue
+		const value = props.modelModifiers?.number && trimmedValue !== '' ? Number(trimmedValue) : trimmedValue
+
+		emit('update:modelValue', value)
 	}
 
 	const toggleAppendIcon = () => {
@@ -47,6 +63,7 @@
 				:placeholder="placeholder"
 				:name="name"
 				:type="type"
+				v-bind="attrs"
 				:class="[
 					'h-12 w-full outline-none rounded-xl border bg-white px-4 py-3 text-sm transition-all duration-300 shadow-sm',
 					errorMessage

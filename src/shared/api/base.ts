@@ -1,12 +1,14 @@
 import { request } from '@/shared'
 import type { IFormLogin } from '@/shared/types'
 
-const AUTH_URL = '/api/login'
-const PROFILE_URL = '/api/user'
+const AUTH_URL = '/api/auth/login'
+const PROFILE_URL = '/api/auth/me'
+const LOGOUT_URL = '/api/auth/logout'
 
 export const apiBase = {
 	login,
-	getProfile
+	getProfile,
+	logout
 } as const
 
 async function getProfile() {
@@ -22,5 +24,13 @@ async function login(form: IFormLogin) {
 		return request({ url: AUTH_URL, method: 'POST', data: form })
 	} catch (error) {
 		throw Error('ERROR ON LOGIN')
+	}
+}
+
+async function logout() {
+	try {
+		return request({ url: LOGOUT_URL, method: 'POST' })
+	} catch (error) {
+		throw new Error('ERROR ON LOGOUT')
 	}
 }

@@ -5,6 +5,8 @@
       aria-hidden="true"
       @click="$emit('close')"
     ></div>
+    <!-- Support both default slot and legacy named slot="body" -->
+    <slot></slot>
     <slot name="body"></slot>
   </div>
 </template>

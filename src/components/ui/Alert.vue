@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { SuccessIcon, ErrorIcon, WarningIcon, InfoCircleIcon } from '@/icons'
+import { SuccessIcon, ErrorIcon, WarningIcon, InfoCircleIcon } from '@/shared/icons'
 import { computed } from 'vue'
 
 interface AlertProps {

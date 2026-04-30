@@ -6,11 +6,16 @@
 			sizeClasses[size],
 			variantClasses[variant],
 			className,
-			{ 'cursor-not-allowed opacity-50 grayscale': disabled }
+			{ 'cursor-not-allowed opacity-50 grayscale': isDisabled }
 		]"
 		@click="onClick"
-		:disabled="disabled"
+		:disabled="isDisabled"
 	>
+		<span
+			v-if="loading"
+			class="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+			aria-hidden="true"
+		/>
 		<span v-if="startIcon" class="flex items-center">
 			<component :is="startIcon" />
 		</span>
@@ -22,6 +27,8 @@
 </template>
 
 <script setup lang="ts">
+	import { computed } from 'vue'
+
 	interface ButtonProps {
 		size?: 'sm' | 'md'
 		variant?: 'primary' | 'outline'
@@ -30,13 +37,15 @@
 		onClick?: () => void
 		className?: string
 		disabled?: boolean
+		loading?: boolean
 	}
 
 	const props = withDefaults(defineProps<ButtonProps>(), {
 		size: 'md',
 		variant: 'primary',
 		className: '',
-		disabled: false
+		disabled: false,
+		loading: false
 	})
 
 	const sizeClasses = {
@@ -45,12 +54,16 @@
 	}
 
 	const variantClasses = {
-		primary: 'bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-300 focus:ring-blue-500',
-		outline: 'bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:shadow-md focus:ring-gray-200'
+		primary:
+			'bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-300 focus:ring-blue-500',
+		outline:
+			'bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:shadow-md focus:ring-gray-200'
 	}
 
+	const isDisabled = computed(() => props.disabled || props.loading)
+
 	const onClick = () => {
-		if (!props.disabled && props.onClick) {
+		if (!isDisabled.value && props.onClick) {
 			props.onClick()
 		}
 	}

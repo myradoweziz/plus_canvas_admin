@@ -1,6 +1,7 @@
 const Module = () => import('./Module.vue')
 
 const Login = () => import('./pages/Login.vue')
+import { Layouts } from '@/layouts/layouts.types'
 
 const moduleRoute = {
 	path: '/login',
@@ -9,7 +10,7 @@ const moduleRoute = {
 		{
 			path: '',
 			component: Login,
-			meta: { title: 'Login', noAuth: true }
+			meta: { title: 'Login', noAuth: true, layout: Layouts.empty }
 		}
 	]
 }

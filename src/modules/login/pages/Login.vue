@@ -2,6 +2,9 @@
 	import { toTypedSchema } from '@vee-validate/zod'
 	import { useForm } from 'vee-validate'
 	import { computed, ref } from 'vue'
+	import { useRouter } from 'vue-router'
+	import { useCookies } from 'vue3-cookies'
+	import { toast } from 'vue3-toastify'
 	import { z } from 'zod'
 
 	import CommonGridShape from '@/components/common/CommonGridShape.vue'
@@ -40,12 +43,27 @@
 		return Object.values(errors.value).some((error) => error)
 	})
 
+	const isLoading = ref(false)
+
+	const router = useRouter()
+	const { cookies } = useCookies()
 	const onSubmit = handleSubmit(async (values: IFormLogin) => {
-		const response = await apiBase.login({
-			email: values.email,
-			password: values.password
-		})
-		console.log(response)
+		isLoading.value = true
+		try {
+			const { token } = await apiBase.login({
+				email: values.email,
+				password: values.password
+			})
+
+			cookies.set('plus_canvas_admin_authorization', token)
+			toast.success('Giriş başarılı')
+			router.push('/')
+		} catch (error) {
+			console.error(error)
+			toast.error('Giriş başarısız')
+		} finally {
+			isLoading.value = false
+		}
 	})
 </script>
 
@@ -93,6 +111,7 @@
 						<Button
 							className="w-full py-4 text-base font-semibold tracking-wide transform active:scale-[0.98] transition-all duration-200"
 							:disabled="isDisabled"
+							:loading="isLoading"
 						>
 							Giriş Yap
 						</Button>

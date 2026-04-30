@@ -28,8 +28,9 @@ export const request = async ({
 		data = formData
 	}
 
-	if (cookies.get('online_application_authorization')) {
-		headers['Authorization'] = `Bearer ${cookies.get('online_application_authorization')}`
+	const authCookie = cookies.get('plus_canvas_admin_authorization')
+	if (authCookie) {
+		headers['Authorization'] = `Bearer ${authCookie}`
 	}
 
 	const response = await axios({

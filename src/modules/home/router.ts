@@ -1,5 +1,6 @@
-const Module = () => import('./Module.vue')
+import { Layouts } from '@/layouts/layouts.types'
 
+const Module = () => import('./Module.vue')
 const Home = () => import('./pages/Home.vue')
 
 const moduleRoute = {
@@ -9,7 +10,7 @@ const moduleRoute = {
 		{
 			path: '',
 			component: Home,
-			meta: { title: 'Home' }
+			meta: { title: 'Home', layout: Layouts.admin }
 		}
 	]
 }
