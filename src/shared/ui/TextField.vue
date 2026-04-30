@@ -1,0 +1,67 @@
+<script setup lang="ts">
+	const props = withDefaults(
+		defineProps<{
+			label: string
+			name: string
+			placeholder?: string
+			modelValue?: string
+			type?: string
+			errorMessage?: string
+			appendIcon?: object
+			prependIcon?: object
+		}>(),
+		{
+			type: 'text',
+			modelValue: ''
+		}
+	)
+
+	const emit = defineEmits(['update:modelValue', 'togglePrependIcon', 'toggleAppendIcon'])
+
+	const changeInput = (e: Event) => {
+		emit('update:modelValue', (e.target as HTMLInputElement).value)
+	}
+
+	const toggleAppendIcon = () => {
+		emit('toggleAppendIcon')
+	}
+
+	const togglePrependIcon = () => {
+		emit('togglePrependIcon')
+	}
+</script>
+
+<template>
+	<div>
+		<label class="mb-1.5 block text-sm font-medium text-gray-700"> {{ label }} </label>
+		<div class="relative">
+			<component
+				@click="toggleAppendIcon"
+				:is="appendIcon"
+				class="absolute top-1/2 left-4 -translate-y-1/2 cursor-pointer"
+			/>
+
+			<input
+				:value="modelValue"
+				@input="changeInput"
+				:placeholder="placeholder"
+				:name="name"
+				:type="type"
+				:class="[
+					'h-12 w-full outline-none rounded-xl border bg-white px-4 py-3 text-sm transition-all duration-300 shadow-sm',
+					errorMessage
+						? 'border-red-500 focus:border-red-600 focus:ring-4 focus:ring-red-100 text-red-600 placeholder:text-red-300'
+						: 'border-gray-200 placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-gray-900'
+				]"
+			/>
+			<component
+				@click="togglePrependIcon"
+				:is="prependIcon"
+				class="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer"
+			/>
+			<p v-if="errorMessage" class="mt-1 text-xs text-red-500">{{ errorMessage }}</p>
+		</div>
+	</div>
+</template>
+
+<style lang="scss" scoped></style>
