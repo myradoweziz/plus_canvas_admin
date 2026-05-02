@@ -1,4 +1,4 @@
-import { request } from '@/shared'
+import { getTotal, request } from '@/shared'
 import type { FeaturedCategory, FeaturedCategoryPayload } from '../types/category'
 
 const FEATURED_CATEGORIES_URL = '/api/admin/categories'
@@ -14,10 +14,6 @@ export type ListFeaturedCategoriesParams = {
 export type ListFeaturedCategoriesResult = {
 	items: FeaturedCategory[]
 	total: number
-}
-
-const getTotal = (response: any, fallback: number) => {
-	return response?.meta?.total ?? fallback
 }
 
 async function listFeaturedCategories(params: ListFeaturedCategoriesParams): Promise<ListFeaturedCategoriesResult> {

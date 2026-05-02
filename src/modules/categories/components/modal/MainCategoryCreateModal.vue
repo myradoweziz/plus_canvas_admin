@@ -2,9 +2,13 @@
 	import { ref, watch } from 'vue'
 
 	import Modal from '@/components/profile/Modal.vue'
+	import Button from '@/shared/ui/Button.vue'
+	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	import { categoriesApi } from '../api'
-	import type { MainCategory } from '../types/category'
+
+	import { slugify } from '@/shared'
+	import { categoriesApi } from '../../api'
+	import type { MainCategory } from '../../types/category'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
@@ -30,54 +34,6 @@
 			is_active: false,
 			featured_order: 0
 		}
-	}
-
-	const slugify = (value: string) => {
-		const cyrillicMap: Record<string, string> = {
-			а: 'a',
-			б: 'b',
-			в: 'v',
-			г: 'g',
-			д: 'd',
-			е: 'e',
-			ё: 'yo',
-			ж: 'zh',
-			з: 'z',
-			и: 'i',
-			й: 'y',
-			к: 'k',
-			л: 'l',
-			м: 'm',
-			н: 'n',
-			о: 'o',
-			п: 'p',
-			р: 'r',
-			с: 's',
-			т: 't',
-			у: 'u',
-			ф: 'f',
-			х: 'h',
-			ц: 'ts',
-			ч: 'ch',
-			ш: 'sh',
-			щ: 'sch',
-			ъ: '',
-			ы: 'y',
-			ь: '',
-			э: 'e',
-			ю: 'yu',
-			я: 'ya'
-		}
-
-		return value
-			.toLowerCase()
-			.split('')
-			.map((char) => cyrillicMap[char] ?? char)
-			.join('')
-			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '')
-			.replace(/[^a-z0-9]+/g, '-')
-			.replace(/^-+|-+$/g, '')
 	}
 
 	watch(
@@ -145,7 +101,7 @@
 
 <template>
 	<Modal v-if="open" @close="$emit('close')">
-		<div class="relative z-[100000] mx-auto w-[92vw] max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+		<div class="relative z-100000 mx-auto w-[92vw] max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
 			<div class="flex items-start justify-between gap-4">
 				<div class="min-w-0">
 					<h3 class="text-lg font-semibold text-gray-900">
@@ -153,14 +109,9 @@
 					</h3>
 					<p class="mt-1 text-sm text-gray-600">Заполните поля и сохраните.</p>
 				</div>
-				<button
-					type="button"
-					class="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
-					@click="$emit('close')"
-					aria-label="Close"
-				>
+				<Button type="button" variant="ghost" size="icon" :on-click="() => $emit('close')" aria-label="Close">
 					✕
-				</button>
+				</Button>
 			</div>
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
@@ -188,28 +139,13 @@
 					/>
 				</div>
 
-				<div class="flex flex-col gap-3 md:col-span-2">
-					<label class="flex items-center gap-2">
-						<input v-model="form.is_active" type="checkbox" class="h-4 w-4" />
-						<span class="text-sm text-gray-700">Active</span>
-					</label>
-				</div>
+				<CheckboxField v-model="form.is_active" label="Active" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
-					<button
-						type="button"
-						class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100"
-						@click="$emit('close')"
-					>
-						Отмена
-					</button>
-					<button
-						type="submit"
-						class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-						:disabled="saving || !form.name"
-					>
+					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
+					<Button type="submit" size="sm" :disabled="saving || !form.name" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
-					</button>
+					</Button>
 				</div>
 			</form>
 		</div>

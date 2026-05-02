@@ -1,6 +1,32 @@
+<script setup lang="ts">
+	import Button from '@/shared/ui/Button.vue'
+	import DataTable from '@/shared/ui/DataTable.vue'
+
+	import { EditIcon, TrashIcon } from '@/shared/icons'
+	import { MAIN_CATEGORIES_TABLE_COLUMNS } from '../helpers'
+	import type { MainCategory } from '../types/category'
+
+	defineProps<{
+		categories: MainCategory[]
+		loading: boolean
+	}>()
+
+	const toMainCategory = (row: unknown) => row as MainCategory
+
+	const emit = defineEmits<{
+		(e: 'edit', mainCategory: MainCategory): void
+		(e: 'delete', mainCategory: MainCategory): void
+		(e: 'reorder', mainCategories: MainCategory[]): void
+	}>()
+
+	const onReorder = (rows: unknown[]) => {
+		emit('reorder', rows as MainCategory[])
+	}
+</script>
+
 <template>
 	<DataTable
-		:columns="columns"
+		:columns="MAIN_CATEGORIES_TABLE_COLUMNS"
 		:rows="categories"
 		:loading="loading"
 		empty-text="Пока нет категорий."
@@ -31,54 +57,27 @@
 
 		<template #cell-actions="{ row }">
 			<div class="flex items-center justify-end gap-2">
-				<button
+				<Button
 					type="button"
-					class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-green-100 hover:text-gray-900"
+					variant="ghost"
+					size="icon"
+					class-name="hover:bg-green-100"
 					aria-label="Edit"
-					@click="$emit('edit', toMainCategory(row))"
+					:on-click="() => $emit('edit', toMainCategory(row))"
 				>
 					<EditIcon />
-				</button>
-				<button
+				</Button>
+				<Button
 					type="button"
-					class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-red-700"
+					variant="ghost"
+					size="icon"
+					class-name="hover:text-red-700"
 					aria-label="Delete"
-					@click="$emit('delete', toMainCategory(row))"
+					:on-click="() => $emit('delete', toMainCategory(row))"
 				>
 					<TrashIcon />
-				</button>
+				</Button>
 			</div>
 		</template>
 	</DataTable>
 </template>
-
-<script setup lang="ts">
-	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import DataTable from '@/shared/ui/DataTable.vue'
-	import type { MainCategory } from '../types/category'
-
-	defineProps<{
-		categories: MainCategory[]
-		loading: boolean
-	}>()
-
-	const columns = [
-		{ key: 'name', label: 'Name' },
-		{ key: 'slug', label: 'Slug' },
-		{ key: 'is_active', label: 'Active' },
-		{ key: 'featured_order', label: 'Featured Order' },
-		{ key: 'actions', label: 'Actions', headerClass: 'text-right' }
-	]
-
-	const toMainCategory = (row: unknown) => row as MainCategory
-
-	const emit = defineEmits<{
-		(e: 'edit', mainCategory: MainCategory): void
-		(e: 'delete', mainCategory: MainCategory): void
-		(e: 'reorder', mainCategories: MainCategory[]): void
-	}>()
-
-	const onReorder = (rows: unknown[]) => {
-		emit('reorder', rows as MainCategory[])
-	}
-</script>

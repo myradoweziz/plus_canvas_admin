@@ -1,4 +1,4 @@
-import { request } from '@/shared'
+import { getTotal, request } from '@/shared'
 import type { Brand, BrandPayload } from '../types/brand'
 
 const BRANDS_URL = '/api/admin/brands'
@@ -13,10 +13,6 @@ export type ListBrandsParams = {
 export type ListBrandsResult = {
 	items: Brand[]
 	total: number
-}
-
-const getTotal = (response: any, fallback: number) => {
-	return response?.total ?? response?.meta?.total ?? response?.pagination?.total ?? fallback
 }
 
 async function listBrands(params: ListBrandsParams): Promise<ListBrandsResult> {
@@ -48,7 +44,7 @@ async function createBrand(brand: Brand): Promise<Brand> {
 async function updateBrand(brand: Brand): Promise<Brand> {
 	return await request({
 		url: `${BRANDS_URL}/${brand.id}`,
-		method: 'PUT',
+		method: 'POST',
 		data: toBrandPayload(brand)
 	})
 }

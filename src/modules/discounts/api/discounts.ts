@@ -1,4 +1,4 @@
-import { request } from '@/shared'
+import { getTotal, request } from '@/shared'
 import type { Discount } from '../types/discount'
 
 const DISCOUNTS_URL = '/api/admin/discounts'
@@ -13,10 +13,6 @@ export type ListDiscountsParams = {
 export type ListDiscountsResult = {
 	items: Discount[]
 	total: number
-}
-
-const getTotal = (response: any, fallback: number) => {
-	return response?.total ?? response?.meta?.total ?? response?.pagination?.total ?? fallback
 }
 
 async function listDiscounts(params: ListDiscountsParams): Promise<ListDiscountsResult> {

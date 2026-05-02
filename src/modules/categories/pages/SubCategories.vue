@@ -1,16 +1,17 @@
 <script setup lang="ts">
 	import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
-	import { debounce } from '@/shared'
-	import { CategoriesIcon } from '@/shared/icons'
 	import Banner from '@/shared/ui/Banner.vue'
+	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 	import SubCategoriesTable from '../components/SubCategoriesTable.vue'
-	import SubCategoryCreateModal from '../components/SubCategoryCreateModal.vue'
+	import SubCategoryCreateModal from '../components/modal/SubCategoryCreateModal.vue'
 
+	import { debounce } from '@/shared'
+	import { CategoriesIcon } from '@/shared/icons'
 	import { categoriesApi } from '../api'
 	import type { FeaturedCategory, SubCategory } from '../types/category'
 
@@ -162,13 +163,7 @@
 	<div class="space-y-6">
 		<Banner title="Категории" subtitle="Список категорий и управление ими." :icon="CategoriesIcon">
 			<template #actions>
-				<button
-					type="button"
-					class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-					@click="openCreate"
-				>
-					Добавить подкатегорию
-				</button>
+				<Button type="button" size="sm" :on-click="openCreate">Добавить подкатегорию</Button>
 			</template>
 		</Banner>
 
@@ -196,19 +191,8 @@
 			/>
 
 			<div class="flex items-end gap-2">
-				<button
-					type="submit"
-					class="h-12 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700"
-				>
-					Фильтр
-				</button>
-				<button
-					type="button"
-					class="h-12 rounded-xl px-4 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-200 hover:bg-gray-50"
-					@click="resetFilters"
-				>
-					Сброс
-				</button>
+				<Button type="submit" size="sm">Фильтр</Button>
+				<Button type="button" variant="outline" size="sm" :on-click="resetFilters">Сброс</Button>
 			</div>
 		</form>
 

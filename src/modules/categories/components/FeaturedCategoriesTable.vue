@@ -1,6 +1,32 @@
+<script setup lang="ts">
+	import Button from '@/shared/ui/Button.vue'
+	import DataTable from '@/shared/ui/DataTable.vue'
+
+	import { EditIcon, TrashIcon } from '@/shared/icons'
+	import { FEATURED_CATEGORIES_TABLE_COLUMNS } from '../helpers'
+	import type { FeaturedCategory } from '../types/category'
+
+	defineProps<{
+		categories: FeaturedCategory[]
+		loading: boolean
+	}>()
+
+	const toFeaturedCategory = (row: unknown) => row as FeaturedCategory
+
+	const emit = defineEmits<{
+		(e: 'edit', featuredCategory: FeaturedCategory): void
+		(e: 'delete', featuredCategory: FeaturedCategory): void
+		(e: 'reorder', featuredCategories: FeaturedCategory[]): void
+	}>()
+
+	const onReorder = (rows: unknown[]) => {
+		emit('reorder', rows as FeaturedCategory[])
+	}
+</script>
+
 <template>
 	<DataTable
-		:columns="columns"
+		:columns="FEATURED_CATEGORIES_TABLE_COLUMNS"
 		:rows="categories"
 		:loading="loading"
 		empty-text="Пока нет категорий."
@@ -34,55 +60,27 @@
 
 		<template #cell-actions="{ row }">
 			<div class="flex items-center justify-end gap-2">
-				<button
+				<Button
 					type="button"
-					class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-green-100 hover:text-gray-900"
+					variant="ghost"
+					size="icon"
+					class-name="hover:bg-green-100"
 					aria-label="Edit"
-					@click="$emit('edit', toFeaturedCategory(row))"
+					:on-click="() => $emit('edit', toFeaturedCategory(row))"
 				>
 					<EditIcon />
-				</button>
-				<button
+				</Button>
+				<Button
 					type="button"
-					class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-red-700"
+					variant="ghost"
+					size="icon"
+					class-name="hover:text-red-700"
 					aria-label="Delete"
-					@click="$emit('delete', toFeaturedCategory(row))"
+					:on-click="() => $emit('delete', toFeaturedCategory(row))"
 				>
 					<TrashIcon />
-				</button>
+				</Button>
 			</div>
 		</template>
 	</DataTable>
 </template>
-
-<script setup lang="ts">
-	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import DataTable from '@/shared/ui/DataTable.vue'
-	import type { FeaturedCategory } from '../types/category'
-
-	defineProps<{
-		categories: FeaturedCategory[]
-		loading: boolean
-	}>()
-
-	const columns = [
-		{ key: 'name', label: 'Name' },
-		{ key: 'main_category', label: 'Main Category' },
-		{ key: 'slug', label: 'Slug' },
-		{ key: 'is_active', label: 'Active' },
-		{ key: 'featured_order', label: 'Featured Order' },
-		{ key: 'actions', label: 'Actions', headerClass: 'text-right' }
-	]
-
-	const toFeaturedCategory = (row: unknown) => row as FeaturedCategory
-
-	const emit = defineEmits<{
-		(e: 'edit', featuredCategory: FeaturedCategory): void
-		(e: 'delete', featuredCategory: FeaturedCategory): void
-		(e: 'reorder', featuredCategories: FeaturedCategory[]): void
-	}>()
-
-	const onReorder = (rows: unknown[]) => {
-		emit('reorder', rows as FeaturedCategory[])
-	}
-</script>

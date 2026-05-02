@@ -2,26 +2,29 @@
 	import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
 	import Modal from '@/components/profile/Modal.vue'
-	import { debounce } from '@/shared'
+	import Button from '@/shared/ui/Button.vue'
+	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	import { categoriesApi } from '../api'
-	import type { FeaturedCategory, SubCategory } from '../types/category'
+
+	import { debounce, slugify } from '@/shared'
+	import { categoriesApi } from '../../api'
+	import type { FeaturedCategory, MainCategory } from '../../types/category'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
-	const props = defineProps<{ open: boolean; category: SubCategory | null }>()
+	const props = defineProps<{ open: boolean; category: FeaturedCategory | null }>()
 
 	const saving = ref(false)
-	const loadingFeaturedCategories = ref(false)
-	const featuredCategories = ref<FeaturedCategory[]>([])
-	const featuredCategoriesRequestId = ref(0)
+	const loadingMainCategories = ref(false)
+	const mainCategories = ref<MainCategory[]>([])
+	const mainCategoriesRequestId = ref(0)
 	const slugManuallyEdited = ref(false)
 	const lastGeneratedSlug = ref('')
 
-	const form = ref<SubCategory>({
+	const form = ref<FeaturedCategory>({
 		id: null,
-		category_id: null,
+		main_category_id: null,
 		name: '',
 		slug: '',
 		is_active: false,
@@ -31,60 +34,12 @@
 	const resetForm = () => {
 		form.value = {
 			id: null,
-			category_id: null,
+			main_category_id: null,
 			name: '',
 			slug: '',
 			is_active: false,
 			featured_order: 0
 		}
-	}
-
-	const slugify = (value: string) => {
-		const cyrillicMap: Record<string, string> = {
-			а: 'a',
-			б: 'b',
-			в: 'v',
-			г: 'g',
-			д: 'd',
-			е: 'e',
-			ё: 'yo',
-			ж: 'zh',
-			з: 'z',
-			и: 'i',
-			й: 'y',
-			к: 'k',
-			л: 'l',
-			м: 'm',
-			н: 'n',
-			о: 'o',
-			п: 'p',
-			р: 'r',
-			с: 's',
-			т: 't',
-			у: 'u',
-			ф: 'f',
-			х: 'h',
-			ц: 'ts',
-			ч: 'ch',
-			ш: 'sh',
-			щ: 'sch',
-			ъ: '',
-			ы: 'y',
-			ь: '',
-			э: 'e',
-			ю: 'yu',
-			я: 'ya'
-		}
-
-		return value
-			.toLowerCase()
-			.split('')
-			.map((char) => cyrillicMap[char] ?? char)
-			.join('')
-			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '')
-			.replace(/[^a-z0-9]+/g, '-')
-			.replace(/^-+|-+$/g, '')
 	}
 
 	watch(
@@ -99,7 +54,7 @@
 
 			form.value = {
 				id: category.id,
-				category_id: category.category_id,
+				main_category_id: category.main_category_id,
 				name: category.name,
 				slug: category.slug,
 				is_active: category.is_active,
@@ -125,53 +80,53 @@
 		}
 	)
 
-	const featuredCategoryOptions = computed(() =>
-		featuredCategories.value
-			.filter((category): category is FeaturedCategory & { id: number } => category.id !== null)
+	const mainCategoryOptions = computed(() =>
+		mainCategories.value
+			.filter((category): category is MainCategory & { id: number } => category.id !== null)
 			.map((category) => ({
 				label: category.name,
 				value: category.id
 			}))
 	)
 
-	const loadFeaturedCategories = async (name = '') => {
-		const requestId = featuredCategoriesRequestId.value + 1
-		featuredCategoriesRequestId.value = requestId
-		loadingFeaturedCategories.value = true
+	const loadMainCategories = async (name = '') => {
+		const requestId = mainCategoriesRequestId.value + 1
+		mainCategoriesRequestId.value = requestId
+		loadingMainCategories.value = true
 		try {
-			const result = await categoriesApi.listFeaturedCategories({
+			const result = await categoriesApi.listMainCategories({
 				name: name || undefined,
 				limit: 100,
 				offset: 0
 			})
 
-			if (requestId !== featuredCategoriesRequestId.value) return
-			featuredCategories.value = result.items || []
+			if (requestId !== mainCategoriesRequestId.value) return
+			mainCategories.value = result.items || []
 		} finally {
-			if (requestId === featuredCategoriesRequestId.value) {
-				loadingFeaturedCategories.value = false
+			if (requestId === mainCategoriesRequestId.value) {
+				loadingMainCategories.value = false
 			}
 		}
 	}
 
-	const searchFeaturedCategories = debounce((name: string) => {
-		loadFeaturedCategories(name)
+	const searchMainCategories = debounce((name: string) => {
+		loadMainCategories(name)
 	}, 300)
 
 	watch(
 		() => props.open,
 		(open) => {
 			if (!open) {
-				searchFeaturedCategories.cancel()
+				searchMainCategories.cancel()
 				return
 			}
 
-			loadFeaturedCategories()
+			loadMainCategories()
 		},
 		{ immediate: true }
 	)
 
-	onBeforeUnmount(searchFeaturedCategories.cancel)
+	onBeforeUnmount(searchMainCategories.cancel)
 
 	const onSlugInput = (value: string | number) => {
 		form.value.slug = String(value)
@@ -182,9 +137,9 @@
 		saving.value = true
 		try {
 			if (props.category?.id) {
-				await categoriesApi.updateSubCategory(form.value)
+				await categoriesApi.updateFeaturedCategory(form.value)
 			} else {
-				await categoriesApi.createSubCategory(form.value)
+				await categoriesApi.createFeaturedCategory(form.value)
 			}
 
 			emit('saved')
@@ -209,27 +164,22 @@
 					</h3>
 					<p class="mt-1 text-sm text-gray-600">Заполните поля и сохраните.</p>
 				</div>
-				<button
-					type="button"
-					class="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
-					@click="$emit('close')"
-					aria-label="Close"
-				>
+				<Button type="button" variant="ghost" size="icon" :on-click="() => $emit('close')" aria-label="Close">
 					✕
-				</button>
+				</Button>
 			</div>
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
 					<SelectField
-						v-model="form.category_id"
-						label="Featured Category *"
-						name="category_id"
-						placeholder="Select featured category"
-						:options="featuredCategoryOptions"
-						:disabled="loadingFeaturedCategories"
+						v-model="form.main_category_id"
+						label="Main Category *"
+						name="main_category_id"
+						placeholder="Select main category"
+						:options="mainCategoryOptions"
+						:disabled="loadingMainCategories"
 						remote-search
-						@search="searchFeaturedCategories"
+						@search="searchMainCategories"
 					/>
 				</div>
 
@@ -257,28 +207,13 @@
 					/>
 				</div>
 
-				<div class="flex flex-col gap-3 md:col-span-2">
-					<label class="flex items-center gap-2">
-						<input v-model="form.is_active" type="checkbox" class="h-4 w-4" />
-						<span class="text-sm text-gray-700">Active</span>
-					</label>
-				</div>
+				<CheckboxField v-model="form.is_active" label="Active" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
-					<button
-						type="button"
-						class="rounded-lg px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100"
-						@click="$emit('close')"
-					>
-						Отмена
-					</button>
-					<button
-						type="submit"
-						class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-						:disabled="saving || !form.name || !form.category_id"
-					>
+					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
+					<Button type="submit" size="sm" :disabled="saving || !form.name || !form.main_category_id" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
-					</button>
+					</Button>
 				</div>
 			</form>
 		</div>

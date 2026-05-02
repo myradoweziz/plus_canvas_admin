@@ -4,13 +4,13 @@ const Module = () => import('./Module.vue')
 const Home = () => import('./pages/Home.vue')
 
 const moduleRoute = {
-	path: '/',
+	path: '/home',
 	component: Module,
 	children: [
 		{
 			path: '',
 			component: Home,
-			meta: { title: 'Home', layout: Layouts.admin }
+			meta: { title: 'Dashboard', layout: Layouts.admin }
 		}
 	]
 }

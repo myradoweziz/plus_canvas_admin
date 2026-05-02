@@ -122,10 +122,14 @@
 	import {
 		BannerIcon,
 		BrandsIcon,
+		CanvasFormatsIcon,
+		CanvasSizesIcon,
 		CategoriesIcon,
 		ChevronDownIcon,
+		ColorsIcon,
 		DiscountsIcon,
 		FeaturedCategoriesIcon,
+		HomeIcon,
 		SubCategoriesIcon
 	} from '@/shared/icons'
 	import HeaderLogo from './header/HeaderLogo.vue'
@@ -138,9 +142,14 @@
 		{
 			items: [
 				{
+					icon: HomeIcon,
+					name: 'Dashboard',
+					path: '/home'
+				},
+				{
 					icon: BannerIcon,
 					name: 'Banners',
-					path: '/'
+					path: '/banners'
 				},
 				{
 					icon: CategoriesIcon,
@@ -173,6 +182,21 @@
 					icon: BrandsIcon,
 					name: 'Brands',
 					path: '/brands'
+				},
+				{
+					icon: ColorsIcon,
+					name: 'Colors',
+					path: '/colors'
+				},
+				{
+					icon: CanvasSizesIcon,
+					name: 'Canvas Sizes',
+					path: '/canvas-sizes'
+				},
+				{
+					icon: CanvasFormatsIcon,
+					name: 'Canvas Formats',
+					path: '/canvas-formats'
 				}
 			]
 		}

@@ -1,6 +1,32 @@
+<script setup lang="ts">
+	import Button from '@/shared/ui/Button.vue'
+	import DataTable from '@/shared/ui/DataTable.vue'
+
+	import { EditIcon, TrashIcon } from '@/shared/icons'
+	import { DISCOUNTS_TABLE_COLUMNS } from '../helpers'
+	import type { Discount } from '../types/discount'
+
+	defineProps<{
+		discounts: Discount[]
+		loading: boolean
+	}>()
+
+	const emit = defineEmits<{
+		(e: 'edit', discount: Discount): void
+		(e: 'delete', discount: Discount): void
+		(e: 'reorder', discounts: Discount[]): void
+	}>()
+
+	const toDiscount = (row: unknown) => row as Discount
+
+	const onReorder = (rows: unknown[]) => {
+		emit('reorder', rows as Discount[])
+	}
+</script>
+
 <template>
 	<DataTable
-		:columns="columns"
+		:columns="DISCOUNTS_TABLE_COLUMNS"
 		:rows="discounts"
 		:loading="loading"
 		empty-text="Пока нет скидок."
@@ -35,56 +61,27 @@
 
 		<template #cell-actions="{ row }">
 			<div class="flex items-center justify-end gap-2">
-				<button
+				<Button
 					type="button"
-					class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-green-100 hover:text-gray-900"
+					variant="ghost"
+					size="icon"
+					class-name="hover:bg-green-100"
 					aria-label="Edit"
-					@click="$emit('edit', toDiscount(row))"
+					:on-click="() => $emit('edit', toDiscount(row))"
 				>
 					<EditIcon />
-				</button>
-				<button
+				</Button>
+				<Button
 					type="button"
-					class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-red-700"
+					variant="ghost"
+					size="icon"
+					class-name="hover:text-red-700"
 					aria-label="Delete"
-					@click="$emit('delete', toDiscount(row))"
+					:on-click="() => $emit('delete', toDiscount(row))"
 				>
 					<TrashIcon />
-				</button>
+				</Button>
 			</div>
 		</template>
 	</DataTable>
 </template>
-
-<script setup lang="ts">
-	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import DataTable from '@/shared/ui/DataTable.vue'
-	import type { Discount } from '../types/discount'
-
-	defineProps<{
-		discounts: Discount[]
-		loading: boolean
-	}>()
-
-	const emit = defineEmits<{
-		(e: 'edit', discount: Discount): void
-		(e: 'delete', discount: Discount): void
-		(e: 'reorder', discounts: Discount[]): void
-	}>()
-
-	const columns = [
-		{ key: 'title', label: 'Title' },
-		{ key: 'description', label: 'Description' },
-		{ key: 'image_url', label: 'Image' },
-		{ key: 'order', label: 'Order' },
-		{ key: 'is_active', label: 'Active' },
-		{ key: 'actions', label: 'Actions', headerClass: 'text-right' }
-	]
-
-	const toDiscount = (row: unknown) => row as Discount
-
-	const onReorder = (rows: unknown[]) => {
-		emit('reorder', rows as Discount[])
-	}
-</script>
-

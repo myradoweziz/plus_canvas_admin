@@ -1,4 +1,4 @@
-import { request } from '@/shared'
+import { getTotal, request } from '@/shared'
 import type { MainCategory, MainCategoryPayload } from '../types/category'
 
 const MAIN_CATEGORIES_URL = '/api/admin/main-categories'
@@ -13,10 +13,6 @@ export type ListMainCategoriesParams = {
 export type ListMainCategoriesResult = {
 	items: MainCategory[]
 	total: number
-}
-
-const getTotal = (response: any, fallback: number) => {
-	return response?.meta?.total ?? fallback
 }
 
 async function listMainCategories(params: ListMainCategoriesParams): Promise<ListMainCategoriesResult> {

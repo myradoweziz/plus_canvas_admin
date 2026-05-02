@@ -1,6 +1,32 @@
+<script setup lang="ts">
+	import Button from '@/shared/ui/Button.vue'
+	import DataTable from '@/shared/ui/DataTable.vue'
+
+	import { EditIcon, TrashIcon } from '@/shared/icons'
+	import { BRANDS_TABLE_COLUMNS } from '../helpers'
+	import type { Brand } from '../types/brand'
+
+	defineProps<{
+		brands: Brand[]
+		loading: boolean
+	}>()
+
+	const emit = defineEmits<{
+		(e: 'edit', brand: Brand): void
+		(e: 'delete', brand: Brand): void
+		(e: 'reorder', brands: Brand[]): void
+	}>()
+
+	const toBrand = (row: unknown) => row as Brand
+
+	const onReorder = (rows: unknown[]) => {
+		emit('reorder', rows as Brand[])
+	}
+</script>
+
 <template>
 	<DataTable
-		:columns="columns"
+		:columns="BRANDS_TABLE_COLUMNS"
 		:rows="brands"
 		:loading="loading"
 		empty-text="Пока нет брендов."
@@ -31,55 +57,27 @@
 
 		<template #cell-actions="{ row }">
 			<div class="flex items-center justify-end gap-2">
-				<button
+				<Button
 					type="button"
-					class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-green-100 hover:text-gray-900"
+					variant="ghost"
+					size="icon"
+					class-name="hover:bg-green-100"
 					aria-label="Edit"
-					@click="$emit('edit', toBrand(row))"
+					:on-click="() => $emit('edit', toBrand(row))"
 				>
 					<EditIcon />
-				</button>
-				<button
+				</Button>
+				<Button
 					type="button"
-					class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-red-700"
+					variant="ghost"
+					size="icon"
+					class-name="hover:text-red-700"
 					aria-label="Delete"
-					@click="$emit('delete', toBrand(row))"
+					:on-click="() => $emit('delete', toBrand(row))"
 				>
 					<TrashIcon />
-				</button>
+				</Button>
 			</div>
 		</template>
 	</DataTable>
 </template>
-
-<script setup lang="ts">
-	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import DataTable from '@/shared/ui/DataTable.vue'
-	import type { Brand } from '../types/brand'
-
-	defineProps<{
-		brands: Brand[]
-		loading: boolean
-	}>()
-
-	const emit = defineEmits<{
-		(e: 'edit', brand: Brand): void
-		(e: 'delete', brand: Brand): void
-		(e: 'reorder', brands: Brand[]): void
-	}>()
-
-	const columns = [
-		{ key: 'name', label: 'Name' },
-		{ key: 'slug', label: 'Slug' },
-		{ key: 'is_active', label: 'Active' },
-		{ key: 'featured_order', label: 'Featured Order' },
-		{ key: 'actions', label: 'Actions', headerClass: 'text-right' }
-	]
-
-	const toBrand = (row: unknown) => row as Brand
-
-	const onReorder = (rows: unknown[]) => {
-		emit('reorder', rows as Brand[])
-	}
-</script>
-
