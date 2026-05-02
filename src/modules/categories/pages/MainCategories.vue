@@ -7,15 +7,15 @@
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
-	import { categoriesApi } from '../api/categories'
-	import CategoriesTable from '../components/CategoriesTable.vue'
-	import CategoryCreateModal from '../components/CategoryCreateModal.vue'
-	import type { Category } from '../types/category'
+	import { categoriesApi } from '../api'
+	import MainCategoriesTable from '../components/MainCategoriesTable.vue'
+	import MainCategoryCreateModal from '../components/MainCategoryCreateModal.vue'
+	import type { MainCategory } from '../types/category'
 
 	const loading = ref(false)
-	const categories = ref<Category[]>([])
-	const showCategoryModal = ref(false)
-	const selectedCategory = ref<Category | null>(null)
+	const mainCategories = ref<MainCategory[]>([])
+	const showMainCategoryModal = ref(false)
+	const selectedMainCategory = ref<MainCategory | null>(null)
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
 	const total = ref(0)
@@ -29,13 +29,13 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await categoriesApi.listCategories({
+			const result = await categoriesApi.listMainCategories({
 				name: filters.value.name,
 				featured_order: filters.value.featured_order === '' ? undefined : Number(filters.value.featured_order),
 				limit: limit.value,
 				offset: offset.value
 			})
-			categories.value = result.items
+			mainCategories.value = result.items
 			total.value = result.total
 		} finally {
 			loading.value = false
@@ -45,44 +45,44 @@
 	onMounted(load)
 
 	const openCreate = () => {
-		selectedCategory.value = null
-		showCategoryModal.value = true
+		selectedMainCategory.value = null
+		showMainCategoryModal.value = true
 	}
 
-	const closeCategoryModal = () => {
-		showCategoryModal.value = false
-		selectedCategory.value = null
+	const closeMainCategoryModal = () => {
+		showMainCategoryModal.value = false
+		selectedMainCategory.value = null
 	}
 
-	const editCategory = (category: Category) => {
-		selectedCategory.value = category
-		showCategoryModal.value = true
+	const editMainCategory = (category: MainCategory) => {
+		selectedMainCategory.value = category
+		showMainCategoryModal.value = true
 	}
 
-	const deleteCategory = (category: Category) => {
-		selectedCategory.value = category
+	const deleteMainCategory = (category: MainCategory) => {
+		selectedMainCategory.value = category
 		showDeleteModal.value = true
 	}
 
 	const confirmDelete = async () => {
-		if (!selectedCategory.value?.id) return
+		if (!selectedMainCategory.value?.id) return
 
 		loadingDeleteModal.value = true
 		try {
-			await categoriesApi.deleteCategory(selectedCategory.value.id)
+			await categoriesApi.deleteMainCategory(selectedMainCategory.value.id)
 			showDeleteModal.value = false
-			selectedCategory.value = null
+			selectedMainCategory.value = null
 			await load()
 		} finally {
 			loadingDeleteModal.value = false
 		}
 	}
 
-	const reorderCategories = async (orderedCategories: Category[]) => {
-		categories.value = orderedCategories
-		await categoriesApi.reorderCategories({
+	const reorderMainCategories = async (orderedCategories: MainCategory[]) => {
+		mainCategories.value = orderedCategories
+		await categoriesApi.reorderMainCategories({
 			items: orderedCategories
-				.filter((category): category is Category & { id: number } => category.id !== null)
+				.filter((category): category is MainCategory & { id: number } => category.id !== null)
 				.map((category) => ({
 					id: category.id,
 					featured_order: category.featured_order
@@ -121,7 +121,7 @@
 					class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
 					@click="openCreate"
 				>
-					Добавить категорию
+					Добавить главную категорию
 				</button>
 			</template>
 		</Banner>
@@ -156,26 +156,26 @@
 			</div>
 		</form>
 
-		<CategoriesTable
-			:categories="categories"
+		<MainCategoriesTable
+			:categories="mainCategories"
 			:loading="loading"
-			@edit="editCategory"
-			@delete="deleteCategory"
-			@reorder="reorderCategories"
+			@edit="editMainCategory"
+			@delete="deleteMainCategory"
+			@reorder="reorderMainCategories"
 		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<CategoryCreateModal
-			:open="showCategoryModal"
-			:category="selectedCategory"
-			@close="closeCategoryModal"
+		<MainCategoryCreateModal
+			:open="showMainCategoryModal"
+			:category="selectedMainCategory"
+			@close="closeMainCategoryModal"
 			@saved="load"
 		/>
 
 		<DeleteModal
 			:open="showDeleteModal"
-			:title="selectedCategory?.name"
+			:title="selectedMainCategory?.name"
 			entity-name="категорию"
 			:loading="loadingDeleteModal"
 			@close="showDeleteModal = false"

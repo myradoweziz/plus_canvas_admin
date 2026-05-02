@@ -77,7 +77,10 @@
 														: 'text-gray-600 hover:bg-gray-100 hover:text-gray-700'
 												]"
 											>
-												{{ subItem.name }}
+												<span :class="[isActive(subItem.path) ? 'text-blue-700' : 'text-gray-500']">
+													<component :is="subItem.icon" />
+												</span>
+												<span class="truncate">{{ subItem.name }}</span>
 												<span class="flex items-center gap-1 ml-auto">
 													<span
 														v-if="subItem.new"
@@ -116,7 +119,15 @@
 	import { useRoute } from 'vue-router'
 
 	import { useSidebar } from '@/composables/useSidebar'
-	import { BannerIcon, BrandsIcon, CategoriesIcon, ChevronDownIcon, DiscountsIcon } from '@/shared/icons'
+	import {
+		BannerIcon,
+		BrandsIcon,
+		CategoriesIcon,
+		ChevronDownIcon,
+		DiscountsIcon,
+		FeaturedCategoriesIcon,
+		SubCategoriesIcon
+	} from '@/shared/icons'
 	import HeaderLogo from './header/HeaderLogo.vue'
 
 	const route = useRoute()
@@ -134,7 +145,24 @@
 				{
 					icon: CategoriesIcon,
 					name: 'Categories',
-					path: '/categories'
+					path: '/categories',
+					subItems: [
+						{
+							name: 'Main categories',
+							path: '/categories/main-categories',
+							icon: CategoriesIcon
+						},
+						{
+							name: 'Featured categories',
+							path: '/categories/featured-categories',
+							icon: FeaturedCategoriesIcon
+						},
+						{
+							name: 'Sub Categories',
+							path: '/categories/sub-categories',
+							icon: SubCategoriesIcon
+						}
+					]
 				},
 				{
 					icon: DiscountsIcon,
