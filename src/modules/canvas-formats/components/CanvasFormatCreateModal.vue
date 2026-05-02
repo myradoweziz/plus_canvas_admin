@@ -4,6 +4,7 @@
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
+	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { canvasSizesApi } from '@/modules/canvas-sizes/api/canvas-sizes'
@@ -21,6 +22,7 @@
 	const loadingCanvasSizes = ref(false)
 	const canvasSizes = ref<CanvasSize[]>([])
 	const canvasSizesRequestId = ref(0)
+	const selectedCanvasSizeId = ref<number | null>(null)
 	const slugManuallyEdited = ref(false)
 	const lastGeneratedSlug = ref('')
 
@@ -86,6 +88,27 @@
 	)
 
 	const selectedSizeIds = computed(() => new Set(form.value.sizes.map((size) => size.id)))
+	const canvasSizeOptions = computed(() =>
+		canvasSizes.value
+			.filter((canvasSize): canvasSize is CanvasSize & { id: number } => canvasSize.id !== null)
+			.filter((canvasSize) => !selectedSizeIds.value.has(canvasSize.id))
+			.map((canvasSize) => ({
+				label: getCanvasFormatSizeLabel(canvasSize),
+				value: canvasSize.id
+			}))
+	)
+	const selectedCanvasSizes = computed(() =>
+		form.value.sizes.map((size) => {
+			const canvasSize = canvasSizes.value.find((item) => item.id === size.id)
+
+			return {
+				...size,
+				width: canvasSize?.width ?? size.width,
+				height: canvasSize?.height ?? size.height,
+				unit: canvasSize?.unit ?? size.unit
+			}
+		})
+	)
 
 	const loadCanvasSizes = async () => {
 		const requestId = canvasSizesRequestId.value + 1
@@ -124,30 +147,26 @@
 		slugManuallyEdited.value = form.value.slug !== lastGeneratedSlug.value
 	}
 
-	const toggleSize = (canvasSize: CanvasSize) => {
-		if (!canvasSize.id) return
+	const addCanvasSize = (value: string | number | null) => {
+		selectedCanvasSizeId.value = null
+		if (value === null) return
 
-		const existingIndex = form.value.sizes.findIndex((size) => size.id === canvasSize.id)
+		const id = Number(value)
+		if (!Number.isFinite(id) || selectedSizeIds.value.has(id)) return
 
-		if (existingIndex >= 0) {
-			form.value.sizes.splice(existingIndex, 1)
-			return
-		}
+		const canvasSize = canvasSizes.value.find((size) => size.id === id)
 
 		form.value.sizes.push({
-			id: canvasSize.id,
-			sort_order: form.value.sizes.length + 1
+			id,
+			sort_order: form.value.sizes.length + 1,
+			width: canvasSize?.width,
+			height: canvasSize?.height,
+			unit: canvasSize?.unit
 		})
 	}
 
-	const updateSizeSortOrder = (size: CanvasFormatSize, value: string | number) => {
-		size.sort_order = Number(value) || 0
-	}
-
-	const getSelectedSize = (canvasSize: CanvasSize) => {
-		if (!canvasSize.id) return null
-
-		return form.value.sizes.find((size) => size.id === canvasSize.id) ?? null
+	const removeCanvasSize = (size: CanvasFormatSize) => {
+		form.value.sizes = form.value.sizes.filter((item) => item.id !== size.id)
 	}
 
 	const onSubmit = async () => {
@@ -208,38 +227,32 @@
 				<CheckboxField v-model="form.is_active" label="Active" name="is_active" class="md:col-span-2" />
 
 				<div class="md:col-span-2">
-					<label class="mb-1.5 block text-sm font-medium text-gray-700">Sizes</label>
-					<div class="rounded-xl border border-gray-200 bg-white p-3">
-						<p v-if="loadingCanvasSizes" class="text-sm text-gray-500">Загрузка...</p>
-						<p v-else-if="!canvasSizes.length" class="text-sm text-gray-500">Пока нет размеров холста.</p>
+					<SelectField
+						:model-value="selectedCanvasSizeId"
+						label="Sizes"
+						name="sizes"
+						placeholder="Select size"
+						:options="canvasSizeOptions"
+						:disabled="loadingCanvasSizes || !canvasSizes.length"
+						@update:model-value="addCanvasSize"
+					/>
 
-						<div v-else class="space-y-2">
-							<div
-								v-for="canvasSize in canvasSizes"
-								:key="canvasSize.id ?? getCanvasFormatSizeLabel(canvasSize)"
-								class="flex flex-col gap-2 rounded-lg border border-gray-100 p-3 md:flex-row md:items-center md:justify-between"
-							>
-								<label class="flex items-center gap-2">
-									<input
-										type="checkbox"
-										class="h-4 w-4"
-										:checked="canvasSize.id !== null && selectedSizeIds.has(canvasSize.id)"
-										@change="toggleSize(canvasSize)"
-									/>
-									<span class="text-sm font-medium text-gray-700">{{ getCanvasFormatSizeLabel(canvasSize) }}</span>
-								</label>
+					<p v-if="loadingCanvasSizes" class="mt-2 text-sm text-gray-500">Загрузка...</p>
+					<p v-else-if="!canvasSizes.length" class="mt-2 text-sm text-gray-500">Пока нет размеров холста.</p>
+					<p v-else-if="!canvasSizeOptions.length && !form.sizes.length" class="mt-2 text-sm text-gray-500">
+						Нет доступных размеров.
+					</p>
 
-								<TextField
-									v-if="getSelectedSize(canvasSize)"
-									:model-value="getSelectedSize(canvasSize)?.sort_order"
-									label="Sort"
-									:name="`size_${canvasSize.id}_sort_order`"
-									type="number"
-									min="0"
-									class="md:w-32"
-									@update:model-value="updateSizeSortOrder(getSelectedSize(canvasSize)!, $event)"
-								/>
-							</div>
+					<div v-if="selectedCanvasSizes.length" class="mt-3 space-y-2">
+						<div
+							v-for="canvasSize in selectedCanvasSizes"
+							:key="canvasSize.id"
+							class="flex items-center justify-between gap-3 rounded-lg border border-gray-100 p-3"
+						>
+							<span class="text-sm font-medium text-gray-700">{{ getCanvasFormatSizeLabel(canvasSize) }}</span>
+							<Button type="button" variant="ghost" size="sm" :on-click="() => removeCanvasSize(canvasSize)">
+								Удалить
+							</Button>
 						</div>
 					</div>
 				</div>

@@ -20,7 +20,7 @@ async function createBanner(data: Banner): Promise<Banner> {
 async function updateBanner(data: Banner) {
 	return await request({
 		url: `${BANNERS_URL}/${data.id}`,
-		method: 'POST',
+		method: 'PUT',
 		isFormData: true,
 		data: toBannerPayload(data)
 	})

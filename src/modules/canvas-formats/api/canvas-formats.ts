@@ -5,7 +5,6 @@ const CANVAS_FORMATS_URL = '/api/admin/canvas-formats'
 
 export type ListCanvasFormatsParams = {
 	name?: string
-	sort_order?: number
 	limit: number
 	offset: number
 }
@@ -48,7 +47,7 @@ async function createCanvasFormat(canvasFormat: CanvasFormat): Promise<CanvasFor
 async function updateCanvasFormat(canvasFormat: CanvasFormat): Promise<CanvasFormat> {
 	return await request({
 		url: `${CANVAS_FORMATS_URL}/${canvasFormat.id}`,
-		method: 'POST',
+		method: 'PUT',
 		data: toCanvasFormatPayload(canvasFormat)
 	})
 }
@@ -75,4 +74,3 @@ export const canvasFormatsApi = {
 	deleteCanvasFormat,
 	reorderCanvasFormats
 }
-

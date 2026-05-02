@@ -28,8 +28,7 @@
 	const limit = ref(10)
 	const offset = ref(0)
 	const filters = ref({
-		name: '',
-		featured_order: '',
+		search: '',
 		main_category_id: null as number | null
 	})
 
@@ -37,8 +36,7 @@
 		loading.value = true
 		try {
 			const result = await categoriesApi.listFeaturedCategories({
-				name: filters.value.name,
-				featured_order: filters.value.featured_order === '' ? undefined : Number(filters.value.featured_order),
+				name: filters.value.search,
 				main_category_id: filters.value.main_category_id ?? undefined,
 				limit: limit.value,
 				offset: offset.value
@@ -144,8 +142,7 @@
 
 	const resetFilters = async () => {
 		filters.value = {
-			name: '',
-			featured_order: '',
+			search: '',
 			main_category_id: null
 		}
 		limit.value = 10
@@ -171,7 +168,7 @@
 			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-4"
 			@submit.prevent="applyFilters"
 		>
-			<TextField v-model.trim="filters.name" label="Search by name" name="name" placeholder="Name" />
+			<TextField v-model.trim="filters.search" label="Search" name="search" placeholder="Search" />
 			<SelectField
 				v-model="filters.main_category_id"
 				label="Main Category"
@@ -181,13 +178,6 @@
 				:disabled="loadingMainCategories"
 				remote-search
 				@search="searchMainCategories"
-			/>
-			<TextField
-				v-model.number="filters.featured_order"
-				label="Featured Order"
-				name="featured_order"
-				type="number"
-				min="0"
 			/>
 
 			<div class="flex items-end gap-2">

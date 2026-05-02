@@ -42,6 +42,10 @@
 			<span class="text-gray-700">{{ toMainCategory(row).slug }}</span>
 		</template>
 
+		<template #cell-category_type="{ row }">
+			<span class="text-gray-700">{{ toMainCategory(row).category_type }}</span>
+		</template>
+
 		<template #cell-is_active="{ row }">
 			<span
 				class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"

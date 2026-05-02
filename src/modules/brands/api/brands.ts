@@ -5,7 +5,6 @@ const BRANDS_URL = '/api/admin/brands'
 
 export type ListBrandsParams = {
 	name?: string
-	featured_order?: number
 	limit: number
 	offset: number
 }
@@ -44,7 +43,7 @@ async function createBrand(brand: Brand): Promise<Brand> {
 async function updateBrand(brand: Brand): Promise<Brand> {
 	return await request({
 		url: `${BRANDS_URL}/${brand.id}`,
-		method: 'POST',
+		method: 'PUT',
 		data: toBrandPayload(brand)
 	})
 }

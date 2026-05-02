@@ -21,6 +21,10 @@
 	const mainCategoriesRequestId = ref(0)
 	const slugManuallyEdited = ref(false)
 	const lastGeneratedSlug = ref('')
+	const categoryTypeOptions = [
+		{ label: 'Öne Çıkan Kategorile', value: 'Öne Çıkan Kategorile' },
+		{ label: 'En Çok Aranan Kategoriler', value: 'En Çok Aranan Kategoriler' }
+	]
 
 	const form = ref<FeaturedCategory>({
 		id: null,
@@ -28,7 +32,8 @@
 		name: '',
 		slug: '',
 		is_active: false,
-		featured_order: 0
+		featured_order: 0,
+		category_type: 'Öne Çıkan Kategorile'
 	})
 
 	const resetForm = () => {
@@ -38,7 +43,8 @@
 			name: '',
 			slug: '',
 			is_active: false,
-			featured_order: 0
+			featured_order: 0,
+			category_type: 'Öne Çıkan Kategorile'
 		}
 	}
 
@@ -58,7 +64,8 @@
 				name: category.name,
 				slug: category.slug,
 				is_active: category.is_active,
-				featured_order: category.featured_order
+				featured_order: category.featured_order,
+				category_type: category.category_type
 			}
 			lastGeneratedSlug.value = slugify(category.name)
 			slugManuallyEdited.value = Boolean(category.slug && category.slug !== lastGeneratedSlug.value)
@@ -207,11 +214,26 @@
 					/>
 				</div>
 
+				<div class="md:col-span-1">
+					<SelectField
+						v-model="form.category_type"
+						label="Category Type *"
+						name="category_type"
+						placeholder="Select category type"
+						:options="categoryTypeOptions"
+					/>
+				</div>
+
 				<CheckboxField v-model="form.is_active" label="Active" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || !form.name || !form.main_category_id" :loading="saving">
+					<Button
+						type="submit"
+						size="sm"
+						:disabled="saving || !form.name || !form.main_category_id || !form.category_type"
+						:loading="saving"
+					>
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

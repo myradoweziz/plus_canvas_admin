@@ -5,7 +5,6 @@ const MAIN_CATEGORIES_URL = '/api/admin/main-categories'
 
 export type ListMainCategoriesParams = {
 	name?: string
-	featured_order?: number
 	limit: number
 	offset: number
 }
@@ -33,7 +32,8 @@ function toMainCategoryPayload(category: MainCategory): MainCategoryPayload {
 		name: category.name,
 		slug: category.slug,
 		is_active: category.is_active,
-		featured_order: category.featured_order
+		featured_order: category.featured_order,
+		category_type: category.category_type
 	}
 }
 
@@ -44,7 +44,7 @@ async function createMainCategory(category: MainCategory): Promise<MainCategory>
 async function updateMainCategory(category: MainCategory): Promise<MainCategory> {
 	return await request({
 		url: `${MAIN_CATEGORIES_URL}/${category.id}`,
-		method: 'POST',
+		method: 'PUT',
 		data: toMainCategoryPayload(category)
 	})
 }

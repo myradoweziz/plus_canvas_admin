@@ -40,7 +40,7 @@ async function createCanvasSize(canvasSize: CanvasSize): Promise<CanvasSize> {
 async function updateCanvasSize(canvasSize: CanvasSize): Promise<CanvasSize> {
 	return await request({
 		url: `${CANVAS_SIZES_URL}/${canvasSize.id}`,
-		method: 'POST',
+		method: 'PUT',
 		data: toCanvasSizePayload(canvasSize)
 	})
 }

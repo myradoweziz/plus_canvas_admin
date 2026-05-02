@@ -5,7 +5,6 @@ const DISCOUNTS_URL = '/api/admin/discounts'
 
 export type ListDiscountsParams = {
 	title?: string
-	order?: number
 	limit: number
 	offset: number
 }
@@ -40,7 +39,7 @@ async function createDiscount(data: Discount): Promise<Discount> {
 async function updateDiscount(data: Discount): Promise<Discount> {
 	return await request({
 		url: `${DISCOUNTS_URL}/${data.id}`,
-		method: 'POST',
+		method: 'PUT',
 		isFormData: true,
 		data: toDiscountPayload(data)
 	})

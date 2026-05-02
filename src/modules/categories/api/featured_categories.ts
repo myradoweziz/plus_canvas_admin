@@ -5,7 +5,6 @@ const FEATURED_CATEGORIES_URL = '/api/admin/categories'
 
 export type ListFeaturedCategoriesParams = {
 	name?: string
-	featured_order?: number
 	main_category_id?: number
 	limit: number
 	offset: number
@@ -35,7 +34,8 @@ function toFeaturedCategoryPayload(category: FeaturedCategory): FeaturedCategory
 		name: category.name,
 		slug: category.slug,
 		is_active: category.is_active,
-		featured_order: category.featured_order
+		featured_order: category.featured_order,
+		category_type: category.category_type
 	}
 }
 
@@ -46,7 +46,7 @@ async function createFeaturedCategory(category: FeaturedCategory): Promise<Featu
 async function updateFeaturedCategory(category: FeaturedCategory): Promise<FeaturedCategory> {
 	return await request({
 		url: `${FEATURED_CATEGORIES_URL}/${category.id}`,
-		method: 'POST',
+		method: 'PUT',
 		data: toFeaturedCategoryPayload(category)
 	})
 }

@@ -42,7 +42,7 @@ async function createColor(color: Color): Promise<Color> {
 async function updateColor(color: Color): Promise<Color> {
 	return await request({
 		url: `${COLORS_URL}/${color.id}`,
-		method: 'POST',
+		method: 'PUT',
 		data: toColorPayload(color)
 	})
 }

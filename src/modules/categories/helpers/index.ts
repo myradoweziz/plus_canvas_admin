@@ -2,6 +2,7 @@ export const FEATURED_CATEGORIES_TABLE_COLUMNS = [
 	{ key: 'name', label: 'Name' },
 	{ key: 'main_category', label: 'Main Category' },
 	{ key: 'slug', label: 'Slug' },
+	{ key: 'category_type', label: 'Category Type' },
 	{ key: 'is_active', label: 'Active' },
 	{ key: 'featured_order', label: 'Featured Order' },
 	{ key: 'actions', label: 'Actions', headerClass: 'text-right' }
@@ -10,6 +11,7 @@ export const FEATURED_CATEGORIES_TABLE_COLUMNS = [
 export const MAIN_CATEGORIES_TABLE_COLUMNS = [
 	{ key: 'name', label: 'Name' },
 	{ key: 'slug', label: 'Slug' },
+	{ key: 'category_type', label: 'Category Type' },
 	{ key: 'is_active', label: 'Active' },
 	{ key: 'featured_order', label: 'Featured Order' },
 	{ key: 'actions', label: 'Actions', headerClass: 'text-right' }

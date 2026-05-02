@@ -5,7 +5,6 @@ const SUB_CATEGORIES_URL = '/api/admin/sub-categories'
 
 export type ListSubCategoriesParams = {
 	name?: string
-	featured_order?: number
 	category_id?: number
 	limit: number
 	offset: number
@@ -46,7 +45,7 @@ async function createSubCategory(category: SubCategory): Promise<SubCategory> {
 async function updateSubCategory(category: SubCategory): Promise<SubCategory> {
 	return await request({
 		url: `${SUB_CATEGORIES_URL}/${category.id}`,
-		method: 'POST',
+		method: 'PUT',
 		data: toSubCategoryPayload(category)
 	})
 }

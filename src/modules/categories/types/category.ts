@@ -1,9 +1,13 @@
+type CategoryType = 'Kişiye Özel Kanvas ' | 'Tablo  Kanvas Tablo Galerisi'
+type FeaturedCategoryType = 'Öne Çıkan Kategorile' | 'En Çok Aranan Kategoriler'
+
 export type MainCategory = {
 	id: number | null
 	name: string
 	slug: string
 	is_active: boolean
 	featured_order: number
+	category_type: CategoryType
 }
 
 export type MainCategoryPayload = Omit<MainCategory, 'id'>
@@ -16,6 +20,7 @@ export type FeaturedCategory = {
 	slug: string
 	is_active: boolean
 	featured_order: number
+	category_type: FeaturedCategoryType
 }
 
 export type FeaturedCategoryPayload = Omit<FeaturedCategory, 'id'>
