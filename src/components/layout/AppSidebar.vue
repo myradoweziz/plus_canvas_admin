@@ -115,7 +115,7 @@
 </template>
 
 <script setup>
-	import { computed } from 'vue'
+	import { computed, watch } from 'vue'
 	import { useRoute } from 'vue-router'
 
 	import { useSidebar } from '@/composables/useSidebar'
@@ -144,7 +144,7 @@
 				{
 					icon: HomeIcon,
 					name: 'Dashboard',
-					path: '/home'
+					path: '/'
 				},
 				{
 					icon: BannerIcon,
@@ -204,24 +204,34 @@
 
 	const isActive = (path) => route.path === path
 
+	const activeSubmenuKey = computed(() => {
+		for (const [groupIndex, group] of menuGroups.entries()) {
+			const itemIndex = group.items.findIndex((item) => item.subItems?.some((subItem) => isActive(subItem.path)))
+
+			if (itemIndex >= 0) {
+				return `${groupIndex}-${itemIndex}`
+			}
+		}
+
+		return null
+	})
+
+	watch(
+		() => route.path,
+		() => {
+			openSubmenu.value = activeSubmenuKey.value
+		},
+		{ immediate: true }
+	)
+
 	const toggleSubmenu = (groupIndex, itemIndex) => {
 		const key = `${groupIndex}-${itemIndex}`
 		openSubmenu.value = openSubmenu.value === key ? null : key
 	}
 
-	const isAnySubmenuRouteActive = computed(() => {
-		return menuGroups.some((group) =>
-			group.items.some((item) => item.subItems && item.subItems.some((subItem) => isActive(subItem.path)))
-		)
-	})
-
 	const isSubmenuOpen = (groupIndex, itemIndex) => {
 		const key = `${groupIndex}-${itemIndex}`
-		return (
-			openSubmenu.value === key ||
-			(isAnySubmenuRouteActive.value &&
-				menuGroups[groupIndex].items[itemIndex].subItems?.some((subItem) => isActive(subItem.path)))
-		)
+		return openSubmenu.value === key || activeSubmenuKey.value === key
 	}
 
 	const startTransition = (el) => {

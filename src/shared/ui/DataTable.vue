@@ -1,54 +1,3 @@
-<template>
-	<section class="rounded-2xl border border-gray-200 bg-white">
-		<div class="overflow-x-auto">
-			<table class="min-w-full text-left text-sm">
-				<thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
-					<tr>
-						<th v-if="draggable" class="w-12 px-4 py-3"></th>
-						<th
-							v-for="column in columns"
-							:key="column.key"
-							class="px-4 py-3"
-							:class="column.headerClass"
-						>
-							{{ column.label }}
-						</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-200">
-					<tr v-if="loading">
-						<td class="px-4 py-4 text-gray-600" :colspan="colSpan">{{ loadingText }}</td>
-					</tr>
-					<tr v-else-if="!rows.length">
-						<td class="px-4 py-4 text-gray-600" :colspan="colSpan">{{ emptyText }}</td>
-					</tr>
-					<tr
-						v-else
-						v-for="(row, index) in rows"
-						:key="getRowKey(row, index)"
-						:draggable="draggable"
-						class="hover:bg-gray-50"
-						:class="[rowClass, { 'cursor-grab': draggable, 'opacity-50': dragIndex === index }]"
-						@dragstart="onDragStart(index)"
-						@dragover.prevent
-						@drop="onDrop(index)"
-						@dragend="onDragEnd"
-					>
-						<td v-if="draggable" class="px-4 py-3 text-gray-400">
-							<span class="select-none text-lg leading-none" title="Drag to reorder">⋮⋮</span>
-						</td>
-						<td v-for="column in columns" :key="column.key" class="px-4 py-3" :class="column.cellClass">
-							<slot :name="`cell-${column.key}`" :row="row" :value="getCellValue(row, column.key)" :index="index">
-								{{ getCellValue(row, column.key) }}
-							</slot>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</section>
-</template>
-
 <script setup lang="ts">
 	import { computed, ref } from 'vue'
 
@@ -130,3 +79,48 @@
 	}
 </script>
 
+<template>
+	<section class="rounded-2xl border border-gray-200 bg-white">
+		<div class="overflow-x-auto">
+			<table class="min-w-full text-left text-sm">
+				<thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+					<tr>
+						<th v-if="draggable" class="w-12 px-4 py-3"></th>
+						<th v-for="column in columns" :key="column.key" class="px-4 py-3" :class="column.headerClass">
+							{{ column.label }}
+						</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-gray-200">
+					<tr v-if="loading">
+						<td class="px-4 py-4 text-gray-600" :colspan="colSpan">{{ loadingText }}</td>
+					</tr>
+					<tr v-else-if="!rows.length">
+						<td class="px-4 py-4 text-gray-600" :colspan="colSpan">{{ emptyText }}</td>
+					</tr>
+					<tr
+						v-else
+						v-for="(row, index) in rows"
+						:key="getRowKey(row, index)"
+						:draggable="draggable"
+						class="hover:bg-gray-50"
+						:class="[rowClass, { 'cursor-grab': draggable, 'opacity-50': dragIndex === index }]"
+						@dragstart="onDragStart(index)"
+						@dragover.prevent
+						@drop="onDrop(index)"
+						@dragend="onDragEnd"
+					>
+						<td v-if="draggable" class="px-4 py-3 text-gray-400">
+							<span class="select-none text-lg leading-none" title="Drag to reorder">⋮⋮</span>
+						</td>
+						<td v-for="column in columns" :key="column.key" class="px-4 py-3" :class="column.cellClass">
+							<slot :name="`cell-${column.key}`" :row="row" :value="getCellValue(row, column.key)" :index="index">
+								{{ getCellValue(row, column.key) }}
+							</slot>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+</template>
