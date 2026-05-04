@@ -7,7 +7,7 @@ import { useCookies } from 'vue3-cookies'
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
-		redirect: '/home'
+		redirect: '/'
 	}
 ]
 
