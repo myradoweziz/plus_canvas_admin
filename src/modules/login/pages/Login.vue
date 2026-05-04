@@ -57,7 +57,7 @@
 
 			cookies.set('plus_canvas_admin_authorization', token)
 			toast.success('Giriş başarılı')
-			router.push('/')
+			router.push('/home')
 		} catch (error) {
 			console.error(error)
 			toast.error('Giriş başarısız')

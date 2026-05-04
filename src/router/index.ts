@@ -4,7 +4,12 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 import { useCookies } from 'vue3-cookies'
 
-const routes: Array<RouteRecordRaw> = []
+const routes: Array<RouteRecordRaw> = [
+	{
+		path: '/',
+		redirect: '/home'
+	}
+]
 
 const router = createRouter({
 	history: createWebHistory(),
