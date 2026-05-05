@@ -130,7 +130,9 @@
 		DiscountsIcon,
 		FeaturedCategoriesIcon,
 		HomeIcon,
-		SubCategoriesIcon
+		ProductsIcon,
+		SubCategoriesIcon,
+		ChatIcon
 	} from '@/shared/icons'
 	import HeaderLogo from './header/HeaderLogo.vue'
 
@@ -150,6 +152,11 @@
 					icon: BannerIcon,
 					name: 'Banners',
 					path: '/banners'
+				},
+				{
+					icon: ProductsIcon,
+					name: 'Products',
+					path: '/products'
 				},
 				{
 					icon: CategoriesIcon,
@@ -197,6 +204,11 @@
 					icon: CanvasFormatsIcon,
 					name: 'Canvas Formats',
 					path: '/canvas-formats'
+				},
+				{
+					icon: ChatIcon,
+					name: 'FAQs',
+					path: '/faqs'
 				}
 			]
 		}

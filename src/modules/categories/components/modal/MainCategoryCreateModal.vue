@@ -1,12 +1,15 @@
 <script setup lang="ts">
-	import { ref, watch } from 'vue'
+	import { computed, ref, watch } from 'vue'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
+	import MultiImageUpload from '@/shared/ui/MultiImageUpload.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
+	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
+	import { mediaApi } from '@/shared/api/media'
 	import { slugify } from '@/shared'
 	import { categoriesApi } from '../../api'
 	import type { MainCategory } from '../../types/category'
@@ -27,6 +30,8 @@
 		id: null,
 		name: '',
 		slug: '',
+		description: '',
+		images: [],
 		is_active: false,
 		featured_order: 0,
 		category_type: 'Kişiye Özel Kanvas '
@@ -37,11 +42,20 @@
 			id: null,
 			name: '',
 			slug: '',
+			description: '',
+			images: [],
 			is_active: false,
 			featured_order: 0,
 			category_type: 'Kişiye Özel Kanvas '
 		}
 	}
+
+	const imagesModel = computed<Array<string | File>>({
+		get: () => form.value.images || [],
+		set: (value) => {
+			form.value.images = value.filter((item): item is string => typeof item === 'string')
+		}
+	})
 
 	watch(
 		() => props.category,
@@ -57,6 +71,8 @@
 				id: category.id,
 				name: category.name,
 				slug: category.slug,
+				description: category.description ?? '',
+				images: Array.isArray(category.images) ? category.images : [],
 				is_active: category.is_active,
 				featured_order: category.featured_order,
 				category_type: category.category_type
@@ -154,6 +170,24 @@
 						name="category_type"
 						placeholder="Select category type"
 						:options="categoryTypeOptions"
+					/>
+				</div>
+
+				<div class="md:col-span-2">
+					<TextareaField
+						v-model.trim="form.description"
+						label="Description"
+						name="description"
+						placeholder="Description"
+					/>
+				</div>
+
+				<div class="md:col-span-2">
+					<MultiImageUpload
+						v-model="imagesModel"
+						label="Images"
+						description="Загрузите одну или несколько картинок для категории."
+						:uploader="(files, onProgress) => mediaApi.uploadImages(files, onProgress)"
 					/>
 				</div>
 

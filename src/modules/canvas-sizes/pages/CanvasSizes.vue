@@ -1,5 +1,6 @@
 <script setup lang="ts">
 	import { onMounted, ref } from 'vue'
+	import { toast } from 'vue3-toastify'
 
 	import { CanvasSizesIcon } from '@/shared/icons'
 	import Banner from '@/shared/ui/Banner.vue'
@@ -73,16 +74,23 @@
 	}
 
 	const reorderCanvasSizes = async (orderedCanvasSizes: CanvasSize[]) => {
-		canvasSizes.value = orderedCanvasSizes
-		await canvasSizesApi.reorderCanvasSizes({
-			items: orderedCanvasSizes
-				.filter((canvasSize): canvasSize is CanvasSize & { id: number } => canvasSize.id !== null)
-				.map((canvasSize) => ({
-					id: canvasSize.id,
-					sort_order: canvasSize.sort_order
-				}))
-		})
-		await load()
+		toast.info('Порядок изменён. Сохраняю...')
+		try {
+			canvasSizes.value = orderedCanvasSizes
+			await canvasSizesApi.reorderCanvasSizes({
+				items: orderedCanvasSizes
+					.filter((canvasSize): canvasSize is CanvasSize & { id: number } => canvasSize.id !== null)
+					.map((canvasSize) => ({
+						id: canvasSize.id,
+						sort_order: canvasSize.sort_order
+					}))
+			})
+			await load()
+			toast.success('Порядок сохранён')
+		} catch (e) {
+			toast.error('Не удалось сохранить порядок')
+			await load()
+		}
 	}
 
 	const changeOffset = async (value: number) => {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 	import { onMounted, ref } from 'vue'
+	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -62,16 +63,23 @@
 	}
 
 	const reorderBanners = async (orderedBanners: BannerT[]) => {
-		banners.value = orderedBanners
-		await bannersApi.reorderBanners({
-			orders: orderedBanners
-				.filter((banner): banner is BannerT & { id: number } => banner.id !== null)
-				.map((banner) => ({
-					id: banner.id,
-					order: banner.order
-				}))
-		})
-		await load()
+		toast.info('Порядок изменён. Сохраняю...')
+		try {
+			banners.value = orderedBanners
+			await bannersApi.reorderBanners({
+				orders: orderedBanners
+					.filter((banner): banner is BannerT & { id: number } => banner.id !== null)
+					.map((banner) => ({
+						id: banner.id,
+						order: banner.order
+					}))
+			})
+			await load()
+			toast.success('Порядок сохранён')
+		} catch (e) {
+			toast.error('Не удалось сохранить порядок')
+			await load()
+		}
 	}
 </script>
 

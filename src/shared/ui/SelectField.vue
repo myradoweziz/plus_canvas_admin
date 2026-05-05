@@ -6,6 +6,7 @@
 	type SelectOption = {
 		label: string
 		value: string | number | null
+		color?: string
 		disabled?: boolean
 	}
 
@@ -124,7 +125,14 @@
 					hasValue && !disabled ? 'pr-20' : 'pr-11'
 				]"
 			>
-				<span class="block truncate">{{ selectedOption?.label ?? placeholder }}</span>
+				<span class="flex min-w-0 items-center gap-2">
+					<span
+						v-if="selectedOption?.color"
+						class="h-4 w-4 shrink-0 rounded-full border border-gray-200"
+						:style="{ backgroundColor: selectedOption.color }"
+					></span>
+					<span class="block truncate">{{ selectedOption?.label ?? placeholder }}</span>
+				</span>
 			</button>
 
 			<button
@@ -183,7 +191,14 @@
 							option.disabled ? 'cursor-not-allowed opacity-50' : ''
 						]"
 					>
-						<span class="truncate">{{ option.label }}</span>
+						<span class="flex min-w-0 items-center gap-2">
+							<span
+								v-if="option.color"
+								class="h-4 w-4 shrink-0 rounded-full border border-gray-200"
+								:style="{ backgroundColor: option.color }"
+							></span>
+							<span class="truncate">{{ option.label }}</span>
+						</span>
 						<CheckIcon v-if="String(option.value) === String(modelValue)" />
 					</button>
 

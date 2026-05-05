@@ -1,5 +1,6 @@
 <script setup lang="ts">
 	import { onMounted, ref } from 'vue'
+	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -78,16 +79,23 @@
 	}
 
 	const reorderMainCategories = async (orderedCategories: MainCategory[]) => {
-		mainCategories.value = orderedCategories
-		await categoriesApi.reorderMainCategories({
-			items: orderedCategories
-				.filter((category): category is MainCategory & { id: number } => category.id !== null)
-				.map((category) => ({
-					id: category.id,
-					featured_order: category.featured_order
-				}))
-		})
-		await load()
+		toast.info('Порядок изменён. Сохраняю...')
+		try {
+			mainCategories.value = orderedCategories
+			await categoriesApi.reorderMainCategories({
+				items: orderedCategories
+					.filter((category): category is MainCategory & { id: number } => category.id !== null)
+					.map((category) => ({
+						id: category.id,
+						featured_order: category.featured_order
+					}))
+			})
+			await load()
+			toast.success('Порядок сохранён')
+		} catch (e) {
+			toast.error('Не удалось сохранить порядок')
+			await load()
+		}
 	}
 
 	const applyFilters = async () => {

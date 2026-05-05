@@ -1,5 +1,6 @@
 <script setup lang="ts">
 	import { onMounted, ref } from 'vue'
+	import { toast } from 'vue3-toastify'
 
 	import { CanvasFormatsIcon } from '@/shared/icons'
 	import Banner from '@/shared/ui/Banner.vue'
@@ -78,16 +79,23 @@
 	}
 
 	const reorderCanvasFormats = async (orderedCanvasFormats: CanvasFormat[]) => {
-		canvasFormats.value = orderedCanvasFormats
-		await canvasFormatsApi.reorderCanvasFormats({
-			items: orderedCanvasFormats
-				.filter((canvasFormat): canvasFormat is CanvasFormat & { id: number } => canvasFormat.id !== null)
-				.map((canvasFormat) => ({
-					id: canvasFormat.id,
-					sort_order: canvasFormat.sort_order
-				}))
-		})
-		await load()
+		toast.info('Порядок изменён. Сохраняю...')
+		try {
+			canvasFormats.value = orderedCanvasFormats
+			await canvasFormatsApi.reorderCanvasFormats({
+				items: orderedCanvasFormats
+					.filter((canvasFormat): canvasFormat is CanvasFormat & { id: number } => canvasFormat.id !== null)
+					.map((canvasFormat) => ({
+						id: canvasFormat.id,
+						sort_order: canvasFormat.sort_order
+					}))
+			})
+			await load()
+			toast.success('Порядок сохранён')
+		} catch (e) {
+			toast.error('Не удалось сохранить порядок')
+			await load()
+		}
 	}
 
 	const applyFilters = async () => {

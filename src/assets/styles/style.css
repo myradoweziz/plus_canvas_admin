@@ -1,1 +1,6 @@
 @import 'tailwindcss';
+
+/* vue3-toastify: ensure above modals (z-100000) */
+.Toastify__toast-container {
+	z-index: 200000 !important;
+}

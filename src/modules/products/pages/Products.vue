@@ -1,23 +1,21 @@
 <script setup lang="ts">
 	import { onMounted, ref } from 'vue'
-	import { toast } from 'vue3-toastify'
+	import { useRouter } from 'vue-router'
 
+	import { BoxCubeIcon } from '@/shared/icons'
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	import BrandCreateModal from '../components/BrandCreateModal.vue'
-	import BrandsTable from '../components/BrandsTable.vue'
+	import { canvasProductsApi } from '../api/products'
+	import ProductsTable from '../components/ProductsTable.vue'
+	import type { CanvasProduct } from '../types/product'
 
-	import { BrandsIcon } from '@/shared/icons'
-	import { brandsApi } from '../api/brands'
-	import type { Brand } from '../types/brand'
-
+	const router = useRouter()
 	const loading = ref(false)
-	const brands = ref<Brand[]>([])
-	const showBrandModal = ref(false)
-	const selectedBrand = ref<Brand | null>(null)
+	const products = ref<CanvasProduct[]>([])
+	const selectedProduct = ref<CanvasProduct | null>(null)
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
 	const total = ref(0)
@@ -30,12 +28,12 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await brandsApi.listBrands({
+			const result = await canvasProductsApi.listCanvasProducts({
 				name: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
 			})
-			brands.value = result.items
+			products.value = result.items
 			total.value = result.total
 		} finally {
 			loading.value = false
@@ -45,56 +43,30 @@
 	onMounted(load)
 
 	const openCreate = () => {
-		selectedBrand.value = null
-		showBrandModal.value = true
+		router.push('/products/create')
 	}
 
-	const closeBrandModal = () => {
-		showBrandModal.value = false
-		selectedBrand.value = null
+	const editProduct = (product: CanvasProduct) => {
+		if (!product.id) return
+		router.push(`/products/${product.id}/edit`)
 	}
 
-	const editBrand = (brand: Brand) => {
-		selectedBrand.value = brand
-		showBrandModal.value = true
-	}
-
-	const deleteBrand = (brand: Brand) => {
-		selectedBrand.value = brand
+	const deleteProduct = (product: CanvasProduct) => {
+		selectedProduct.value = product
 		showDeleteModal.value = true
 	}
 
 	const confirmDelete = async () => {
-		if (!selectedBrand.value?.id) return
+		if (!selectedProduct.value?.id) return
 
 		loadingDeleteModal.value = true
 		try {
-			await brandsApi.deleteBrand(selectedBrand.value.id)
+			await canvasProductsApi.deleteCanvasProduct(selectedProduct.value.id)
 			showDeleteModal.value = false
-			selectedBrand.value = null
+			selectedProduct.value = null
 			await load()
 		} finally {
 			loadingDeleteModal.value = false
-		}
-	}
-
-	const reorderBrands = async (orderedBrands: Brand[]) => {
-		toast.info('Порядок изменён. Сохраняю...')
-		try {
-			brands.value = orderedBrands
-			await brandsApi.reorderBrands({
-				items: orderedBrands
-					.filter((brand): brand is Brand & { id: number } => brand.id !== null)
-					.map((brand) => ({
-						id: brand.id,
-						featured_order: brand.featured_order
-					}))
-			})
-			await load()
-			toast.success('Порядок сохранён')
-		} catch (e) {
-			toast.error('Не удалось сохранить порядок')
-			await load()
 		}
 	}
 
@@ -120,9 +92,9 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Бренды" subtitle="Список брендов и управление ими." :icon="BrandsIcon">
+		<Banner title="Продукты" subtitle="Список canvas products и управление ими." :icon="BoxCubeIcon">
 			<template #actions>
-				<Button type="button" size="sm" :on-click="openCreate">Добавить бренд</Button>
+				<Button type="button" size="sm" :on-click="openCreate">Добавить продукт</Button>
 			</template>
 		</Banner>
 
@@ -138,16 +110,14 @@
 			</div>
 		</form>
 
-		<BrandsTable :brands="brands" :loading="loading" @edit="editBrand" @delete="deleteBrand" @reorder="reorderBrands" />
+		<ProductsTable :products="products" :loading="loading" @edit="editProduct" @delete="deleteProduct" />
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<BrandCreateModal :open="showBrandModal" :brand="selectedBrand" @close="closeBrandModal" @saved="load" />
-
 		<DeleteModal
 			:open="showDeleteModal"
-			:title="selectedBrand?.name"
-			entity-name="бренд"
+			:title="selectedProduct?.name"
+			entity-name="продукт"
 			:loading="loadingDeleteModal"
 			@close="showDeleteModal = false"
 			@confirm="confirmDelete"

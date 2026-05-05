@@ -17,7 +17,7 @@ app.use(pinia)
 app.use(Vue3Toastify, {
 	autoClose: 3000,
 	position: 'top-right',
-	style: { zIndex: 9999 }
+	style: { zIndex: 200000 }
 })
 
 app.mount('#app')

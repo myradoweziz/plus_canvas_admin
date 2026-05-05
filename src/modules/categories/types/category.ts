@@ -5,6 +5,8 @@ export type MainCategory = {
 	id: number | null
 	name: string
 	slug: string
+	description: string
+	images: string[]
 	is_active: boolean
 	featured_order: number
 	category_type: CategoryType
@@ -18,6 +20,7 @@ export type FeaturedCategory = {
 	main_category?: MainCategory | null
 	name: string
 	slug: string
+	description: string
 	is_active: boolean
 	featured_order: number
 	category_type: FeaturedCategoryType

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 	import { onMounted, ref } from 'vue'
+	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -78,16 +79,23 @@
 	}
 
 	const reorderDiscounts = async (orderedDiscounts: Discount[]) => {
-		discounts.value = orderedDiscounts
-		await discountsApi.reorderDiscounts({
-			items: orderedDiscounts
-				.filter((discount): discount is Discount & { id: number } => discount.id !== null)
-				.map((discount) => ({
-					id: discount.id,
-					order: discount.order
-				}))
-		})
-		await load()
+		toast.info('Порядок изменён. Сохраняю...')
+		try {
+			discounts.value = orderedDiscounts
+			await discountsApi.reorderDiscounts({
+				items: orderedDiscounts
+					.filter((discount): discount is Discount & { id: number } => discount.id !== null)
+					.map((discount) => ({
+						id: discount.id,
+						order: discount.order
+					}))
+			})
+			await load()
+			toast.success('Порядок сохранён')
+		} catch (e) {
+			toast.error('Не удалось сохранить порядок')
+			await load()
+		}
 	}
 
 	const applyFilters = async () => {

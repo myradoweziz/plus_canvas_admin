@@ -7,8 +7,10 @@ import canvasSizes from '@/modules/canvas-sizes'
 import categories from '@/modules/categories'
 import colors from '@/modules/colors'
 import discounts from '@/modules/discounts'
+import faqs from '@/modules/faqs'
 import home from '@/modules/home'
 import login from '@/modules/login'
+import products from '@/modules/products'
 
 registerModules({
 	home: home,
@@ -19,5 +21,7 @@ registerModules({
 	colors: colors,
 	canvasSizes: canvasSizes,
 	canvasFormats: canvasFormats,
-	banners: banners
+	banners: banners,
+	products: products,
+	faqs: faqs
 })

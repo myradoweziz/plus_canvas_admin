@@ -5,6 +5,7 @@
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
+	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { debounce, slugify } from '@/shared'
@@ -31,6 +32,7 @@
 		main_category_id: null,
 		name: '',
 		slug: '',
+		description: '',
 		is_active: false,
 		featured_order: 0,
 		category_type: 'Öne Çıkan Kategorile'
@@ -42,6 +44,7 @@
 			main_category_id: null,
 			name: '',
 			slug: '',
+			description: '',
 			is_active: false,
 			featured_order: 0,
 			category_type: 'Öne Çıkan Kategorile'
@@ -63,6 +66,7 @@
 				main_category_id: category.main_category_id,
 				name: category.name,
 				slug: category.slug,
+				description: category.description ?? '',
 				is_active: category.is_active,
 				featured_order: category.featured_order,
 				category_type: category.category_type
@@ -221,6 +225,15 @@
 						name="category_type"
 						placeholder="Select category type"
 						:options="categoryTypeOptions"
+					/>
+				</div>
+
+				<div class="md:col-span-2">
+					<TextareaField
+						v-model.trim="form.description"
+						label="Description"
+						name="description"
+						placeholder="Description"
 					/>
 				</div>
 

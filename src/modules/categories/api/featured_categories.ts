@@ -33,6 +33,7 @@ function toFeaturedCategoryPayload(category: FeaturedCategory): FeaturedCategory
 		main_category_id: category.main_category_id,
 		name: category.name,
 		slug: category.slug,
+		description: category.description,
 		is_active: category.is_active,
 		featured_order: category.featured_order,
 		category_type: category.category_type
@@ -40,14 +41,20 @@ function toFeaturedCategoryPayload(category: FeaturedCategory): FeaturedCategory
 }
 
 async function createFeaturedCategory(category: FeaturedCategory): Promise<FeaturedCategory> {
-	return await request({ url: FEATURED_CATEGORIES_URL, method: 'POST', data: toFeaturedCategoryPayload(category) })
+	return await request({
+		url: FEATURED_CATEGORIES_URL,
+		method: 'POST',
+		data: toFeaturedCategoryPayload(category),
+		isFormData: true
+	})
 }
 
 async function updateFeaturedCategory(category: FeaturedCategory): Promise<FeaturedCategory> {
 	return await request({
 		url: `${FEATURED_CATEGORIES_URL}/${category.id}`,
 		method: 'PUT',
-		data: toFeaturedCategoryPayload(category)
+		data: toFeaturedCategoryPayload(category),
+		isFormData: true
 	})
 }
 

@@ -7,19 +7,20 @@
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	import BrandCreateModal from '../components/BrandCreateModal.vue'
-	import BrandsTable from '../components/BrandsTable.vue'
 
-	import { BrandsIcon } from '@/shared/icons'
-	import { brandsApi } from '../api/brands'
-	import type { Brand } from '../types/brand'
+	import { ChatIcon } from '@/shared/icons'
+	import { faqsApi } from '../api/faqs'
+	import FaqCreateModal from '../components/FaqCreateModal.vue'
+	import FaqsTable from '../components/FaqsTable.vue'
+	import type { Faq } from '../types/faq'
 
 	const loading = ref(false)
-	const brands = ref<Brand[]>([])
-	const showBrandModal = ref(false)
-	const selectedBrand = ref<Brand | null>(null)
+	const faqs = ref<Faq[]>([])
+	const showFaqModal = ref(false)
+	const selectedFaq = ref<Faq | null>(null)
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
+	const loadingReorder = ref(false)
 	const total = ref(0)
 	const limit = ref(10)
 	const offset = ref(0)
@@ -30,12 +31,12 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await brandsApi.listBrands({
-				name: filters.value.search,
+			const result = await faqsApi.listFaqs({
+				question: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
 			})
-			brands.value = result.items
+			faqs.value = result.items
 			total.value = result.total
 		} finally {
 			loading.value = false
@@ -45,56 +46,36 @@
 	onMounted(load)
 
 	const openCreate = () => {
-		selectedBrand.value = null
-		showBrandModal.value = true
+		selectedFaq.value = null
+		showFaqModal.value = true
 	}
 
-	const closeBrandModal = () => {
-		showBrandModal.value = false
-		selectedBrand.value = null
+	const closeFaqModal = () => {
+		showFaqModal.value = false
+		selectedFaq.value = null
 	}
 
-	const editBrand = (brand: Brand) => {
-		selectedBrand.value = brand
-		showBrandModal.value = true
+	const editFaq = (faq: Faq) => {
+		selectedFaq.value = faq
+		showFaqModal.value = true
 	}
 
-	const deleteBrand = (brand: Brand) => {
-		selectedBrand.value = brand
+	const deleteFaq = (faq: Faq) => {
+		selectedFaq.value = faq
 		showDeleteModal.value = true
 	}
 
 	const confirmDelete = async () => {
-		if (!selectedBrand.value?.id) return
+		if (!selectedFaq.value?.id) return
 
 		loadingDeleteModal.value = true
 		try {
-			await brandsApi.deleteBrand(selectedBrand.value.id)
+			await faqsApi.deleteFaq(selectedFaq.value.id)
 			showDeleteModal.value = false
-			selectedBrand.value = null
+			selectedFaq.value = null
 			await load()
 		} finally {
 			loadingDeleteModal.value = false
-		}
-	}
-
-	const reorderBrands = async (orderedBrands: Brand[]) => {
-		toast.info('Порядок изменён. Сохраняю...')
-		try {
-			brands.value = orderedBrands
-			await brandsApi.reorderBrands({
-				items: orderedBrands
-					.filter((brand): brand is Brand & { id: number } => brand.id !== null)
-					.map((brand) => ({
-						id: brand.id,
-						featured_order: brand.featured_order
-					}))
-			})
-			await load()
-			toast.success('Порядок сохранён')
-		} catch (e) {
-			toast.error('Не удалось сохранить порядок')
-			await load()
 		}
 	}
 
@@ -104,9 +85,7 @@
 	}
 
 	const resetFilters = async () => {
-		filters.value = {
-			search: ''
-		}
+		filters.value = { search: '' }
 		limit.value = 10
 		offset.value = 0
 		await load()
@@ -116,13 +95,34 @@
 		offset.value = value
 		await load()
 	}
+
+	const reorderFaqs = async (rows: Faq[]) => {
+		if (loadingReorder.value) return
+		loadingReorder.value = true
+		toast.info('Порядок изменён. Сохраняю...')
+		try {
+			// optimistic UI
+			faqs.value = rows
+
+			for (const row of rows) {
+				if (!row.id) continue
+				await faqsApi.updateFaq(row)
+			}
+			toast.success('Порядок сохранён')
+		} catch (e) {
+			toast.error('Не удалось сохранить порядок')
+			await load()
+		} finally {
+			loadingReorder.value = false
+		}
+	}
 </script>
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Бренды" subtitle="Список брендов и управление ими." :icon="BrandsIcon">
+		<Banner title="FAQ" subtitle="Список FAQ и управление ими." :icon="ChatIcon">
 			<template #actions>
-				<Button type="button" size="sm" :on-click="openCreate">Добавить бренд</Button>
+				<Button type="button" size="sm" :on-click="openCreate">Добавить FAQ</Button>
 			</template>
 		</Banner>
 
@@ -138,16 +138,22 @@
 			</div>
 		</form>
 
-		<BrandsTable :brands="brands" :loading="loading" @edit="editBrand" @delete="deleteBrand" @reorder="reorderBrands" />
+		<FaqsTable
+			:faqs="faqs"
+			:loading="loading || loadingReorder"
+			@edit="editFaq"
+			@delete="deleteFaq"
+			@reorder="reorderFaqs"
+		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<BrandCreateModal :open="showBrandModal" :brand="selectedBrand" @close="closeBrandModal" @saved="load" />
+		<FaqCreateModal :open="showFaqModal" :faq="selectedFaq" @close="closeFaqModal" @saved="load" />
 
 		<DeleteModal
 			:open="showDeleteModal"
-			:title="selectedBrand?.name"
-			entity-name="бренд"
+			:title="selectedFaq?.question"
+			entity-name="FAQ"
 			:loading="loadingDeleteModal"
 			@close="showDeleteModal = false"
 			@confirm="confirmDelete"

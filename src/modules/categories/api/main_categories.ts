@@ -14,12 +14,28 @@ export type ListMainCategoriesResult = {
 	total: number
 }
 
+type ImageItem = string | { url?: string | null; path?: string | null }
+
+const toImageUrls = (items: ImageItem[] | null | undefined): string[] => {
+	if (!Array.isArray(items)) return []
+	return items
+		.map((item) => (typeof item === 'string' ? item : item.url || item.path || null))
+		.filter((item): item is string => typeof item === 'string' && item.length > 0)
+}
+
+const normalizeMainCategory = (item: any): MainCategory => ({
+	...item,
+	description: item?.description ?? '',
+	images: toImageUrls(item?.images)
+})
+
 async function listMainCategories(params: ListMainCategoriesParams): Promise<ListMainCategoriesResult> {
 	const filteredParams = Object.fromEntries(
 		Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
 	)
 	const response = await request({ url: MAIN_CATEGORIES_URL, method: 'GET', params: filteredParams })
-	const items = Array.isArray(response) ? response : response?.data || []
+	const rawItems = Array.isArray(response) ? response : response?.data || []
+	const items = Array.isArray(rawItems) ? rawItems.map(normalizeMainCategory) : []
 
 	return {
 		items,
@@ -31,21 +47,43 @@ function toMainCategoryPayload(category: MainCategory): MainCategoryPayload {
 	return {
 		name: category.name,
 		slug: category.slug,
+		description: category.description,
+		images: category.images,
 		is_active: category.is_active,
 		featured_order: category.featured_order,
 		category_type: category.category_type
 	}
 }
 
+function toMainCategoryFormData(category: MainCategory): Record<string, any> {
+	const payload = toMainCategoryPayload(category)
+	const data: Record<string, any> = {
+		...payload
+	}
+
+	delete data.images
+	payload.images.forEach((image, index) => {
+		data[`images[${index}]`] = image
+	})
+
+	return data
+}
+
 async function createMainCategory(category: MainCategory): Promise<MainCategory> {
-	return await request({ url: MAIN_CATEGORIES_URL, method: 'POST', data: toMainCategoryPayload(category) })
+	return await request({
+		url: MAIN_CATEGORIES_URL,
+		method: 'POST',
+		data: toMainCategoryFormData(category),
+		isFormData: true
+	})
 }
 
 async function updateMainCategory(category: MainCategory): Promise<MainCategory> {
 	return await request({
 		url: `${MAIN_CATEGORIES_URL}/${category.id}`,
 		method: 'PUT',
-		data: toMainCategoryPayload(category)
+		data: toMainCategoryFormData(category),
+		isFormData: true
 	})
 }
 
