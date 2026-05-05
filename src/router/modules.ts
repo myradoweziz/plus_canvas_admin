@@ -11,6 +11,7 @@ import faqs from '@/modules/faqs'
 import home from '@/modules/home'
 import login from '@/modules/login'
 import products from '@/modules/products'
+import settings from '@/modules/settings'
 
 registerModules({
 	home: home,
@@ -23,5 +24,6 @@ registerModules({
 	canvasFormats: canvasFormats,
 	banners: banners,
 	products: products,
-	faqs: faqs
+	faqs: faqs,
+	settings: settings
 })

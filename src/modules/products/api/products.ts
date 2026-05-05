@@ -6,6 +6,10 @@ const CANVAS_PRODUCTS_IMAGES_URL = '/api/admin/media/upload/'
 
 export type ListCanvasProductsParams = {
 	name?: string
+	main_category_id?: number
+	category_id?: number
+	sub_category_id?: number
+	brand_id?: number
 	limit: number
 	offset: number
 }

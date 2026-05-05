@@ -125,14 +125,17 @@
 		CanvasFormatsIcon,
 		CanvasSizesIcon,
 		CategoriesIcon,
+		ChatIcon,
 		ChevronDownIcon,
 		ColorsIcon,
 		DiscountsIcon,
 		FeaturedCategoriesIcon,
 		HomeIcon,
+		PermissionsIcon,
 		ProductsIcon,
+		SettingsIcon,
 		SubCategoriesIcon,
-		ChatIcon
+		UsersIcon
 	} from '@/shared/icons'
 	import HeaderLogo from './header/HeaderLogo.vue'
 
@@ -209,6 +212,28 @@
 					icon: ChatIcon,
 					name: 'FAQs',
 					path: '/faqs'
+				},
+				{
+					icon: UsersIcon,
+					name: 'Ulanyjylar',
+					path: '/settings/permissions',
+					subItems: [
+						{
+							icon: PermissionsIcon,
+							name: 'Permissions',
+							path: '/settings/permissions'
+						},
+						{
+							icon: UsersIcon,
+							name: 'Roles',
+							path: '/settings/roles'
+						},
+						{
+							icon: UsersIcon,
+							name: 'Users',
+							path: '/settings/users'
+						}
+					]
 				}
 			]
 		}
