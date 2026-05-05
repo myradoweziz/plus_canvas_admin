@@ -7,6 +7,7 @@ export type ListUsersParams = {
 	name?: string
 	email?: string
 	phone_number?: string
+	role_type?: string
 	limit: number
 	offset: number
 }

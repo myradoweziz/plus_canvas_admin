@@ -5,12 +5,15 @@
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
+	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-
-	import { UsersIcon } from '@/shared/icons'
-	import { usersApi } from '../api/users'
 	import UserCreateModal from '../components/UserCreateModal.vue'
 	import UsersTable from '../components/UsersTable.vue'
+
+	import { UsersIcon } from '@/shared/icons'
+	import { rolesApi } from '../api/roles'
+	import { usersApi } from '../api/users'
+	import type { Role } from '../types/role'
 	import type { User } from '../types/user'
 
 	const loading = ref(false)
@@ -24,14 +27,27 @@
 	const limit = ref(10)
 	const offset = ref(0)
 	const filters = ref({
-		search: ''
+		name: '',
+		email: '',
+		role_type: null as string | null
 	})
+
+	const loadingRoles = ref(false)
+	const roles = ref<Role[]>([])
+	const roleOptions = computed(() =>
+		roles.value
+			.map((r) => r.name)
+			.filter((name): name is string => typeof name === 'string' && name.length > 0)
+			.map((name) => ({ label: name, value: name }))
+	)
 
 	const load = async () => {
 		loading.value = true
 		try {
 			const result = await usersApi.listUsers({
-				name: filters.value.search,
+				name: filters.value.name || undefined,
+				email: filters.value.email || undefined,
+				role_type: filters.value.role_type || undefined,
 				limit: limit.value,
 				offset: offset.value
 			})
@@ -42,7 +58,20 @@
 		}
 	}
 
-	onMounted(load)
+	const loadRoles = async () => {
+		loadingRoles.value = true
+		try {
+			const result = await rolesApi.listRoles({ limit: 1000, offset: 0 })
+			roles.value = result.items || []
+		} finally {
+			loadingRoles.value = false
+		}
+	}
+
+	onMounted(async () => {
+		await loadRoles()
+		await load()
+	})
 
 	const openCreate = () => {
 		selectedEditUser.value = null
@@ -83,7 +112,7 @@
 	}
 
 	const resetFilters = async () => {
-		filters.value = { search: '' }
+		filters.value = { name: '', email: '', role_type: null }
 		limit.value = 10
 		offset.value = 0
 		await load()
@@ -106,10 +135,19 @@
 		</Banner>
 
 		<form
-			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-4"
+			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-6"
 			@submit.prevent="applyFilters"
 		>
-			<TextField v-model.trim="filters.search" label="Search" name="search" placeholder="Search" />
+			<TextField v-model.trim="filters.name" label="Name" name="name" placeholder="Name" />
+			<TextField v-model.trim="filters.email" label="Email" name="email" placeholder="Email" />
+			<SelectField
+				v-model="filters.role_type"
+				label="Role Type"
+				name="role_type"
+				placeholder="Select role"
+				:options="roleOptions"
+				:disabled="loadingRoles"
+			/>
 
 			<div class="flex items-end gap-2">
 				<Button type="submit" size="sm">Фильтр</Button>
@@ -133,4 +171,3 @@
 		/>
 	</div>
 </template>
-
