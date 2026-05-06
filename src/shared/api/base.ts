@@ -3,6 +3,7 @@ import type { IFormLogin } from '@/shared/types'
 
 const AUTH_URL = '/api/auth/login'
 const PROFILE_URL = '/api/auth/me'
+const UPDATE_PROFILE_URL = '/api/auth/profile'
 const LOGOUT_URL = '/api/auth/logout'
 
 export const apiBase = {
@@ -20,9 +21,15 @@ async function getProfile() {
 	}
 }
 
-async function updateProfile(payload: { name?: string; phone_number?: string | null }) {
+async function updateProfile(payload: {
+	name?: string
+	email?: string
+	phone_number?: string | null
+	password?: string
+	password_confirmation?: string
+}) {
 	try {
-		return await request({ url: PROFILE_URL, method: 'PUT', data: payload })
+		return await request({ url: UPDATE_PROFILE_URL, method: 'PUT', data: payload })
 	} catch (e) {
 		throw new Error('ERROR ON UPDATE USER')
 	}

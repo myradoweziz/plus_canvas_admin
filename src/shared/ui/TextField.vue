@@ -9,7 +9,7 @@
 
 	const props = withDefaults(
 		defineProps<{
-			label: string
+			label?: string
 			name: string
 			placeholder?: string
 			modelValue?: string | number
@@ -49,7 +49,7 @@
 
 <template>
 	<div>
-		<label class="mb-1.5 block text-sm font-medium text-gray-700"> {{ label }} </label>
+		<label v-if="label" class="mb-1.5 block text-sm font-medium text-gray-700"> {{ label }} </label>
 		<div class="relative">
 			<component
 				@click="toggleAppendIcon"

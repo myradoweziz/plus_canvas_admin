@@ -184,7 +184,7 @@
 				/>
 
 				<TextField
-					v-if="!props.user"
+					v-if="!user"
 					v-model.trim="form.password"
 					label="Пароль *"
 					name="password"
@@ -192,17 +192,14 @@
 					placeholder="Пароль"
 				/>
 				<TextField
-					v-if="!props.user"
+					v-if="!user"
 					v-model.trim="form.password_confirmation"
 					label="Подтверждение пароля *"
 					name="password_confirmation"
 					type="password"
 					placeholder="Подтверждение пароля"
 				/>
-				<div
-					v-if="props.user"
-					class="md:col-span-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700"
-				>
+				<div v-if="user" class="md:col-span-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
 					Пароль: оставьте пустым, если не нужно менять.
 				</div>
 
