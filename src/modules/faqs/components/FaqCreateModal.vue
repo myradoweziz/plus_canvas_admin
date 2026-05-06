@@ -89,24 +89,24 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-2">
-					<TextField v-model.trim="form.question" label="Question *" name="question" placeholder="Question" />
+					<TextField v-model.trim="form.question" label="Вопрос *" name="question" placeholder="Вопрос" />
 				</div>
 
 				<div class="md:col-span-2">
 					<TextareaField
 						v-model.trim="form.answer"
-						label="Answer *"
+						label="Ответ *"
 						name="answer"
-						placeholder="Answer"
+						placeholder="Ответ"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
-					<TextField v-model.number="form.order" label="Order" name="order" type="number" min="0" />
+					<TextField v-model.number="form.order" label="Порядок" name="order" type="number" min="0" />
 				</div>
 
 				<div class="md:col-span-1 flex items-end">
-					<CheckboxField v-model="form.is_active" label="Active" name="is_active" />
+					<CheckboxField v-model="form.is_active" label="Активно" name="is_active" />
 				</div>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">

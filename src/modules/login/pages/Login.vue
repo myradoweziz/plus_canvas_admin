@@ -56,11 +56,11 @@
 			})
 
 			cookies.set('plus_canvas_admin_authorization', token)
-			toast.success('Giriş başarılı')
+			toast.success('Вход выполнен')
 			router.push('/')
 		} catch (error) {
 			console.error(error)
-			toast.error('Giriş başarısız')
+			toast.error('Не удалось войти')
 		} finally {
 			isLoading.value = false
 		}
@@ -129,7 +129,7 @@
 				class="hidden lg:flex lg:w-[45%] xl:w-[55%] relative items-center justify-center bg-blue-600 overflow-hidden"
 			>
 				<!-- Decorative Background Elements -->
-				<div class="absolute inset-0 bg-gradient-to-br from-blue-700 via-blue-600 to-blue-500"></div>
+				<div class="absolute inset-0 bg-linear-to-br from-blue-700 via-blue-600 to-blue-500"></div>
 				<div class="absolute inset-0 opacity-20">
 					<common-grid-shape />
 				</div>

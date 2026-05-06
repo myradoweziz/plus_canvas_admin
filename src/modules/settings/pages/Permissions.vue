@@ -98,9 +98,9 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Permissions" subtitle="Список permissions и управление ими." :icon="PermissionsIcon">
+		<Banner title="Права" subtitle="Список прав и управление ими." :icon="PermissionsIcon">
 			<template #actions>
-				<Button type="button" size="sm" :on-click="openCreate">Добавить permission</Button>
+				<Button type="button" size="sm" :on-click="openCreate">Добавить право</Button>
 			</template>
 		</Banner>
 
@@ -108,7 +108,7 @@
 			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-4"
 			@submit.prevent="applyFilters"
 		>
-			<TextField v-model.trim="filters.search" label="Search" name="search" placeholder="Search" />
+			<TextField v-model.trim="filters.search" label="Поиск" name="search" placeholder="Поиск" />
 
 			<div class="flex items-end gap-2">
 				<Button type="submit" size="sm">Фильтр</Button>

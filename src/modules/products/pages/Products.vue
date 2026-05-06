@@ -235,36 +235,36 @@
 			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-4"
 			@submit.prevent="applyFilters"
 		>
-			<TextField v-model.trim="filters.search" label="Search" name="search" placeholder="Search" />
+			<TextField v-model.trim="filters.search" label="Поиск" name="search" placeholder="Поиск" />
 			<SelectField
 				v-model="filters.main_category_id"
-				label="Main Category"
+				label="Главная категория"
 				name="main_category_id"
-				placeholder="Select main category"
+				placeholder="Выберите главную категорию"
 				:options="mainCategoryOptions"
 				:disabled="loadingDictionaries"
 			/>
 			<SelectField
 				v-model="filters.category_id"
-				label="Category"
+				label="Категория"
 				name="category_id"
-				placeholder="Select category"
+				placeholder="Выберите категорию"
 				:options="featuredCategoryOptions"
 				:disabled="loadingDictionaries || loadingFeaturedCategories || !filters.main_category_id"
 			/>
 			<SelectField
 				v-model="filters.sub_category_id"
-				label="Sub Category"
+				label="Подкатегория"
 				name="sub_category_id"
-				placeholder="Select sub category"
+				placeholder="Выберите подкатегорию"
 				:options="subCategoryOptions"
 				:disabled="loadingDictionaries || loadingSubCategories || !filters.category_id"
 			/>
 			<SelectField
 				v-model="filters.brand_id"
-				label="Brand"
+				label="Бренд"
 				name="brand_id"
-				placeholder="Select brand"
+				placeholder="Выберите бренд"
 				:options="brandOptions"
 				:disabled="loadingDictionaries"
 			/>

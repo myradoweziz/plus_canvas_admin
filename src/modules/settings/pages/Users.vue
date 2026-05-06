@@ -128,9 +128,9 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Users" subtitle="Список users и управление ими." :icon="UsersIcon">
+		<Banner title="Пользователи" subtitle="Список пользователей и управление ими." :icon="UsersIcon">
 			<template #actions>
-				<Button type="button" size="sm" :on-click="openCreate">Добавить user</Button>
+				<Button type="button" size="sm" :on-click="openCreate">Добавить пользователя</Button>
 			</template>
 		</Banner>
 
@@ -138,13 +138,13 @@
 			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-6"
 			@submit.prevent="applyFilters"
 		>
-			<TextField v-model.trim="filters.name" label="Name" name="name" placeholder="Name" />
+			<TextField v-model.trim="filters.name" label="Имя" name="name" placeholder="Имя" />
 			<TextField v-model.trim="filters.email" label="Email" name="email" placeholder="Email" />
 			<SelectField
 				v-model="filters.role_type"
-				label="Role Type"
+				label="Роль"
 				name="role_type"
-				placeholder="Select role"
+				placeholder="Выберите роль"
 				:options="roleOptions"
 				:disabled="loadingRoles"
 			/>

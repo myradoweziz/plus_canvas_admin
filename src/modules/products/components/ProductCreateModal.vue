@@ -64,7 +64,7 @@
 		if (!errors) return {}
 
 		return Object.fromEntries(
-			Object.entries(errors).map(([field, messages]) => [field, messages?.[0] ?? 'Invalid value'])
+			Object.entries(errors).map(([field, messages]) => [field, messages?.[0] ?? 'Некорректное значение'])
 		)
 	}
 
@@ -78,7 +78,7 @@
 	const setRequiredError = (errors: Record<string, string>, field: keyof CanvasProduct, label: string) => {
 		const value = form.value[field]
 		if (value === null || value === undefined || value === '') {
-			errors[field] = `${label} is required.`
+			errors[field] = `Поле "${label}" обязательно.`
 		}
 	}
 
@@ -100,23 +100,23 @@
 		setRequiredError(errors, 'discount_id', 'Discount')
 
 		if (!Number.isFinite(Number(form.value.price)) || Number(form.value.price) <= 0) {
-			errors.price = 'Price must be greater than 0.'
+			errors.price = 'Цена должна быть больше 0.'
 		}
 
 		if (!Number.isFinite(Number(form.value.upload_image_count)) || Number(form.value.upload_image_count) < 0) {
-			errors.upload_image_count = 'Upload Image Count must be 0 or greater.'
+			errors.upload_image_count = 'Upload Image Count должен быть 0 или больше.'
 		}
 
 		if (!form.value.images.length) {
-			errors.images = 'Images are required.'
+			errors.images = 'Изображения обязательны.'
 		}
 
 		if (!form.value.colors.length) {
-			errors.colors = 'Choose at least one color.'
+			errors.colors = 'Выберите хотя бы один цвет.'
 		}
 
 		if (!form.value.canvas_formats.length) {
-			errors.canvas_formats = 'Choose at least one canvas format.'
+			errors.canvas_formats = 'Выберите хотя бы один формат.'
 		}
 
 		validationErrors.value = errors
@@ -477,9 +477,9 @@
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3" @submit.prevent="onSubmit">
 				<TextField
 					v-model.trim="form.name"
-					label="Name *"
+					label="Название *"
 					name="name"
-					placeholder="Name"
+					placeholder="Название"
 					:error-message="validationErrors.name"
 				/>
 				<TextField
@@ -492,7 +492,7 @@
 				/>
 				<TextField
 					v-model.number="form.price"
-					label="Price"
+					label="Цена"
 					name="price"
 					type="number"
 					min="0"
@@ -501,7 +501,7 @@
 
 				<TextField
 					v-model.number="form.upload_image_count"
-					label="Upload Image Count"
+					label="Кол-во изображений для загрузки"
 					name="upload_image_count"
 					type="number"
 					min="0"
@@ -509,52 +509,52 @@
 				/>
 				<TextField
 					v-model.trim="form.flag"
-					label="Flag"
+					label="Флаг"
 					name="flag"
-					placeholder="Flag"
+					placeholder="Флаг"
 					:error-message="validationErrors.flag"
 				/>
 				<TextField
 					v-model.trim="form.product_qode"
-					label="Product Qode"
+					label="Код продукта"
 					name="product_qode"
-					placeholder="Product Qode"
+					placeholder="Код продукта"
 					:error-message="validationErrors.product_qode"
 				/>
 
 				<div class="md:col-span-3">
 					<TextareaField
 						v-model.trim="form.description"
-						label="Description"
+						label="Описание"
 						name="description"
-						placeholder="Description"
+						placeholder="Описание"
 						:error-message="validationErrors.description"
 					/>
 				</div>
 
 				<SelectField
 					v-model="form.main_category_id"
-					label="Main Category"
+					label="Главная категория"
 					name="main_category_id"
-					placeholder="Select main category"
+					placeholder="Выберите главную категорию"
 					:options="mainCategoryOptions"
 					:disabled="loadingDictionaries"
 					:error-message="validationErrors.main_category_id"
 				/>
 				<SelectField
 					v-model="form.category_id"
-					label="Category"
+					label="Категория"
 					name="category_id"
-					placeholder="Select category"
+					placeholder="Выберите категорию"
 					:options="featuredCategoryOptions"
 					:disabled="loadingDictionaries || loadingFeaturedCategories || !form.main_category_id"
 					:error-message="validationErrors.category_id"
 				/>
 				<SelectField
 					v-model="form.sub_category_id"
-					label="Sub Category"
+					label="Подкатегория"
 					name="sub_category_id"
-					placeholder="Select sub category"
+					placeholder="Выберите подкатегорию"
 					:options="subCategoryOptions"
 					:disabled="loadingDictionaries || loadingSubCategories || !form.category_id"
 					:error-message="validationErrors.sub_category_id"
@@ -562,27 +562,27 @@
 
 				<SelectField
 					v-model="form.brand_id"
-					label="Brand"
+					label="Бренд"
 					name="brand_id"
-					placeholder="Select brand"
+					placeholder="Выберите бренд"
 					:options="brandOptions"
 					:disabled="loadingDictionaries"
 					:error-message="validationErrors.brand_id"
 				/>
 				<SelectField
 					v-model="form.banner_id"
-					label="Banner"
+					label="Баннер"
 					name="banner_id"
-					placeholder="Select banner"
+					placeholder="Выберите баннер"
 					:options="bannerOptions"
 					:disabled="loadingDictionaries"
 					:error-message="validationErrors.banner_id"
 				/>
 				<SelectField
 					v-model="form.discount_id"
-					label="Discount"
+					label="Скидка"
 					name="discount_id"
-					placeholder="Select discount"
+					placeholder="Выберите скидку"
 					:options="discountOptions"
 					:disabled="loadingDictionaries"
 					:error-message="validationErrors.discount_id"
@@ -609,9 +609,9 @@
 				<div class="md:col-span-3">
 					<SelectField
 						:model-value="selectedColorId"
-						label="Colors"
+						label="Цвета"
 						name="colors"
-						placeholder="Select color"
+						placeholder="Выберите цвет"
 						:options="colorOptions"
 						:disabled="loadingDictionaries"
 						:error-message="validationErrors.colors"
@@ -644,9 +644,9 @@
 				<div class="md:col-span-3">
 					<SelectField
 						:model-value="selectedCanvasFormatId"
-						label="Canvas Formats"
+						label="Форматы холста"
 						name="canvas_formats"
-						placeholder="Select canvas format"
+						placeholder="Выберите формат"
 						:options="canvasFormatOptions"
 						:disabled="loadingDictionaries"
 						:error-message="validationErrors.canvas_formats"

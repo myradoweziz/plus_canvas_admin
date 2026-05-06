@@ -1,8 +1,8 @@
 export const BANNERS_TABLE_COLUMNS = [
-	{ key: 'title', label: 'Title' },
-	{ key: 'image_url', label: 'Image URL' },
+	{ key: 'title', label: 'Заголовок' },
+	{ key: 'image_url', label: 'Картинка' },
 	{ key: 'url', label: 'URL' },
-	{ key: 'order', label: 'Order' },
-	{ key: 'is_active', label: 'Active' },
-	{ key: 'actions', label: 'Actions', headerClass: 'text-right' }
+	{ key: 'order', label: 'Порядок' },
+	{ key: 'is_active', label: 'Активно' },
+	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
 ]

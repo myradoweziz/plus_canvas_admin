@@ -95,28 +95,28 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
-					<TextField v-model.number="form.width" label="Width *" name="width" type="number" min="0" />
+					<TextField v-model.number="form.width" label="Ширина *" name="width" type="number" min="0" />
 				</div>
 
 				<div class="md:col-span-1">
-					<TextField v-model.number="form.height" label="Height *" name="height" type="number" min="0" />
+					<TextField v-model.number="form.height" label="Высота *" name="height" type="number" min="0" />
 				</div>
 
 				<div class="md:col-span-1">
 					<SelectField
 						v-model="form.unit"
-						label="Unit *"
+						label="Единица *"
 						name="unit"
-						placeholder="Select unit"
+						placeholder="Выберите единицу"
 						:options="CANVAS_SIZE_UNIT_OPTIONS"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
-					<TextField v-model.number="form.sort_order" label="Sort Order" name="sort_order" type="number" min="0" />
+					<TextField v-model.number="form.sort_order" label="Порядок" name="sort_order" type="number" min="0" />
 				</div>
 
-				<CheckboxField v-model="form.is_active" label="Active" name="is_active" class="md:col-span-2" />
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>

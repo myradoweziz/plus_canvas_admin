@@ -173,9 +173,9 @@
 				<div class="md:col-span-1">
 					<SelectField
 						v-model="form.category_id"
-						label="Featured Category *"
+						label="Категория *"
 						name="category_id"
-						placeholder="Select featured category"
+						placeholder="Выберите категорию"
 						:options="featuredCategoryOptions"
 						:disabled="loadingFeaturedCategories"
 						remote-search
@@ -184,7 +184,7 @@
 				</div>
 
 				<div class="md:col-span-1">
-					<TextField v-model.trim="form.name" label="Name *" name="name" placeholder="Name" />
+					<TextField v-model.trim="form.name" label="Название *" name="name" placeholder="Название" />
 				</div>
 
 				<div class="md:col-span-1">
@@ -200,14 +200,14 @@
 				<div class="md:col-span-1">
 					<TextField
 						v-model.number="form.featured_order"
-						label="Featured Order"
+						label="Порядок"
 						name="featured_order"
 						type="number"
 						min="0"
 					/>
 				</div>
 
-				<CheckboxField v-model="form.is_active" label="Active" name="is_active" class="md:col-span-2" />
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>

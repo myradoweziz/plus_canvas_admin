@@ -207,7 +207,7 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
-					<TextField v-model.trim="form.name" label="Name *" name="name" placeholder="Name" />
+					<TextField v-model.trim="form.name" label="Название *" name="name" placeholder="Название" />
 				</div>
 
 				<div class="md:col-span-1">
@@ -221,17 +221,17 @@
 				</div>
 
 				<div class="md:col-span-1">
-					<TextField v-model.number="form.sort_order" label="Sort Order" name="sort_order" type="number" min="0" />
+					<TextField v-model.number="form.sort_order" label="Порядок" name="sort_order" type="number" min="0" />
 				</div>
 
-				<CheckboxField v-model="form.is_active" label="Active" name="is_active" class="md:col-span-2" />
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="md:col-span-2">
 					<SelectField
 						:model-value="selectedCanvasSizeId"
-						label="Sizes"
+						label="Размеры"
 						name="sizes"
-						placeholder="Select size"
+						placeholder="Выберите размер"
 						:options="canvasSizeOptions"
 						:disabled="loadingCanvasSizes || !canvasSizes.length"
 						@update:model-value="addCanvasSize"

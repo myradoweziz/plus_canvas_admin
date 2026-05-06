@@ -1,8 +1,8 @@
 export const USERS_TABLE_COLUMNS = [
-	{ key: 'name', label: 'Name' },
+	{ key: 'name', label: 'Имя' },
 	{ key: 'email', label: 'Email' },
-	{ key: 'phone_number', label: 'Phone' },
-	{ key: 'roles', label: 'Roles' },
-	{ key: 'actions', label: 'Actions', headerClass: 'text-right', cellClass: 'text-right' }
+	{ key: 'phone_number', label: 'Телефон' },
+	{ key: 'roles', label: 'Роли' },
+	{ key: 'actions', label: 'Действия', headerClass: 'text-right', cellClass: 'text-right' }
 ]
 

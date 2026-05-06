@@ -1,6 +1,6 @@
 export const COLORS_TABLE_COLUMNS = [
-	{ key: 'name', label: 'Name' },
-	{ key: 'hex_code', label: 'Color' },
-	{ key: 'is_active', label: 'Active' },
-	{ key: 'actions', label: 'Actions', headerClass: 'text-right' }
+	{ key: 'name', label: 'Название' },
+	{ key: 'hex_code', label: 'Цвет' },
+	{ key: 'is_active', label: 'Активно' },
+	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
 ]

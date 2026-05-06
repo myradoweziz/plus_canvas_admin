@@ -1,5 +1,5 @@
 export const PERMISSIONS_TABLE_COLUMNS = [
-	{ key: 'name', label: 'Name' },
-	{ key: 'actions', label: 'Actions', headerClass: 'text-right', cellClass: 'text-right' }
+	{ key: 'name', label: 'Название' },
+	{ key: 'actions', label: 'Действия', headerClass: 'text-right', cellClass: 'text-right' }
 ]
 

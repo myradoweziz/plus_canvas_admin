@@ -176,12 +176,12 @@
 			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-4"
 			@submit.prevent="applyFilters"
 		>
-			<TextField v-model.trim="filters.search" label="Search" name="search" placeholder="Search" />
+			<TextField v-model.trim="filters.search" label="Поиск" name="search" placeholder="Поиск" />
 			<SelectField
 				v-model="filters.main_category_id"
-				label="Main Category"
+				label="Главная категория"
 				name="main_category_id"
-				placeholder="Select main category"
+				placeholder="Выберите главную категорию"
 				:options="mainCategoryOptions"
 				:disabled="loadingMainCategories"
 				remote-search

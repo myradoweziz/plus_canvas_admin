@@ -1,8 +1,8 @@
 export const CANVAS_FORMATS_TABLE_COLUMNS = [
-	{ key: 'name', label: 'Name' },
+	{ key: 'name', label: 'Название' },
 	{ key: 'slug', label: 'Slug' },
-	{ key: 'sizes', label: 'Sizes' },
-	{ key: 'is_active', label: 'Active' },
-	{ key: 'sort_order', label: 'Sort Order' },
-	{ key: 'actions', label: 'Actions', headerClass: 'text-right' }
+	{ key: 'sizes', label: 'Размеры' },
+	{ key: 'is_active', label: 'Активно' },
+	{ key: 'sort_order', label: 'Порядок' },
+	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
 ]

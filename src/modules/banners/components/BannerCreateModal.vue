@@ -103,15 +103,15 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
-					<TextField v-model.trim="form.title" label="Title" name="title" placeholder="Title" />
+					<TextField v-model.trim="form.title" label="Заголовок" name="title" placeholder="Заголовок" />
 				</div>
 
 				<div class="md:col-span-1">
-					<TextField v-model.number="form.order" label="Order" name="order" type="number" min="0" />
+					<TextField v-model.number="form.order" label="Порядок" name="order" type="number" min="0" />
 				</div>
 
 				<div class="md:col-span-2">
-					<TextareaField v-model.trim="form.description" label="Description" name="description" />
+					<TextareaField v-model.trim="form.description" label="Описание" name="description" />
 				</div>
 
 				<div class="md:col-span-2">
@@ -122,7 +122,7 @@
 					<ImageUpload v-model="imageFile" :current-url="form.image_url" />
 				</div>
 
-				<CheckboxField v-model="form.is_active" label="Active" name="is_active" class="md:col-span-2" />
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>

@@ -133,15 +133,15 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-2">
-					<TextField v-model.trim="form.name" label="Name *" name="name" placeholder="role name" />
+					<TextField v-model.trim="form.name" label="Название *" name="name" placeholder="название роли" />
 				</div>
 
 				<div class="md:col-span-2">
 					<SelectField
 						:model-value="selectedPermissionName"
-						label="Permissions"
+						label="Права"
 						name="permissions"
-						placeholder="Select permission"
+						placeholder="Выберите право"
 						:options="permissionOptions"
 						:disabled="loadingPermissions"
 						@update:model-value="addPermission"

@@ -63,7 +63,7 @@
 			</div>
 
 			<form class="mt-6 grid grid-cols-1 gap-4" @submit.prevent="onSubmit">
-				<TextField v-model.trim="name" label="Name *" name="name" placeholder="permission name" />
+				<TextField v-model.trim="name" label="Название *" name="name" placeholder="название права" />
 
 				<div class="mt-2 flex items-center justify-end gap-3">
 					<Button type="button" variant="outline" size="sm" :on-click="() => $emit('close')">Отмена</Button>

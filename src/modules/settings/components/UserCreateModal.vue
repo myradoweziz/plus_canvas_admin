@@ -173,31 +173,31 @@
 			</div>
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3" @submit.prevent="onSubmit">
-				<TextField v-model.trim="form.name" label="Name *" name="name" placeholder="Name" />
+				<TextField v-model.trim="form.name" label="Имя *" name="name" placeholder="Имя" />
 				<TextField v-model.trim="form.email" label="Email *" type="email" name="email" placeholder="Email" />
 				<TextField
 					v-model.trim="form.phone_number"
-					label="Phone *"
+					label="Телефон *"
 					type="tel"
 					name="phone_number"
-					placeholder="Phone"
+					placeholder="Телефон"
 				/>
 
 				<TextField
 					v-if="!props.user"
 					v-model.trim="form.password"
-					label="Password *"
+					label="Пароль *"
 					name="password"
 					type="password"
-					placeholder="Password"
+					placeholder="Пароль"
 				/>
 				<TextField
 					v-if="!props.user"
 					v-model.trim="form.password_confirmation"
-					label="Password confirmation *"
+					label="Подтверждение пароля *"
 					name="password_confirmation"
 					type="password"
-					placeholder="Password confirmation"
+					placeholder="Подтверждение пароля"
 				/>
 				<div
 					v-if="props.user"
@@ -209,9 +209,9 @@
 				<div class="md:col-span-3">
 					<SelectField
 						:model-value="selectedRoleName"
-						label="Roles"
+						label="Роли"
 						name="roles"
-						placeholder="Select role"
+						placeholder="Выберите роль"
 						:options="roleOptions"
 						:disabled="loadingRoles"
 						@update:model-value="addRole"

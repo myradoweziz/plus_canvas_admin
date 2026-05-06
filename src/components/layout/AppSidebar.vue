@@ -148,36 +148,36 @@
 			items: [
 				{
 					icon: HomeIcon,
-					name: 'Dashboard',
+					name: 'Панель',
 					path: '/'
 				},
 				{
 					icon: BannerIcon,
-					name: 'Banners',
+					name: 'Баннеры',
 					path: '/banners'
 				},
 				{
 					icon: ProductsIcon,
-					name: 'Products',
+					name: 'Продукты',
 					path: '/products'
 				},
 				{
 					icon: CategoriesIcon,
-					name: 'Categories',
+					name: 'Категории',
 					path: '/categories',
 					subItems: [
 						{
-							name: 'Main categories',
+							name: 'Главные категории',
 							path: '/categories/main-categories',
 							icon: CategoriesIcon
 						},
 						{
-							name: 'Featured categories',
+							name: 'Избранные категории',
 							path: '/categories/featured-categories',
 							icon: FeaturedCategoriesIcon
 						},
 						{
-							name: 'Sub Categories',
+							name: 'Подкатегории',
 							path: '/categories/sub-categories',
 							icon: SubCategoriesIcon
 						}
@@ -185,52 +185,52 @@
 				},
 				{
 					icon: DiscountsIcon,
-					name: 'Discounts',
+					name: 'Скидки',
 					path: '/discounts'
 				},
 				{
 					icon: BrandsIcon,
-					name: 'Brands',
+					name: 'Бренды',
 					path: '/brands'
 				},
 				{
 					icon: ColorsIcon,
-					name: 'Colors',
+					name: 'Цвета',
 					path: '/colors'
 				},
 				{
 					icon: CanvasSizesIcon,
-					name: 'Canvas Sizes',
+					name: 'Размеры холста',
 					path: '/canvas-sizes'
 				},
 				{
 					icon: CanvasFormatsIcon,
-					name: 'Canvas Formats',
+					name: 'Форматы холста',
 					path: '/canvas-formats'
 				},
 				{
 					icon: ChatIcon,
-					name: 'FAQs',
+					name: 'FAQ',
 					path: '/faqs'
 				},
 				{
 					icon: UsersIcon,
-					name: 'Ulanyjylar',
+					name: 'Пользователи',
 					path: '/settings/permissions',
 					subItems: [
 						{
 							icon: PermissionsIcon,
-							name: 'Permissions',
+							name: 'Права',
 							path: '/settings/permissions'
 						},
 						{
 							icon: UsersIcon,
-							name: 'Roles',
+							name: 'Роли',
 							path: '/settings/roles'
 						},
 						{
 							icon: UsersIcon,
-							name: 'Users',
+							name: 'Пользователи',
 							path: '/settings/users'
 						}
 					]

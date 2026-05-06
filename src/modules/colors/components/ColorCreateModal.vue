@@ -88,14 +88,14 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
-					<TextField v-model.trim="form.name" label="Name *" name="name" placeholder="Name" />
+					<TextField v-model.trim="form.name" label="Название *" name="name" placeholder="Название" />
 				</div>
 
 				<div class="md:col-span-1">
-					<ColorPicker v-model="form.hex_code" label="Color *" name="hex_code" />
+					<ColorPicker v-model="form.hex_code" label="Цвет *" name="hex_code" />
 				</div>
 
-				<CheckboxField v-model="form.is_active" label="Active" name="is_active" class="md:col-span-2" />
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
