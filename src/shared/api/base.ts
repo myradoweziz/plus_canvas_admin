@@ -8,6 +8,7 @@ const LOGOUT_URL = '/api/auth/logout'
 export const apiBase = {
 	login,
 	getProfile,
+	updateProfile,
 	logout
 } as const
 
@@ -16,6 +17,14 @@ async function getProfile() {
 		return await request({ url: PROFILE_URL, method: 'GET' })
 	} catch (e) {
 		throw new Error('ERROR ON GET USER')
+	}
+}
+
+async function updateProfile(payload: { name?: string; phone_number?: string | null }) {
+	try {
+		return await request({ url: PROFILE_URL, method: 'PUT', data: payload })
+	} catch (e) {
+		throw new Error('ERROR ON UPDATE USER')
 	}
 }
 
