@@ -11,6 +11,7 @@ import faqs from '@/modules/faqs'
 import home from '@/modules/home'
 import login from '@/modules/login'
 import products from '@/modules/products'
+import profile from '@/modules/profile'
 import settings from '@/modules/settings'
 
 registerModules({
@@ -25,5 +26,6 @@ registerModules({
 	banners: banners,
 	products: products,
 	faqs: faqs,
+	profile: profile,
 	settings: settings
 })
