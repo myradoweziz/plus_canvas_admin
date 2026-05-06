@@ -23,6 +23,7 @@
 			<ul class="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
 				<li v-for="item in menuItems" :key="item.href">
 					<router-link
+						@click.prevent="closeDropdown"
 						:to="item.href"
 						class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
 					>
@@ -46,20 +47,21 @@
 </template>
 
 <script setup lang="ts">
+	import { computed, onMounted, onUnmounted, ref } from 'vue'
+
 	import { ChevronDownIcon, LogoutIcon, UserCircleIcon } from '@/shared/icons'
 	import { useAuth } from '@/stores/auth'
-	import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 	const auth = useAuth()
 
-	const displayName = computed(() => auth.user.name || auth.user.email || (auth.user.id ? `User ${auth.user.id}` : 'User'))
+	const displayName = computed(
+		() => auth.user.name || auth.user.email || (auth.user.id ? `User ${auth.user.id}` : 'User')
+	)
 
 	const dropdownOpen = ref(false)
 	const dropdownRef = ref<HTMLElement | null>(null)
 
-	const menuItems = [
-		{ href: '/profile', icon: UserCircleIcon, text: 'Профиль' }
-	]
+	const menuItems = [{ href: '/profile', icon: UserCircleIcon, text: 'Профиль' }]
 
 	const toggleDropdown = () => {
 		dropdownOpen.value = !dropdownOpen.value
