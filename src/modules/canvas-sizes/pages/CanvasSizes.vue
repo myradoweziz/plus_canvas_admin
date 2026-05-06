@@ -107,7 +107,12 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Размеры холста" subtitle="Список размеров холста и управление ими." :icon="CanvasSizesIcon">
+		<Banner
+			title="Размеры холста"
+			subtitle="Список размеров холста и управление ими."
+			:icon="CanvasSizesIcon"
+			:total="total"
+		>
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить размер</Button>
 			</template>

@@ -225,7 +225,7 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Продукты" subtitle="Список canvas products и управление ими." :icon="BoxCubeIcon">
+		<Banner title="Продукты" subtitle="Список canvas products и управление ими." :icon="BoxCubeIcon" :total="total">
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить продукт</Button>
 			</template>

@@ -120,7 +120,7 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="FAQ" subtitle="Список FAQ и управление ими." :icon="ChatIcon">
+		<Banner title="FAQ" subtitle="Список FAQ и управление ими." :icon="ChatIcon" :total="total">
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить FAQ</Button>
 			</template>

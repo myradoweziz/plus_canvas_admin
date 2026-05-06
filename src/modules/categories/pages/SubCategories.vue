@@ -12,7 +12,7 @@
 	import SubCategoryCreateModal from '../components/modal/SubCategoryCreateModal.vue'
 
 	import { debounce } from '@/shared'
-	import { CategoriesIcon } from '@/shared/icons'
+	import { SubCategoriesIcon } from '@/shared/icons'
 	import { categoriesApi } from '../api'
 	import type { FeaturedCategory, SubCategory } from '../types/category'
 
@@ -166,7 +166,12 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Категории" subtitle="Список категорий и управление ими." :icon="CategoriesIcon">
+		<Banner
+			title="Подкатегории"
+			subtitle="Список подкатегорий и управление ими."
+			:icon="SubCategoriesIcon"
+			:total="total"
+		>
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить подкатегорию</Button>
 			</template>

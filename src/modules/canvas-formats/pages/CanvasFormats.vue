@@ -120,7 +120,12 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Форматы холста" subtitle="Список форматов холста и управление ими." :icon="CanvasFormatsIcon">
+		<Banner
+			title="Форматы холста"
+			subtitle="Список форматов холста и управление ими."
+			:icon="CanvasFormatsIcon"
+			:total="total"
+		>
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить формат</Button>
 			</template>

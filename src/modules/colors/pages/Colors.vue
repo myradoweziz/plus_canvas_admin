@@ -99,7 +99,7 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Цвета" subtitle="Список цветов и управление ими." :icon="ColorsIcon">
+		<Banner title="Цвета" subtitle="Список цветов и управление ими." :icon="ColorsIcon" :total="total">
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить цвет</Button>
 			</template>

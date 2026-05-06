@@ -133,7 +133,6 @@
 		HomeIcon,
 		PermissionsIcon,
 		ProductsIcon,
-		SettingsIcon,
 		SubCategoriesIcon,
 		UsersIcon
 	} from '@/shared/icons'
@@ -172,7 +171,7 @@
 							icon: CategoriesIcon
 						},
 						{
-							name: 'Избранные категории',
+							name: 'Категории',
 							path: '/categories/featured-categories',
 							icon: FeaturedCategoriesIcon
 						},

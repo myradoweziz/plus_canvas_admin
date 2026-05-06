@@ -99,7 +99,7 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Роли" subtitle="Список ролей и управление ими." :icon="UsersIcon">
+		<Banner title="Роли" subtitle="Список ролей и управление ими." :icon="UsersIcon" :total="total">
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить роль</Button>
 			</template>
@@ -133,4 +133,3 @@
 		/>
 	</div>
 </template>
-

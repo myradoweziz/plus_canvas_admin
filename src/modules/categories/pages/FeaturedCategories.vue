@@ -12,7 +12,7 @@
 	import FeaturedCategoryCreateModal from '../components/modal/FeaturedCategoryCreateModal.vue'
 
 	import { debounce } from '@/shared'
-	import { CategoriesIcon } from '@/shared/icons'
+	import { FeaturedCategoriesIcon } from '@/shared/icons'
 	import { categoriesApi } from '../api'
 	import type { FeaturedCategory, MainCategory } from '../types/category'
 
@@ -166,7 +166,12 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Категории" subtitle="Список категорий и управление ими." :icon="CategoriesIcon">
+		<Banner
+			title="Категории"
+			subtitle="Список категорий и управление ими."
+			:icon="FeaturedCategoriesIcon"
+			:total="total"
+		>
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить категорию</Button>
 			</template>

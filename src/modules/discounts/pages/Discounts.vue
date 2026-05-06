@@ -120,7 +120,7 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Скидки" subtitle="Список скидок и управление ими." :icon="DiscountsIcon">
+		<Banner title="Скидки" subtitle="Список скидок и управление ими." :icon="DiscountsIcon" :total="total">
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить скидку</Button>
 			</template>

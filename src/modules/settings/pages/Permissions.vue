@@ -98,7 +98,7 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Права" subtitle="Список прав и управление ими." :icon="PermissionsIcon">
+		<Banner title="Права" subtitle="Список прав и управление ими." :icon="PermissionsIcon" :total="total">
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить право</Button>
 			</template>
@@ -120,12 +120,7 @@
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<PermissionCreateModal
-			:open="showPermissionModal"
-			:permission="modalPermission"
-			@close="closeEdit"
-			@saved="load"
-		/>
+		<PermissionCreateModal :open="showPermissionModal" :permission="modalPermission" @close="closeEdit" @saved="load" />
 
 		<DeleteModal
 			:open="showDeleteModal"

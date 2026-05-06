@@ -85,7 +85,7 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Баннеры" subtitle="Список баннеров и управление ими." :icon="BannerIcon">
+		<Banner title="Баннеры" subtitle="Список баннеров и управление ими." :icon="BannerIcon" :total="banners?.length">
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить баннер</Button>
 			</template>

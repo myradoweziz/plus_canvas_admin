@@ -128,7 +128,7 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Пользователи" subtitle="Список пользователей и управление ими." :icon="UsersIcon">
+		<Banner title="Пользователи" subtitle="Список пользователей и управление ими." :icon="UsersIcon" :total="total">
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить пользователя</Button>
 			</template>

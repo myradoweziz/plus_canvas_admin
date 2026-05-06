@@ -120,7 +120,12 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Категории" subtitle="Список категорий и управление ими." :icon="CategoriesIcon">
+		<Banner
+			title="Главные категории"
+			subtitle="Список главных категорий и управление ими."
+			:icon="CategoriesIcon"
+			:total="total"
+		>
 			<template #actions>
 				<Button type="button" size="sm" :on-click="openCreate">Добавить главную категорию</Button>
 			</template>
