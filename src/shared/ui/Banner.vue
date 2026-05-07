@@ -21,7 +21,7 @@
 					</div>
 				</div>
 
-				<div v-if="total" class="text-sm text-gray-600 md:text-base">Всего: {{ total }}</div>
+				<div class="text-sm text-gray-600 md:text-base">Всего: {{ total || '-' }}</div>
 			</div>
 
 			<div v-if="$slots.actions" class="shrink-0">
