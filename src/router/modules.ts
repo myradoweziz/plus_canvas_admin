@@ -6,6 +6,7 @@ import canvasFormats from '@/modules/canvas-formats'
 import canvasSizes from '@/modules/canvas-sizes'
 import categories from '@/modules/categories'
 import colors from '@/modules/colors'
+import contactInfo from '@/modules/contact-info'
 import discounts from '@/modules/discounts'
 import faqs from '@/modules/faqs'
 import home from '@/modules/home'
@@ -21,6 +22,7 @@ registerModules({
 	discounts: discounts,
 	brands: brands,
 	colors: colors,
+	contactInfo: contactInfo,
 	canvasSizes: canvasSizes,
 	canvasFormats: canvasFormats,
 	banners: banners,

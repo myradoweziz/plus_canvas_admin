@@ -17,7 +17,7 @@ async function getProfile() {
 	try {
 		return await request({ url: PROFILE_URL, method: 'GET' })
 	} catch (e) {
-		throw new Error('ERROR ON GET USER')
+		throw e
 	}
 }
 
@@ -31,7 +31,7 @@ async function updateProfile(payload: {
 	try {
 		return await request({ url: UPDATE_PROFILE_URL, method: 'PUT', data: payload })
 	} catch (e) {
-		throw new Error('ERROR ON UPDATE USER')
+		throw e
 	}
 }
 
@@ -39,7 +39,7 @@ async function login(form: IFormLogin) {
 	try {
 		return request({ url: AUTH_URL, method: 'POST', data: form })
 	} catch (error) {
-		throw Error('ERROR ON LOGIN')
+		throw error
 	}
 }
 
@@ -47,6 +47,6 @@ async function logout() {
 	try {
 		return request({ url: LOGOUT_URL, method: 'POST' })
 	} catch (error) {
-		throw new Error('ERROR ON LOGOUT')
+		throw error
 	}
 }

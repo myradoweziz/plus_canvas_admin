@@ -1,5 +1,9 @@
 <script setup lang="ts">
+	import { toTypedSchema } from '@vee-validate/zod'
+	import { useForm } from 'vee-validate'
 	import { computed, onBeforeUnmount, ref, watch } from 'vue'
+	import { toast } from 'vue3-toastify'
+	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -7,6 +11,7 @@
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
+	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { canvasSizesApi } from '@/modules/canvas-sizes/api/canvas-sizes'
 	import type { CanvasSize } from '@/modules/canvas-sizes/types/canvas-size'
 	import { slugify } from '@/shared'
@@ -23,63 +28,87 @@
 	const canvasSizes = ref<CanvasSize[]>([])
 	const canvasSizesRequestId = ref(0)
 	const selectedCanvasSizeId = ref<number | null>(null)
+	const triedSubmit = ref(false)
 	const slugManuallyEdited = ref(false)
 	const lastGeneratedSlug = ref('')
 
-	const form = ref<CanvasFormat>({
-		id: null,
-		name: '',
-		slug: '',
-		is_active: true,
-		sort_order: 0,
-		sizes: []
-	})
-
-	const resetForm = () => {
-		form.value = {
-			id: null,
+	const { errors, defineField, handleSubmit, resetForm, setValues, values } = useForm({
+		initialValues: {
+			id: null as number | null,
 			name: '',
 			slug: '',
 			is_active: true,
 			sort_order: 0,
-			sizes: []
-		}
+			sizes: [] as CanvasFormatSize[]
+		},
+		validationSchema: toTypedSchema(
+			z.object({
+				id: z.number().nullable().optional(),
+				name: z.string().trim().min(1, 'Укажите название'),
+				slug: z.string().trim().min(1, 'Укажите slug'),
+				is_active: z.boolean(),
+				sort_order: z.coerce.number().min(0, 'Укажите корректный порядок'),
+				sizes: z
+					.array(
+						z.object({
+							id: z.number(),
+							sort_order: z.number().optional(),
+							width: z.any().optional(),
+							height: z.any().optional(),
+							unit: z.any().optional()
+						})
+					)
+					.min(1, 'Выберите хотя бы один размер')
+			})
+		)
+	})
+
+	const [name, nameProps] = defineField('name')
+	const [slug, slugProps] = defineField('slug')
+	const [sortOrder, sortOrderProps] = defineField('sort_order')
+	const [isActive] = defineField('is_active')
+
+	const resetLocalForm = () => {
+		resetForm({ values: { id: null, name: '', slug: '', is_active: true, sort_order: 0, sizes: [] } })
+		triedSubmit.value = false
+		slugManuallyEdited.value = false
+		lastGeneratedSlug.value = ''
 	}
 
 	watch(
-		() => props.canvasFormat,
-		(canvasFormat) => {
+		() => [props.open, props.canvasFormat] as const,
+		([open, canvasFormat]) => {
+			if (!open) return
 			if (!canvasFormat) {
-				resetForm()
-				slugManuallyEdited.value = false
-				lastGeneratedSlug.value = ''
+				resetLocalForm()
 				return
 			}
 
-			form.value = {
-				id: canvasFormat.id,
-				name: canvasFormat.name,
-				slug: canvasFormat.slug,
-				is_active: canvasFormat.is_active,
-				sort_order: canvasFormat.sort_order,
+			triedSubmit.value = false
+			setValues({
+				id: canvasFormat.id ?? null,
+				name: canvasFormat.name ?? '',
+				slug: canvasFormat.slug ?? '',
+				is_active: !!canvasFormat.is_active,
+				sort_order: canvasFormat.sort_order ?? 0,
 				sizes: canvasFormat.sizes.map((size) => ({
 					id: size.id,
 					sort_order: size.sort_order
 				}))
-			}
-			lastGeneratedSlug.value = slugify(canvasFormat.name)
+			})
+			lastGeneratedSlug.value = slugify(canvasFormat.name ?? '')
 			slugManuallyEdited.value = Boolean(canvasFormat.slug && canvasFormat.slug !== lastGeneratedSlug.value)
 		},
 		{ immediate: true }
 	)
 
 	watch(
-		() => form.value.name,
+		() => values.name,
 		(name) => {
-			const generatedSlug = slugify(name)
+			const generatedSlug = slugify(name ?? '')
 
-			if (!slugManuallyEdited.value || !form.value.slug || form.value.slug === lastGeneratedSlug.value) {
-				form.value.slug = generatedSlug
+			if (!slugManuallyEdited.value || !values.slug || values.slug === lastGeneratedSlug.value) {
+				setValues({ ...values, slug: generatedSlug } as any)
 				slugManuallyEdited.value = false
 			}
 
@@ -87,7 +116,7 @@
 		}
 	)
 
-	const selectedSizeIds = computed(() => new Set(form.value.sizes.map((size) => size.id)))
+	const selectedSizeIds = computed(() => new Set((values.sizes || []).map((size) => size.id)))
 	const canvasSizeOptions = computed(() =>
 		canvasSizes.value
 			.filter((canvasSize): canvasSize is CanvasSize & { id: number } => canvasSize.id !== null)
@@ -98,11 +127,12 @@
 			}))
 	)
 	const selectedCanvasSizes = computed(() =>
-		form.value.sizes.map((size) => {
+		(values.sizes || []).map((size) => {
 			const canvasSize = canvasSizes.value.find((item) => item.id === size.id)
 
 			return {
 				...size,
+				sort_order: size.sort_order ?? 0,
 				width: canvasSize?.width ?? size.width,
 				height: canvasSize?.height ?? size.height,
 				unit: canvasSize?.unit ?? size.unit
@@ -143,8 +173,8 @@
 	})
 
 	const onSlugInput = (value: string | number) => {
-		form.value.slug = String(value)
-		slugManuallyEdited.value = form.value.slug !== lastGeneratedSlug.value
+		setValues({ ...values, slug: String(value) } as any)
+		slugManuallyEdited.value = String(value) !== lastGeneratedSlug.value
 	}
 
 	const addCanvasSize = (value: string | number | null) => {
@@ -156,38 +186,65 @@
 
 		const canvasSize = canvasSizes.value.find((size) => size.id === id)
 
-		form.value.sizes.push({
-			id,
-			sort_order: form.value.sizes.length + 1,
-			width: canvasSize?.width,
-			height: canvasSize?.height,
-			unit: canvasSize?.unit
-		})
+		setValues({
+			...values,
+			sizes: [
+				...(values.sizes || []),
+				{
+					id,
+					sort_order: (values.sizes || []).length + 1,
+					width: canvasSize?.width,
+					height: canvasSize?.height,
+					unit: canvasSize?.unit
+				}
+			]
+		} as any)
 	}
 
 	const removeCanvasSize = (size: CanvasFormatSize) => {
-		form.value.sizes = form.value.sizes.filter((item) => item.id !== size.id)
+		setValues({ ...values, sizes: (values.sizes || []).filter((item) => item.id !== size.id) } as any)
 	}
 
-	const onSubmit = async () => {
-		saving.value = true
-		try {
-			if (props.canvasFormat?.id) {
-				await canvasFormatsApi.updateCanvasFormat(form.value)
-			} else {
-				await canvasFormatsApi.createCanvasFormat(form.value)
-			}
+	const onSubmit = handleSubmit(
+		async (v) => {
+			triedSubmit.value = true
+			saving.value = true
+			try {
+				const payload: CanvasFormat = {
+					id: v.id ?? null,
+					name: v.name,
+					slug: v.slug,
+					is_active: !!v.is_active,
+					sort_order: v.sort_order ?? 0,
+					sizes: (v.sizes || []).map((size, index) => ({
+						...size,
+						sort_order: size.sort_order ?? index + 1
+					}))
+				}
+				if (payload.id) {
+					await canvasFormatsApi.updateCanvasFormat(payload)
+				} else {
+					await canvasFormatsApi.createCanvasFormat(payload)
+				}
 
-			emit('saved')
-			emit('close')
+				emit('saved')
+				emit('close')
 
-			if (!props.canvasFormat) {
-				resetForm()
+				if (!props.canvasFormat) {
+					resetLocalForm()
+				}
+		} catch (err) {
+			const msg = getFirstBackendValidationMessage(err)
+			if (msg) toast.error(msg)
+			else throw err
+			} finally {
+				saving.value = false
 			}
-		} finally {
-			saving.value = false
+		},
+		() => {
+			triedSubmit.value = true
 		}
-	}
+	)
 </script>
 
 <template>
@@ -207,24 +264,41 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
-					<TextField v-model.trim="form.name" label="Название *" name="name" placeholder="Название" />
+					<TextField
+						v-model="name"
+						v-bind="nameProps"
+						label="Название *"
+						name="name"
+						placeholder="Название"
+						:error-message="errors.name"
+					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						v-model.trim="form.slug"
+						v-model="slug"
+						v-bind="slugProps"
 						label="Slug"
 						name="slug"
 						placeholder="Slug"
+						:error-message="errors.slug"
 						@update:model-value="onSlugInput"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
-					<TextField v-model.number="form.sort_order" label="Порядок" name="sort_order" type="number" min="0" />
+					<TextField
+						v-model="sortOrder as any"
+						v-bind="sortOrderProps"
+						label="Порядок"
+						name="sort_order"
+						type="number"
+						min="0"
+						:error-message="errors.sort_order"
+					/>
 				</div>
 
-				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
+				<CheckboxField v-model="isActive as any" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="md:col-span-2">
 					<SelectField
@@ -234,12 +308,13 @@
 						placeholder="Выберите размер"
 						:options="canvasSizeOptions"
 						:disabled="loadingCanvasSizes || !canvasSizes.length"
+						:error-message="triedSubmit ? errors.sizes : ''"
 						@update:model-value="addCanvasSize"
 					/>
 
 					<p v-if="loadingCanvasSizes" class="mt-2 text-sm text-gray-500">Загрузка...</p>
 					<p v-else-if="!canvasSizes.length" class="mt-2 text-sm text-gray-500">Пока нет размеров холста.</p>
-					<p v-else-if="!canvasSizeOptions.length && !form.sizes.length" class="mt-2 text-sm text-gray-500">
+					<p v-else-if="!canvasSizeOptions.length && !(values.sizes || []).length" class="mt-2 text-sm text-gray-500">
 						Нет доступных размеров.
 					</p>
 
@@ -259,7 +334,7 @@
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || !form.name || !form.slug" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

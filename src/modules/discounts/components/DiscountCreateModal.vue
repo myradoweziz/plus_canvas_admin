@@ -1,5 +1,9 @@
 <script setup lang="ts">
+	import { toTypedSchema } from '@vee-validate/zod'
+	import { useForm } from 'vee-validate'
 	import { ref, watch } from 'vue'
+	import { toast } from 'vue3-toastify'
+	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -8,6 +12,7 @@
 	import TextField from '@/shared/ui/TextField.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 
+	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { discountsApi } from '../api/discounts'
 	import type { Discount } from '../types/discount'
 
@@ -16,56 +21,83 @@
 	const props = defineProps<{ open: boolean; discount: Discount | null }>()
 
 	const saving = ref(false)
-	const imageFile = ref<File | null>(null)
 
-	const form = ref<Discount>({
-		id: null,
-		title: '',
-		description: '',
-		image_url: '',
-		is_active: false,
-		order: 0
+	const { errors, defineField, handleSubmit, resetForm, setValues, values } = useForm({
+		initialValues: {
+			id: null as number | null,
+			title: '',
+			description: '',
+			image_url: '',
+			is_active: false,
+			order: 0,
+			image: null as File | null
+		},
+		validationSchema: toTypedSchema(
+			z
+				.object({
+					id: z.number().nullable().optional(),
+					title: z.string().trim().min(1, 'Укажите заголовок'),
+					description: z.string().trim().optional().nullable(),
+					image_url: z.string().trim().optional().nullable(),
+					is_active: z.boolean(),
+					order: z.coerce.number().min(0, 'Укажите корректный порядок'),
+					image: z.custom<File | null>().optional()
+				})
+				.superRefine((v, ctx) => {
+					if (!v.id && !v.image && !v.image_url) {
+						ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['image'], message: 'Выберите изображение' })
+					}
+				})
+		)
 	})
 
-	const resetForm = () => {
-		form.value = { id: null, title: '', description: '', image_url: '', is_active: false, order: 0 }
-		imageFile.value = null
+	const [title, titleProps] = defineField('title')
+	const [order, orderProps] = defineField('order')
+	const [description, descriptionProps] = defineField('description')
+	const [isActive] = defineField('is_active')
+	const [image, imageProps] = defineField('image')
+
+	const resetLocalForm = () => {
+		resetForm({
+			values: { id: null, title: '', description: '', image_url: '', is_active: false, order: 0, image: null }
+		})
 	}
 
 	watch(
-		() => props.discount,
-		(discount) => {
+		() => [props.open, props.discount] as const,
+		([open, discount]) => {
+			if (!open) return
 			if (!discount) {
-				resetForm()
+				resetLocalForm()
 				return
 			}
 
-			form.value = {
-				id: discount.id,
-				title: discount.title,
-				description: discount.description,
-				image_url: discount.image_url,
-				is_active: discount.is_active,
-				order: discount.order
-			}
-			imageFile.value = null
+			setValues({
+				id: discount.id ?? null,
+				title: discount.title ?? '',
+				description: discount.description ?? '',
+				image_url: discount.image_url ?? '',
+				is_active: !!discount.is_active,
+				order: discount.order ?? 0,
+				image: null
+			})
 		},
 		{ immediate: true }
 	)
 
-	const onSubmit = async () => {
+	const onSubmit = handleSubmit(async (values) => {
 		saving.value = true
 		try {
 			const payload: Discount = {
-				id: form.value.id,
-				title: form.value.title,
-				description: form.value.description,
-				is_active: form.value.is_active,
-				order: form.value.order,
-				image: imageFile.value
+				id: values.id ?? null,
+				title: values.title,
+				description: values.description ?? '',
+				is_active: !!values.is_active,
+				order: values.order ?? 0,
+				image: (values.image as File | null) ?? null
 			}
 
-			if (props.discount?.id) {
+			if (payload.id) {
 				await discountsApi.updateDiscount(payload)
 			} else {
 				await discountsApi.createDiscount(payload)
@@ -75,12 +107,16 @@
 			emit('close')
 
 			if (!props.discount) {
-				resetForm()
+				resetLocalForm()
 			}
+		} catch (err) {
+			const msg = getFirstBackendValidationMessage(err)
+			if (msg) toast.error(msg)
+			else throw err
 		} finally {
 			saving.value = false
 		}
-	}
+	})
 </script>
 
 <template>
@@ -100,26 +136,52 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
-					<TextField v-model.trim="form.title" label="Заголовок *" name="title" placeholder="Заголовок" />
+					<TextField
+						v-model="title"
+						v-bind="titleProps"
+						label="Заголовок *"
+						name="title"
+						placeholder="Заголовок"
+						:error-message="errors.title"
+					/>
 				</div>
 
 				<div class="md:col-span-1">
-					<TextField v-model.number="form.order" label="Порядок" name="order" type="number" min="0" />
+					<TextField
+						v-model="(order as any)"
+						v-bind="orderProps"
+						label="Порядок"
+						name="order"
+						type="number"
+						min="0"
+						:error-message="errors.order"
+					/>
 				</div>
 
 				<div class="md:col-span-2">
-					<TextareaField v-model.trim="form.description" label="Описание" name="description" />
+					<TextareaField
+						v-model="(description as any)"
+						v-bind="descriptionProps"
+						label="Описание"
+						name="description"
+						:error-message="errors.description"
+					/>
 				</div>
 
 				<div class="md:col-span-2">
-					<ImageUpload v-model="imageFile" :current-url="form.image_url" />
+					<ImageUpload
+						v-model="(image as any)"
+						v-bind="imageProps"
+						:current-url="values.image_url || ''"
+						:error-message="errors.image"
+					/>
 				</div>
 
-				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
+				<CheckboxField v-model="(isActive as any)" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || !form.title" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

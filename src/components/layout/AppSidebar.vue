@@ -133,6 +133,7 @@
 		HomeIcon,
 		PermissionsIcon,
 		ProductsIcon,
+		SettingsIcon,
 		SubCategoriesIcon,
 		UsersIcon
 	} from '@/shared/icons'
@@ -211,6 +212,11 @@
 					icon: ChatIcon,
 					name: 'FAQ',
 					path: '/faqs'
+				},
+				{
+					icon: SettingsIcon,
+					name: 'Контактная информация',
+					path: '/contact-info'
 				},
 				{
 					icon: UsersIcon,

@@ -1,5 +1,9 @@
 <script setup lang="ts">
-	import { ref, watch } from 'vue'
+	import { toTypedSchema } from '@vee-validate/zod'
+	import { useForm } from 'vee-validate'
+import { computed, ref, watch } from 'vue'
+	import { toast } from 'vue3-toastify'
+	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -8,6 +12,7 @@
 	import TextField from '@/shared/ui/TextField.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 
+	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { bannersApi } from '../api/banners'
 	import type { Banner } from '../types/banner'
 
@@ -16,56 +21,91 @@
 	const props = defineProps<{ open: boolean; banner: Banner | null }>()
 
 	const saving = ref(false)
-	const imageFile = ref<File | null>(null)
+	const urlRegex = /^https?:\/\/\S+$/i
 
-	const form = ref<Banner>({
-		id: null,
-		title: '',
-		description: '',
-		image_url: '',
-		url: '',
-		order: 0,
-		is_active: false
+	const { errors, defineField, handleSubmit, resetForm, setValues, values } = useForm({
+		initialValues: {
+			id: null as number | null,
+			title: '',
+			description: '',
+			image_url: '',
+			url: '',
+			order: 0,
+			is_active: false,
+			image: null as File | null
+		},
+		validationSchema: toTypedSchema(
+			z
+				.object({
+					id: z.number().nullable().optional(),
+					title: z.string().trim().min(1, 'Укажите заголовок'),
+					description: z.string().trim().optional().nullable(),
+					image_url: z.string().trim().optional().nullable(),
+					url: z
+						.string()
+						.trim()
+						.min(1, 'Укажите URL')
+						.refine((v) => urlRegex.test(v), 'Некорректный URL'),
+					order: z.number().optional(),
+					is_active: z.boolean(),
+					image: z.custom<File | null>().optional()
+				})
+				.superRefine((v, ctx) => {
+					if (!v.id && !v.image && !v.image_url) {
+						ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['image'], message: 'Выберите изображение' })
+					}
+				})
+		)
 	})
 
-	const resetForm = () => {
-		form.value = { id: null, title: '', description: '', image_url: '', url: '', order: 0, is_active: false }
-		imageFile.value = null
+	const [title, titleProps] = defineField('title')
+	const [order] = defineField('order')
+	const [description, descriptionProps] = defineField('description')
+	const [url, urlProps] = defineField('url')
+	const [isActive] = defineField('is_active')
+	const [image, imageProps] = defineField('image')
+
+	const resetLocalForm = () => {
+		resetForm({
+			values: { id: null, title: '', description: '', image_url: '', url: '', order: 0, is_active: false, image: null }
+		})
 	}
 
 	watch(
-		() => props.banner,
-		(banner) => {
+		() => [props.open, props.banner] as const,
+		([open, banner]) => {
+			if (!open) return
 			if (!banner) {
-				resetForm()
+				resetLocalForm()
 				return
 			}
-
-			form.value = {
-				id: banner.id,
-				title: banner.title,
-				description: banner.description,
-				image_url: banner.image_url,
-				url: banner.url,
-				order: banner.order,
-				is_active: banner.is_active
-			}
-			imageFile.value = null
+			setValues({
+				id: banner.id ?? null,
+				title: banner.title ?? '',
+				description: banner.description ?? '',
+				image_url: banner.image_url ?? '',
+				url: banner.url ?? '',
+				order: banner.order ?? 0,
+				is_active: !!banner.is_active,
+				image: null
+			})
 		},
 		{ immediate: true }
 	)
 
-	const onSubmit = async () => {
+	const isFormValid = computed(() => !Object.values(errors.value).some(Boolean))
+
+	const onSubmit = handleSubmit(async (v) => {
 		saving.value = true
 		try {
 			const payload: Banner = {
-				id: form.value.id,
-				title: form.value.title,
-				description: form.value.description,
-				url: form.value.url,
-				order: form.value.order,
-				is_active: form.value.is_active,
-				image: imageFile.value
+				id: v.id ?? null,
+				title: v.title,
+				description: v.description ?? '',
+				url: v.url ?? '',
+				order: v.order ?? 0,
+				is_active: !!v.is_active,
+				image: (v.image as File | null) ?? null
 			}
 
 			if (props.banner?.id) {
@@ -78,12 +118,16 @@
 			emit('close')
 
 			if (!props.banner) {
-				resetForm()
+				resetLocalForm()
 			}
+		} catch (err) {
+			const msg = getFirstBackendValidationMessage(err)
+			if (msg) toast.error(msg)
+			else throw err
 		} finally {
 			saving.value = false
 		}
-	}
+	})
 </script>
 
 <template>
@@ -103,30 +147,55 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
-					<TextField v-model.trim="form.title" label="Заголовок" name="title" placeholder="Заголовок" />
+					<TextField
+						v-model="title"
+						v-bind="titleProps"
+						label="Заголовок"
+						name="title"
+						placeholder="Заголовок"
+						:error-message="errors.title"
+					/>
 				</div>
 
 				<div class="md:col-span-1">
-					<TextField v-model.number="form.order" label="Порядок" name="order" type="number" min="0" />
+					<TextField v-model="order" label="Порядок" name="order" type="number" min="0" />
 				</div>
 
 				<div class="md:col-span-2">
-					<TextareaField v-model.trim="form.description" label="Описание" name="description" />
+					<TextareaField
+						v-model="description as any"
+						v-bind="descriptionProps"
+						label="Описание"
+						name="description"
+						:error-message="errors.description"
+					/>
 				</div>
 
 				<div class="md:col-span-2">
-					<TextField v-model.trim="form.url" label="URL" name="url" placeholder="URL" />
+					<TextField
+						v-model="url as any"
+						v-bind="urlProps"
+						label="URL"
+						name="url"
+						placeholder="URL"
+						:error-message="errors.url"
+					/>
 				</div>
 
 				<div class="md:col-span-2">
-					<ImageUpload v-model="imageFile" :current-url="form.image_url" />
+					<ImageUpload
+						v-model="image as any"
+						v-bind="imageProps"
+						:current-url="values.image_url || ''"
+						:error-message="errors.image"
+					/>
 				</div>
 
-				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
+				<CheckboxField v-model="isActive as any" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || !form.title" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving || !isFormValid" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

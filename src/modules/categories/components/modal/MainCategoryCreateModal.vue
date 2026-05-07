@@ -1,5 +1,9 @@
 <script setup lang="ts">
-	import { computed, ref, watch } from 'vue'
+	import { toTypedSchema } from '@vee-validate/zod'
+	import { useForm } from 'vee-validate'
+import { computed, ref, watch } from 'vue'
+	import { toast } from 'vue3-toastify'
+	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -9,6 +13,7 @@
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
+	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { mediaApi } from '@/shared/api/media'
 	import { slugify } from '@/shared'
 	import { categoriesApi } from '../../api'
@@ -26,70 +31,94 @@
 		{ label: 'Tablo Kanvas Tablo Galerisi', value: 'Tablo  Kanvas Tablo Galerisi' }
 	]
 
-	const form = ref<MainCategory>({
-		id: null,
-		name: '',
-		slug: '',
-		description: '',
-		images: [],
-		is_active: false,
-		featured_order: 0,
-		category_type: 'Kişiye Özel Kanvas '
-	})
-
-	const resetForm = () => {
-		form.value = {
-			id: null,
+	const { errors, defineField, handleSubmit, resetForm, setValues, values } = useForm({
+		initialValues: {
+			id: null as number | null,
 			name: '',
 			slug: '',
 			description: '',
-			images: [],
+			images: [] as string[],
 			is_active: false,
 			featured_order: 0,
 			category_type: 'Kişiye Özel Kanvas '
-		}
-	}
+		},
+		validationSchema: toTypedSchema(
+			z.object({
+				id: z.number().nullable().optional(),
+				name: z.string().trim().min(1, 'Укажите название'),
+				slug: z.string().trim().min(1, 'Укажите slug'),
+				description: z.string().trim().optional().nullable(),
+				images: z.array(z.string()).optional(),
+				is_active: z.boolean(),
+				featured_order: z.coerce.number().min(0, 'Укажите корректный порядок'),
+				category_type: z.string().trim().min(1, 'Выберите тип категории')
+			})
+		)
+	})
 
 	const imagesModel = computed<Array<string | File>>({
-		get: () => form.value.images || [],
+		get: () => values.images || [],
 		set: (value) => {
-			form.value.images = value.filter((item): item is string => typeof item === 'string')
+			setValues({ ...values, images: value.filter((item): item is string => typeof item === 'string') } as any)
 		}
 	})
 
+	const [name, nameProps] = defineField('name')
+	const [slug, slugProps] = defineField('slug')
+	const [featuredOrder, featuredOrderProps] = defineField('featured_order')
+	const [categoryType, categoryTypeProps] = defineField('category_type')
+	const [description, descriptionProps] = defineField('description')
+	const [isActive] = defineField('is_active')
+
+	const resetLocalForm = () => {
+		resetForm({
+			values: {
+				id: null,
+				name: '',
+				slug: '',
+				description: '',
+				images: [],
+				is_active: false,
+				featured_order: 0,
+				category_type: 'Kişiye Özel Kanvas '
+			}
+		})
+	}
+
 	watch(
-		() => props.category,
-		(category) => {
+		() => [props.open, props.category] as const,
+		([open, category]) => {
+			if (!open) return
 			if (!category) {
-				resetForm()
+				resetLocalForm()
 				slugManuallyEdited.value = false
 				lastGeneratedSlug.value = ''
 				return
 			}
 
-			form.value = {
-				id: category.id,
-				name: category.name,
-				slug: category.slug,
+			setValues({
+				id: category.id ?? null,
+				name: category.name ?? '',
+				slug: category.slug ?? '',
 				description: category.description ?? '',
 				images: Array.isArray(category.images) ? category.images : [],
-				is_active: category.is_active,
-				featured_order: category.featured_order,
-				category_type: category.category_type
-			}
-			lastGeneratedSlug.value = slugify(category.name)
+				is_active: !!category.is_active,
+				featured_order: category.featured_order ?? 0,
+				category_type: category.category_type ?? 'Kişiye Özel Kanvas '
+			})
+			lastGeneratedSlug.value = slugify(category.name ?? '')
 			slugManuallyEdited.value = Boolean(category.slug && category.slug !== lastGeneratedSlug.value)
 		},
 		{ immediate: true }
 	)
 
 	watch(
-		() => form.value.name,
+		() => values.name,
 		(name) => {
-			const generatedSlug = slugify(name)
+			const generatedSlug = slugify(name ?? '')
 
-			if (!slugManuallyEdited.value || !form.value.slug || form.value.slug === lastGeneratedSlug.value) {
-				form.value.slug = generatedSlug
+			if (!slugManuallyEdited.value || !values.slug || values.slug === lastGeneratedSlug.value) {
+				setValues({ ...values, slug: generatedSlug } as any)
 				slugManuallyEdited.value = false
 			}
 
@@ -98,29 +127,43 @@
 	)
 
 	const onSlugInput = (value: string | number) => {
-		form.value.slug = String(value)
-		slugManuallyEdited.value = form.value.slug !== lastGeneratedSlug.value
+		setValues({ ...values, slug: String(value) } as any)
+		slugManuallyEdited.value = String(value) !== lastGeneratedSlug.value
 	}
 
-	const onSubmit = async () => {
+	const onSubmit = handleSubmit(async (v) => {
 		saving.value = true
 		try {
-			if (props.category?.id) {
-				await categoriesApi.updateMainCategory(form.value)
+			const payload: MainCategory = {
+				id: v.id ?? null,
+				name: v.name,
+				slug: v.slug,
+				description: v.description ?? '',
+				images: v.images ?? [],
+				is_active: !!v.is_active,
+				featured_order: v.featured_order ?? 0,
+				category_type: v.category_type as MainCategory['category_type']
+			}
+			if (payload.id) {
+				await categoriesApi.updateMainCategory(payload)
 			} else {
-				await categoriesApi.createMainCategory(form.value)
+				await categoriesApi.createMainCategory(payload)
 			}
 
 			emit('saved')
 			emit('close')
 
 			if (!props.category) {
-				resetForm()
+				resetLocalForm()
 			}
+		} catch (err) {
+			const msg = getFirstBackendValidationMessage(err)
+			if (msg) toast.error(msg)
+			else throw err
 		} finally {
 			saving.value = false
 		}
-	}
+	})
 </script>
 
 <template>
@@ -140,45 +183,60 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
-					<TextField v-model.trim="form.name" label="Название *" name="name" placeholder="Название" />
+					<TextField
+						v-model="name"
+						v-bind="nameProps"
+						label="Название *"
+						name="name"
+						placeholder="Название"
+						:error-message="errors.name"
+					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						v-model.trim="form.slug"
+						v-model="slug"
+						v-bind="slugProps"
 						label="Slug"
 						name="slug"
 						placeholder="Slug"
+						:error-message="errors.slug"
 						@update:model-value="onSlugInput"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						v-model.number="form.featured_order"
+						v-model="(featuredOrder as any)"
+						v-bind="featuredOrderProps"
 						label="Порядок"
 						name="featured_order"
 						type="number"
 						min="0"
+						:error-message="errors.featured_order"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<SelectField
-						v-model="form.category_type"
+						v-model="categoryType"
+						v-bind="categoryTypeProps"
 						label="Тип категории *"
 						name="category_type"
 						placeholder="Выберите тип категории"
 						:options="categoryTypeOptions"
+						:error-message="errors.category_type"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<TextareaField
-						v-model.trim="form.description"
+						v-model="(description as any)"
+						v-bind="descriptionProps"
 						label="Описание"
 						name="description"
 						placeholder="Описание"
+						:error-message="errors.description"
 					/>
 				</div>
 
@@ -191,11 +249,11 @@
 					/>
 				</div>
 
-				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
+				<CheckboxField v-model="(isActive as any)" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || !form.name || !form.category_type" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

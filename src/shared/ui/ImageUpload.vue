@@ -1,5 +1,8 @@
 <template>
-	<div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+	<div
+		class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4"
+		:class="{ 'border-red-500': errorMessage }"
+	>
 		<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 			<div class="min-w-0">
 				<p class="text-sm font-semibold text-gray-900">{{ label }}</p>
@@ -32,13 +35,10 @@
 				:alt="previewAlt"
 				class="h-16 w-28 rounded-lg object-cover ring-1 ring-gray-200"
 			/>
-			<div class="min-w-0">
-				<p class="text-xs font-medium text-gray-600">{{ fileLabel }}</p>
-				<p class="break-all text-sm text-gray-700">{{ modelValue?.name || currentUrl }}</p>
-			</div>
 		</div>
 
 		<p v-if="error" class="mt-3 text-sm text-red-600">{{ error }}</p>
+		<p v-else-if="errorMessage" class="mt-3 text-sm text-red-600">{{ errorMessage }}</p>
 	</div>
 </template>
 
@@ -56,6 +56,7 @@
 			fileLabel?: string
 			accept?: string
 			previewAlt?: string
+			errorMessage?: string
 		}>(),
 		{
 			currentUrl: '',
@@ -65,7 +66,8 @@
 			clearText: 'Очистить',
 			fileLabel: 'Файл',
 			accept: 'image/*',
-			previewAlt: ''
+			previewAlt: '',
+			errorMessage: ''
 		}
 	)
 
@@ -109,4 +111,3 @@
 		error.value = ''
 	}
 </script>
-

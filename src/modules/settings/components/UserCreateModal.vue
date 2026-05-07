@@ -1,5 +1,9 @@
 <script setup lang="ts">
-	import { computed, ref, watch } from 'vue'
+	import { toTypedSchema } from '@vee-validate/zod'
+	import { useForm } from 'vee-validate'
+import { computed, ref, watch } from 'vue'
+	import { toast } from 'vue3-toastify'
+	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -8,6 +12,7 @@
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
+	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { rolesApi } from '../api/roles'
 	import { usersApi } from '../api/users'
 	import type { Role } from '../types/role'
@@ -17,44 +22,85 @@
 	const props = defineProps<{ open: boolean; user?: User | null }>()
 
 	const saving = ref(false)
+	const triedSubmit = ref(false)
 	const loadingRoles = ref(false)
 	const allRoles = ref<Role[]>([])
 	const selectedRoleName = ref<string | null>(null)
 
-	const form = ref<User>({
-		id: null,
-		name: '',
-		email: '',
-		phone_number: '',
-		password: '',
-		password_confirmation: '',
-		roles: [],
-		addresses: [
-			{
-				address: '',
-				city: '',
-				is_default: true
-			}
-		]
-	})
+	const emptyAddress = (): UserAddress => ({ address: '', city: '', is_default: true })
 
-	const resetForm = () => {
-		form.value = {
-			id: null,
+	const { errors, defineField, handleSubmit, resetForm, setFieldValue, setValues, values } = useForm({
+		initialValues: {
+			id: null as number | null,
 			name: '',
 			email: '',
 			phone_number: '',
 			password: '',
 			password_confirmation: '',
-			roles: [],
-			addresses: [
-				{
-					address: '',
-					city: '',
-					is_default: true
-				}
-			]
-		}
+			roles: [] as string[],
+			addresses: [emptyAddress()]
+		},
+		validationSchema: toTypedSchema(
+			z
+				.object({
+					id: z.number().nullable().optional(),
+					name: z.string().trim().min(1, 'Укажите имя'),
+					email: z.string().trim().min(1, 'Укажите email').email('Некорректный email'),
+					phone_number: z.string().trim().min(1, 'Укажите телефон'),
+					password: z.string().optional(),
+					password_confirmation: z.string().optional(),
+					roles: z.array(z.string()),
+					addresses: z.array(
+						z.object({
+							address: z.string().trim().min(1, 'Укажите адрес'),
+							city: z.string().trim().min(1, 'Укажите город'),
+							is_default: z.boolean()
+						})
+					)
+				})
+				.superRefine((v, ctx) => {
+					if (!v.id && !v.password) {
+						ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['password'], message: 'Укажите пароль' })
+					}
+					if (v.password || v.password_confirmation) {
+						if ((v.password || '').length < 8) {
+							ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['password'], message: 'Пароль минимум 8 символов' })
+						}
+						if (v.password !== v.password_confirmation) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								path: ['password_confirmation'],
+								message: 'Пароли не совпадают'
+							})
+						}
+					}
+					if (v.addresses.length && !v.addresses.some((a) => a.is_default)) {
+						ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['addresses'], message: 'Выберите адрес по умолчанию' })
+					}
+				})
+		)
+	})
+
+	const [name, nameProps] = defineField('name')
+	const [email, emailProps] = defineField('email')
+	const [phoneNumber, phoneNumberProps] = defineField('phone_number')
+	const [password, passwordProps] = defineField('password')
+	const [passwordConfirmation, passwordConfirmationProps] = defineField('password_confirmation')
+
+	const resetLocalForm = () => {
+		resetForm({
+			values: {
+				id: null,
+				name: '',
+				email: '',
+				phone_number: '',
+				password: '',
+				password_confirmation: '',
+				roles: [],
+				addresses: [emptyAddress()]
+			}
+		})
+		triedSubmit.value = false
 		selectedRoleName.value = null
 	}
 
@@ -71,7 +117,11 @@
 	watch(
 		() => props.open,
 		(open) => {
-			if (!open) return
+			if (!open) {
+				resetLocalForm()
+				return
+			}
+			triedSubmit.value = false
 			loadRoles()
 		},
 		{ immediate: true }
@@ -81,7 +131,7 @@
 		() => props.user,
 		(user) => {
 			if (!user) return
-			form.value = {
+			setValues({
 				id: user.id ?? null,
 				name: user.name ?? '',
 				email: user.email ?? '',
@@ -89,8 +139,8 @@
 				password: '',
 				password_confirmation: '',
 				roles: Array.isArray(user.roles) ? user.roles : [],
-				addresses: Array.isArray(user.addresses) && user.addresses.length ? user.addresses : []
-			}
+				addresses: Array.isArray(user.addresses) && user.addresses.length ? user.addresses : [emptyAddress()]
+			})
 		},
 		{ immediate: true }
 	)
@@ -99,7 +149,7 @@
 		allRoles.value
 			.map((r) => r.name)
 			.filter((name): name is string => typeof name === 'string' && name.length > 0)
-			.filter((name) => !form.value.roles.includes(name))
+			.filter((name) => !(values.roles || []).includes(name))
 			.map((name) => ({ label: name, value: name }))
 	)
 
@@ -107,11 +157,11 @@
 		selectedRoleName.value = null
 		if (!value) return
 		const name = String(value)
-		if (!form.value.roles.includes(name)) form.value.roles.push(name)
+		if (!(values.roles || []).includes(name)) setValues({ ...values, roles: [...(values.roles || []), name] } as any)
 	}
 
 	const removeRole = (name: string) => {
-		form.value.roles = form.value.roles.filter((r) => r !== name)
+		setValues({ ...values, roles: (values.roles || []).filter((r) => r !== name) } as any)
 	}
 
 	const addAddress = () => {
@@ -120,39 +170,62 @@
 			city: '',
 			is_default: false
 		}
-		form.value.addresses = [...(form.value.addresses || []), next]
+		setValues({ ...values, addresses: [...(values.addresses || []), next] } as any)
 	}
 
 	const removeAddress = (index: number) => {
-		form.value.addresses = (form.value.addresses || []).filter((_, idx) => idx !== index)
+		setValues({ ...values, addresses: (values.addresses || []).filter((_, idx) => idx !== index) } as any)
 	}
 
 	const setDefaultAddress = (index: number, value: boolean) => {
 		if (!value) {
-			form.value.addresses[index].is_default = false
+			const addresses = [...(values.addresses || [])]
+			addresses[index] = { ...addresses[index], is_default: false }
+			setValues({ ...values, addresses } as any)
 			return
 		}
-		form.value.addresses = (form.value.addresses || []).map((a, idx) => ({
+		const addresses = (values.addresses || []).map((a, idx) => ({
 			...a,
 			is_default: idx === index
 		}))
+		setValues({ ...values, addresses } as any)
 	}
 
-	const onSubmit = async () => {
-		saving.value = true
-		try {
-			if (props.user?.id) {
-				await usersApi.updateUser(form.value)
-			} else {
-				await usersApi.createUser(form.value)
+	const onSubmit = handleSubmit(
+		async (v) => {
+			triedSubmit.value = true
+			saving.value = true
+			try {
+				const payload: User = {
+					id: v.id ?? null,
+					name: v.name,
+					email: v.email,
+					phone_number: v.phone_number,
+					password: v.password || '',
+					password_confirmation: v.password_confirmation || '',
+					roles: v.roles || [],
+					addresses: v.addresses || []
+				}
+				if (payload.id) {
+					await usersApi.updateUser(payload)
+				} else {
+					await usersApi.createUser(payload)
+				}
+				emit('saved')
+				emit('close')
+				resetLocalForm()
+			} catch (err) {
+				const msg = getFirstBackendValidationMessage(err)
+				if (msg) toast.error(msg)
+				else throw err
+			} finally {
+				saving.value = false
 			}
-			emit('saved')
-			emit('close')
-			resetForm()
-		} finally {
-			saving.value = false
+		},
+		() => {
+			triedSubmit.value = true
 		}
-	}
+	)
 </script>
 
 <template>
@@ -173,31 +246,52 @@
 			</div>
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3" @submit.prevent="onSubmit">
-				<TextField v-model.trim="form.name" label="Имя *" name="name" placeholder="Имя" />
-				<TextField v-model.trim="form.email" label="Email *" type="email" name="email" placeholder="Email" />
 				<TextField
-					v-model.trim="form.phone_number"
+					v-model="name"
+					v-bind="nameProps"
+					label="Имя *"
+					name="name"
+					placeholder="Имя"
+					:error-message="errors.name"
+				/>
+				<TextField
+					v-model="email"
+					v-bind="emailProps"
+					label="Email *"
+					type="email"
+					name="email"
+					placeholder="Email"
+					:error-message="errors.email"
+				/>
+				<TextField
+					v-model="phoneNumber"
+					v-bind="phoneNumberProps"
 					label="Телефон *"
 					type="tel"
 					name="phone_number"
 					placeholder="Телефон"
+					:error-message="errors.phone_number"
 				/>
 
 				<TextField
 					v-if="!user"
-					v-model.trim="form.password"
+					v-model="password"
+					v-bind="passwordProps"
 					label="Пароль *"
 					name="password"
 					type="password"
 					placeholder="Пароль"
+					:error-message="errors.password"
 				/>
 				<TextField
 					v-if="!user"
-					v-model.trim="form.password_confirmation"
+					v-model="passwordConfirmation"
+					v-bind="passwordConfirmationProps"
 					label="Подтверждение пароля *"
 					name="password_confirmation"
 					type="password"
 					placeholder="Подтверждение пароля"
+					:error-message="errors.password_confirmation"
 				/>
 				<div v-if="user" class="md:col-span-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
 					Пароль: оставьте пустым, если не нужно менять.
@@ -213,9 +307,9 @@
 						:disabled="loadingRoles"
 						@update:model-value="addRole"
 					/>
-					<div v-if="form.roles.length" class="mt-3 flex flex-wrap gap-2">
+					<div v-if="(values.roles || []).length" class="mt-3 flex flex-wrap gap-2">
 						<span
-							v-for="role in form.roles"
+							v-for="role in values.roles || []"
 							:key="role"
 							class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
 						>
@@ -241,14 +335,14 @@
 
 					<div class="mt-3 space-y-4">
 						<div
-							v-for="(address, index) in form.addresses"
+							v-for="(address, index) in values.addresses || []"
 							:key="index"
 							class="rounded-xl border border-gray-200 bg-white p-4"
 						>
 							<div class="flex items-start justify-between gap-3">
 								<p class="text-sm font-semibold text-gray-800">Address #{{ index + 1 }}</p>
 								<Button
-									v-if="form.addresses.length > 1"
+									v-if="(values.addresses || []).length > 1"
 									type="button"
 									variant="ghost"
 									size="icon"
@@ -260,16 +354,30 @@
 							</div>
 
 							<div class="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
-								<TextField v-model.trim="address.city" label="City" name="city" placeholder="City" />
+								<TextField
+									:model-value="address.city"
+									label="Город"
+									name="city"
+									placeholder="Город"
+									:error-message="triedSubmit ? (errors as any)[`addresses[${index}].city`] : ''"
+									@update:model-value="(v) => (setFieldValue as any)(`addresses[${index}].city`, String(v ?? ''))"
+								/>
 								<CheckboxField
 									:model-value="address.is_default"
-									label="Default"
+									label="По умолчанию"
 									name="is_default"
 									@update:model-value="(v) => setDefaultAddress(index, v)"
 								/>
 
 								<div class="md:col-span-3">
-									<TextareaField v-model.trim="address.address" label="Address" name="address" placeholder="Address" />
+									<TextareaField
+										:model-value="address.address"
+										label="Адрес"
+										name="address"
+										placeholder="Адрес"
+										:error-message="triedSubmit ? (errors as any)[`addresses[${index}].address`] : ''"
+										@update:model-value="(v) => (setFieldValue as any)(`addresses[${index}].address`, String(v ?? ''))"
+									/>
 								</div>
 							</div>
 						</div>
@@ -278,12 +386,7 @@
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-3">
 					<Button type="button" variant="outline" size="sm" :on-click="() => $emit('close')"> Отмена </Button>
-					<Button
-						type="submit"
-						size="sm"
-						:disabled="saving || !form.name || !form.email || !form.phone_number"
-						:loading="saving"
-					>
+					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

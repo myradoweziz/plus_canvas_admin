@@ -1,10 +1,15 @@
 <script setup lang="ts">
-	import { ref, watch } from 'vue'
+	import { toTypedSchema } from '@vee-validate/zod'
+	import { useForm } from 'vee-validate'
+import { ref, watch } from 'vue'
+	import { toast } from 'vue3-toastify'
+	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
+	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { permissionsApi } from '../api/permissions'
 	import type { Permission } from '../types/permission'
 
@@ -12,39 +17,63 @@
 	const props = defineProps<{ open: boolean; permission?: Permission | null }>()
 
 	const saving = ref(false)
-	const name = ref('')
+	const triedSubmit = ref(false)
+
+	const { errors, defineField, handleSubmit, resetForm, setValues } = useForm({
+		initialValues: {
+			id: null as number | null,
+			name: ''
+		},
+		validationSchema: toTypedSchema(
+			z.object({
+				id: z.number().nullable().optional(),
+				name: z.string().trim().min(1, 'Укажите название')
+			})
+		)
+	})
+
+	const [name, nameProps] = defineField('name')
 
 	watch(
 		() => [props.open, props.permission] as const,
 		([open, permission]) => {
 			if (!open) {
-				name.value = ''
+				triedSubmit.value = false
+				resetForm({ values: { id: null, name: '' } })
 				return
 			}
 
-			name.value = permission?.name ?? ''
+			triedSubmit.value = false
+			setValues({ id: permission?.id ?? null, name: permission?.name ?? '' })
 		}
 	)
 
-	const onSubmit = async () => {
-		const value = name.value.trim()
-		if (!value) return
-
-		saving.value = true
-		try {
-			if (props.permission?.id) {
-				await permissionsApi.updatePermission({ id: props.permission.id, name: value })
-			} else {
-				const payload: Permission = { id: null, name: value }
-				await permissionsApi.createPermission(payload)
+	const onSubmit = handleSubmit(
+		async (values) => {
+			triedSubmit.value = true
+			saving.value = true
+			try {
+				if (values.id) {
+					await permissionsApi.updatePermission({ id: values.id, name: values.name })
+				} else {
+					const payload: Permission = { id: null, name: values.name }
+					await permissionsApi.createPermission(payload)
+				}
+				emit('saved')
+				emit('close')
+				resetForm({ values: { id: null, name: '' } })
+			} catch (err) {
+				const msg = getFirstBackendValidationMessage(err)
+				if (msg) toast.error(msg)
+				else throw err
+			} finally {
+				saving.value = false
 			}
-			emit('saved')
-			emit('close')
-			name.value = ''
-		} finally {
-			saving.value = false
+		},
+		() => {
+			triedSubmit.value = true
 		}
-	}
+	)
 </script>
 
 <template>
@@ -63,11 +92,18 @@
 			</div>
 
 			<form class="mt-6 grid grid-cols-1 gap-4" @submit.prevent="onSubmit">
-				<TextField v-model.trim="name" label="Название *" name="name" placeholder="название права" />
+				<TextField
+					v-model="name"
+					v-bind="nameProps"
+					label="Название *"
+					name="name"
+					placeholder="название права"
+					:error-message="triedSubmit ? errors.name : ''"
+				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3">
 					<Button type="button" variant="outline" size="sm" :on-click="() => $emit('close')">Отмена</Button>
-					<Button type="submit" size="sm" :disabled="saving || !name" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving || !!errors.name" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>
@@ -75,4 +111,3 @@
 		</div>
 	</Modal>
 </template>
-
