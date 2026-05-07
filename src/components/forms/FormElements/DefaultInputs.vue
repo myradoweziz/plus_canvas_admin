@@ -148,7 +148,5 @@
 		cardNumber: ''
 	})
 
-	const date = ref(null)
-
-	const time = ref(null)
+	// refs date/time не используются: значения храним в formData
 </script>

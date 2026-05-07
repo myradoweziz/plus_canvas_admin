@@ -129,29 +129,36 @@ import { ref, watch } from 'vue'
 
 				<div class="md:col-span-2">
 					<TextareaField
-						v-model="(answer as any)"
+						:model-value="answer as any"
 						v-bind="answerProps"
 						label="Ответ *"
 						name="answer"
 						placeholder="Ответ"
 						:error-message="errors.answer"
+						@update:model-value="(v) => ((answer as any).value = v)"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						v-model="(order as any)"
+						:model-value="order as any"
 						v-bind="orderProps"
 						label="Порядок"
 						name="order"
 						type="number"
 						min="0"
 						:error-message="errors.order"
+						@update:model-value="(v) => ((order as any).value = v)"
 					/>
 				</div>
 
 				<div class="md:col-span-1 flex items-end">
-					<CheckboxField v-model="(isActive as any)" label="Активно" name="is_active" />
+					<CheckboxField
+						:model-value="isActive as any"
+						label="Активно"
+						name="is_active"
+						@update:model-value="(v) => ((isActive as any).value = v)"
+					/>
 				</div>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">

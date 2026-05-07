@@ -1,7 +1,7 @@
 <script setup lang="ts">
 	import { toTypedSchema } from '@vee-validate/zod'
 	import { useForm } from 'vee-validate'
-import { ref, watch } from 'vue'
+	import { ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
 	import { z } from 'zod'
 
@@ -126,25 +126,27 @@ import { ref, watch } from 'vue'
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
 					<TextField
-						v-model="(width as any)"
+						:model-value="width as any"
 						v-bind="widthProps"
 						label="Ширина *"
 						name="width"
 						type="number"
 						min="0"
 						:error-message="errors.width"
+						@update:model-value="(v) => ((width as any).value = v)"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						v-model="(height as any)"
+						:model-value="height as any"
 						v-bind="heightProps"
 						label="Высота *"
 						name="height"
 						type="number"
 						min="0"
 						:error-message="errors.height"
+						@update:model-value="(v) => ((height as any).value = v)"
 					/>
 				</div>
 
@@ -162,26 +164,28 @@ import { ref, watch } from 'vue'
 
 				<div class="md:col-span-1">
 					<TextField
-						v-model="(sortOrder as any)"
+						:model-value="sortOrder as any"
 						v-bind="sortOrderProps"
 						label="Порядок"
 						name="sort_order"
 						type="number"
 						min="0"
 						:error-message="errors.sort_order"
+						@update:model-value="(v) => ((sortOrder as any).value = v)"
 					/>
 				</div>
 
-				<CheckboxField v-model="(isActive as any)" label="Активно" name="is_active" class="md:col-span-2" />
+				<CheckboxField
+					:model-value="isActive as any"
+					label="Активно"
+					name="is_active"
+					class="md:col-span-2"
+					@update:model-value="(v) => ((isActive as any).value = v)"
+				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button
-						type="submit"
-						size="sm"
-						:disabled="saving || Object.values(errors).some(Boolean)"
-						:loading="saving"
-					>
+					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

@@ -28,7 +28,7 @@
         <div class="absolute">
           <select v-model="selectedCountry" @change="updatePhoneNumber"
             class="appearance-none rounded-l-lg border-0 border-r border-gray-200 bg-transparent bg-none py-3 pl-3.5 pr-8 leading-tight text-gray-700 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-gray-400">
-            <option v-for="(code, country) in countryCodes" :key="country" :value="country">
+            <option v-for="(_code, country) in countryCodes" :key="country" :value="country">
               {{ country }}
             </option>
           </select>
@@ -55,7 +55,7 @@
         <div class="absolute right-0">
           <select v-model="selectedCountry2" @change="updatePhoneNumber2"
             class="appearance-none rounded-r-lg border-0 border-l border-gray-200 bg-transparent bg-none py-3 pl-3.5 pr-8 leading-tight text-gray-700 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-gray-400">
-            <option v-for="(code, country) in countryCodes" :key="country" :value="country">
+            <option v-for="(_code, country) in countryCodes" :key="country" :value="country">
               {{ country }}
             </option>
           </select>

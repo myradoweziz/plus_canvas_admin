@@ -128,7 +128,13 @@ import { ref, watch } from 'vue'
 					<ColorPicker v-model="hexCode" v-bind="hexCodeProps" label="Цвет *" name="hex_code" :error-message="errors.hex_code" />
 				</div>
 
-				<CheckboxField v-model="(isActive as any)" label="Активно" name="is_active" class="md:col-span-2" />
+				<CheckboxField
+					:model-value="isActive as any"
+					label="Активно"
+					name="is_active"
+					class="md:col-span-2"
+					@update:model-value="(v) => ((isActive as any).value = v)"
+				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>

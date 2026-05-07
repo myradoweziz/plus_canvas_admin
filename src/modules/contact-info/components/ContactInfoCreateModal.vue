@@ -120,45 +120,49 @@
 					type="tel"
 				/>
 				<TextField
-					v-model="email as any"
+					:model-value="email as any"
 					v-bind="emailProps"
 					label="Email"
 					name="email"
 					type="email"
 					placeholder="email@example.com"
 					:error-message="errors.email"
+					@update:model-value="(v) => ((email as any).value = v)"
 				/>
 
 				<div class="md:col-span-2">
 					<TextareaField
-						v-model="address as any"
+						:model-value="address as any"
 						v-bind="addressProps"
 						label="Адрес"
 						name="address"
 						placeholder="Адрес"
 						:error-message="errors.address"
+						@update:model-value="(v) => ((address as any).value = v)"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<TextareaField
-						v-model="slogan as any"
+						:model-value="slogan as any"
 						v-bind="sloganProps"
 						label="Слоган"
 						name="slogan"
 						placeholder="Слоган"
 						:error-message="errors.slogan"
+						@update:model-value="(v) => ((slogan as any).value = v)"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<ImageUpload
-						v-model="logo as any"
+						:model-value="logo as any"
 						v-bind="logoProps"
 						label="Логотип"
 						description="Выберите изображение — отправим как файл при сохранении."
 						:current-url="props.contactInfo?.logo || ''"
 						:error-message="errors.logo"
+						@update:model-value="(v) => ((logo as any).value = v)"
 					/>
 				</div>
 

@@ -163,35 +163,44 @@ import { computed, ref, watch } from 'vue'
 
 				<div class="md:col-span-2">
 					<TextareaField
-						v-model="description as any"
+						:model-value="description as any"
 						v-bind="descriptionProps"
 						label="Описание"
 						name="description"
 						:error-message="errors.description"
+						@update:model-value="(v) => ((description as any).value = v)"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<TextField
-						v-model="url as any"
+						:model-value="url as any"
 						v-bind="urlProps"
 						label="URL"
 						name="url"
 						placeholder="URL"
 						:error-message="errors.url"
+						@update:model-value="(v) => ((url as any).value = v)"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<ImageUpload
-						v-model="image as any"
+						:model-value="image as any"
 						v-bind="imageProps"
 						:current-url="values.image_url || ''"
 						:error-message="errors.image"
+						@update:model-value="(v) => ((image as any).value = v)"
 					/>
 				</div>
 
-				<CheckboxField v-model="isActive as any" label="Активно" name="is_active" class="md:col-span-2" />
+				<CheckboxField
+					:model-value="isActive as any"
+					label="Активно"
+					name="is_active"
+					class="md:col-span-2"
+					@update:model-value="(v) => ((isActive as any).value = v)"
+				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>

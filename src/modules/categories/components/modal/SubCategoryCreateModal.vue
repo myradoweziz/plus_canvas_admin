@@ -233,17 +233,24 @@
 
 				<div class="md:col-span-1">
 					<TextField
-						v-model="(featuredOrder as any)"
+						:model-value="featuredOrder as any"
 						v-bind="featuredOrderProps"
 						label="Порядок"
 						name="featured_order"
 						type="number"
 						min="0"
 						:error-message="errors.featured_order"
+						@update:model-value="(v) => ((featuredOrder as any).value = v)"
 					/>
 				</div>
 
-				<CheckboxField v-model="(isActive as any)" label="Активно" name="is_active" class="md:col-span-2" />
+				<CheckboxField
+					:model-value="isActive as any"
+					label="Активно"
+					name="is_active"
+					class="md:col-span-2"
+					@update:model-value="(v) => ((isActive as any).value = v)"
+				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>

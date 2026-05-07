@@ -11,10 +11,10 @@
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
-	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { canvasSizesApi } from '@/modules/canvas-sizes/api/canvas-sizes'
 	import type { CanvasSize } from '@/modules/canvas-sizes/types/canvas-size'
 	import { slugify } from '@/shared'
+	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { canvasFormatsApi } from '../api/canvas-formats'
 	import type { CanvasFormat, CanvasFormatSize } from '../types/canvas-format'
 	import { getCanvasFormatSizeLabel } from '../types/canvas-format'
@@ -233,10 +233,10 @@
 				if (!props.canvasFormat) {
 					resetLocalForm()
 				}
-		} catch (err) {
-			const msg = getFirstBackendValidationMessage(err)
-			if (msg) toast.error(msg)
-			else throw err
+			} catch (err) {
+				const msg = getFirstBackendValidationMessage(err)
+				if (msg) toast.error(msg)
+				else throw err
 			} finally {
 				saving.value = false
 			}
@@ -288,17 +288,24 @@
 
 				<div class="md:col-span-1">
 					<TextField
-						v-model="sortOrder as any"
+						:model-value="sortOrder as any"
 						v-bind="sortOrderProps"
 						label="Порядок"
 						name="sort_order"
 						type="number"
 						min="0"
 						:error-message="errors.sort_order"
+						@update:model-value="(v) => ((sortOrder as any).value = v)"
 					/>
 				</div>
 
-				<CheckboxField v-model="isActive as any" label="Активно" name="is_active" class="md:col-span-2" />
+				<CheckboxField
+					:model-value="isActive as any"
+					label="Активно"
+					name="is_active"
+					class="md:col-span-2"
+					@update:model-value="(v) => ((isActive as any).value = v)"
+				/>
 
 				<div class="md:col-span-2">
 					<SelectField

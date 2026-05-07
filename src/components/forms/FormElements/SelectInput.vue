@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import MultipleSelect from './MultipleSelect.vue'
 
 const optionss = [
@@ -76,5 +76,5 @@ const options = ref([
   { text: 'Option 4', selected: false },
 ])
 
-const selected = computed(() => options.value.filter((option) => option.selected))
+// selected не используется в шаблоне; оставляем только состояние options
 </script>
