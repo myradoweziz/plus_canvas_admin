@@ -18,13 +18,6 @@ const router = createRouter({
 
 router.beforeEach(loadLayoutMiddleware)
 
-router.beforeEach((to) => {
-	// Redirect legacy URLs to /admin-panel/*
-	if (to.path.startsWith(ADMIN_PREFIX)) return
-	if (to.fullPath === '/') return `${ADMIN_PREFIX}/`
-	return `${ADMIN_PREFIX}${to.fullPath}`
-})
-
 router.beforeEach(async (to) => {
 	const { cookies } = useCookies()
 	const auth = useAuth()
