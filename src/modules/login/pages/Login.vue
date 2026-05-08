@@ -1,11 +1,11 @@
 <script setup lang="ts">
 	import { toTypedSchema } from '@vee-validate/zod'
-	import { z } from 'zod'
 	import { useForm } from 'vee-validate'
 	import { computed, ref } from 'vue'
 	import { useRouter } from 'vue-router'
 	import { useCookies } from 'vue3-cookies'
 	import { toast } from 'vue3-toastify'
+	import { z } from 'zod'
 
 	import CommonGridShape from '@/components/common/CommonGridShape.vue'
 	import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
@@ -57,7 +57,7 @@
 
 			cookies.set('plus_canvas_admin_authorization', token)
 			toast.success('Вход выполнен')
-			router.push('/')
+			router.push('/admin-panel')
 		} catch (error) {
 			console.error(error)
 			toast.error('Не удалось войти')

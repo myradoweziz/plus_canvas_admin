@@ -149,36 +149,36 @@
 				{
 					icon: HomeIcon,
 					name: 'Панель',
-					path: '/'
+					path: '/admin-panel'
 				},
 				{
 					icon: BannerIcon,
 					name: 'Баннеры',
-					path: '/banners'
+					path: '/admin-panel/banners'
 				},
 				{
 					icon: ProductsIcon,
 					name: 'Продукты',
-					path: '/products'
+					path: '/admin-panel/products'
 				},
 				{
 					icon: CategoriesIcon,
 					name: 'Категории',
-					path: '/categories',
+					path: '/admin-panel/categories',
 					subItems: [
 						{
 							name: 'Главные категории',
-							path: '/categories/main-categories',
+							path: '/admin-panel/categories/main-categories',
 							icon: CategoriesIcon
 						},
 						{
 							name: 'Категории',
-							path: '/categories/featured-categories',
+							path: '/admin-panel/categories/featured-categories',
 							icon: FeaturedCategoriesIcon
 						},
 						{
 							name: 'Подкатегории',
-							path: '/categories/sub-categories',
+							path: '/admin-panel/categories/sub-categories',
 							icon: SubCategoriesIcon
 						}
 					]
@@ -186,57 +186,57 @@
 				{
 					icon: DiscountsIcon,
 					name: 'Скидки',
-					path: '/discounts'
+					path: '/admin-panel/discounts'
 				},
 				{
 					icon: BrandsIcon,
 					name: 'Бренды',
-					path: '/brands'
+					path: '/admin-panel/brands'
 				},
 				{
 					icon: ColorsIcon,
 					name: 'Цвета',
-					path: '/colors'
+					path: '/admin-panel/colors'
 				},
 				{
 					icon: CanvasSizesIcon,
 					name: 'Размеры холста',
-					path: '/canvas-sizes'
+					path: '/admin-panel/canvas-sizes'
 				},
 				{
 					icon: CanvasFormatsIcon,
 					name: 'Форматы холста',
-					path: '/canvas-formats'
+					path: '/admin-panel/canvas-formats'
 				},
 				{
 					icon: ChatIcon,
 					name: 'FAQ',
-					path: '/faqs'
+					path: '/admin-panel/faqs'
 				},
 				{
 					icon: SettingsIcon,
 					name: 'Контактная информация',
-					path: '/contact-info'
+					path: '/admin-panel/contact-info'
 				},
 				{
 					icon: UsersIcon,
 					name: 'Пользователи',
-					path: '/settings/permissions',
+					path: '/admin-panel/settings/permissions',
 					subItems: [
 						{
 							icon: PermissionsIcon,
 							name: 'Права',
-							path: '/settings/permissions'
+							path: '/admin-panel/settings/permissions'
 						},
 						{
 							icon: UsersIcon,
 							name: 'Роли',
-							path: '/settings/roles'
+							path: '/admin-panel/settings/roles'
 						},
 						{
 							icon: UsersIcon,
 							name: 'Пользователи',
-							path: '/settings/users'
+							path: '/admin-panel/settings/users'
 						}
 					]
 				}

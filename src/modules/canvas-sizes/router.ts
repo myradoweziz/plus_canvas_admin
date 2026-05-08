@@ -4,7 +4,7 @@ const Module = () => import('./Module.vue')
 const CanvasSizes = () => import('./pages/CanvasSizes.vue')
 
 const moduleRoute = {
-	path: '/canvas-sizes',
+	path: '/admin-panel/canvas-sizes',
 	component: Module,
 	children: [
 		{
@@ -18,4 +18,3 @@ const moduleRoute = {
 export default (router: any) => {
 	router.addRoute(moduleRoute)
 }
-

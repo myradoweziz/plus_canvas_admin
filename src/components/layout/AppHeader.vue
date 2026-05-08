@@ -60,9 +60,11 @@
 </template>
 
 <script setup lang="ts">
-	import { useSidebar } from '@/composables/useSidebar'
 	import { ref } from 'vue'
+
 	import UserMenu from './header/UserMenu.vue'
+
+	import { useSidebar } from '@/composables/useSidebar'
 
 	const { toggleSidebar, toggleMobileSidebar, isMobileOpen } = useSidebar()
 

@@ -4,7 +4,7 @@ const Module = () => import('./Module.vue')
 const Colors = () => import('./pages/Colors.vue')
 
 const moduleRoute = {
-	path: '/colors',
+	path: '/admin-panel/colors',
 	component: Module,
 	children: [
 		{
@@ -18,4 +18,3 @@ const moduleRoute = {
 export default (router: any) => {
 	router.addRoute(moduleRoute)
 }
-

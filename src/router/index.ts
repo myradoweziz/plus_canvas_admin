@@ -4,6 +4,8 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 import { useCookies } from 'vue3-cookies'
 
+const ADMIN_PREFIX = '/admin-panel'
+
 const routes: Array<RouteRecordRaw> = []
 
 const router = createRouter({
@@ -16,6 +18,13 @@ const router = createRouter({
 
 router.beforeEach(loadLayoutMiddleware)
 
+router.beforeEach((to) => {
+	// Redirect legacy URLs to /admin-panel/*
+	if (to.path.startsWith(ADMIN_PREFIX)) return
+	if (to.fullPath === '/') return `${ADMIN_PREFIX}/`
+	return `${ADMIN_PREFIX}${to.fullPath}`
+})
+
 router.beforeEach(async (to) => {
 	const { cookies } = useCookies()
 	const auth = useAuth()
@@ -24,8 +33,8 @@ router.beforeEach(async (to) => {
 		await auth.getProfile()
 	}
 
-	if (!auth.isAuth && !to.meta.noAuth && to.path !== '/login') {
-		return '/login'
+	if (!auth.isAuth && !to.meta.noAuth && to.path !== `${ADMIN_PREFIX}/login`) {
+		return `${ADMIN_PREFIX}/login`
 	}
 
 	document.title = (to.meta?.title as string) || 'Plus Canvas Admin'

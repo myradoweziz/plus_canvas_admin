@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useCookies } from 'vue3-cookies'
 
 const { cookies } = useCookies()
+const ADMIN_PREFIX = '/admin-panel'
 
 axios.interceptors.response.use(
 	(response) => response,
@@ -15,8 +16,8 @@ axios.interceptors.response.use(
 
 			const currentPath = router.currentRoute.value?.path
 
-			if (currentPath !== '/login') {
-				router.push('/login')
+			if (currentPath !== `${ADMIN_PREFIX}/login`) {
+				router.push(`${ADMIN_PREFIX}/login`)
 			}
 		}
 

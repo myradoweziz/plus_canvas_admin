@@ -451,7 +451,7 @@
 				toast.success('Продукт успешно добавлен')
 			}
 
-			router.push('/products')
+			router.push('/admin-panel/products')
 		} catch (error) {
 			validationErrors.value = getValidationErrors(error)
 			toast.error(getErrorMessage(error))
@@ -471,7 +471,9 @@
 					</h3>
 					<p class="mt-1 text-sm text-gray-600">Заполните поля и сохраните.</p>
 				</div>
-				<Button type="button" variant="outline" size="sm" :on-click="() => router.push('/products')">Назад</Button>
+				<Button type="button" variant="outline" size="sm" :on-click="() => router.push('/admin-panel/products')"
+					>Назад</Button
+				>
 			</div>
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3" @submit.prevent="onSubmit">
@@ -673,7 +675,9 @@
 				</div>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-3">
-					<Button type="button" variant="outline" size="sm" :on-click="() => router.push('/products')"> Отмена </Button>
+					<Button type="button" variant="outline" size="sm" :on-click="() => router.push('/admin-panel/products')">
+						Отмена
+					</Button>
 					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>

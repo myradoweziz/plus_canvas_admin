@@ -5,6 +5,7 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+	base: '/admin-panel/',
 	plugins: [vue(), tailwindcss()],
 	server: {
 		host: '0.0.0.0',

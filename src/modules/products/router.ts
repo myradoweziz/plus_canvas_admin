@@ -5,7 +5,7 @@ const Products = () => import('./pages/Products.vue')
 const ProductForm = () => import('./components/ProductCreateModal.vue')
 
 const moduleRoute = {
-	path: '/products',
+	path: '/admin-panel/products',
 	component: Module,
 	children: [
 		{

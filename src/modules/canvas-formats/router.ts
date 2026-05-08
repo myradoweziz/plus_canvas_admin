@@ -4,7 +4,7 @@ const Module = () => import('./Module.vue')
 const CanvasFormats = () => import('./pages/CanvasFormats.vue')
 
 const moduleRoute = {
-	path: '/canvas-formats',
+	path: '/admin-panel/canvas-formats',
 	component: Module,
 	children: [
 		{
@@ -18,4 +18,3 @@ const moduleRoute = {
 export default (router: any) => {
 	router.addRoute(moduleRoute)
 }
-

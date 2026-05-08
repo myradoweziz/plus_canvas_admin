@@ -4,7 +4,7 @@ const Module = () => import('./Module.vue')
 const Discounts = () => import('./pages/Discounts.vue')
 
 const moduleRoute = {
-	path: '/discounts',
+	path: '/admin-panel/discounts',
 	component: Module,
 	children: [
 		{
@@ -18,4 +18,3 @@ const moduleRoute = {
 export default (router: any) => {
 	router.addRoute(moduleRoute)
 }
-

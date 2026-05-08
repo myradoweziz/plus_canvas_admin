@@ -6,7 +6,7 @@ const Roles = () => import('./pages/Roles.vue')
 const Users = () => import('./pages/Users.vue')
 
 const moduleRoute = {
-	path: '/settings',
+	path: '/admin-panel/settings',
 	component: Module,
 	children: [
 		{

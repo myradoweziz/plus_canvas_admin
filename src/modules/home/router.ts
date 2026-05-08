@@ -4,7 +4,7 @@ const Module = () => import('./Module.vue')
 const Home = () => import('./pages/Home.vue')
 
 const moduleRoute = {
-	path: '/',
+	path: '/admin-panel',
 	component: Module,
 	children: [
 		{

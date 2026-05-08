@@ -34,7 +34,7 @@
 				</li>
 			</ul>
 			<router-link
-				to="/login"
+				to="/admin-panel/login"
 				@click="signOut"
 				class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
 			>
@@ -61,7 +61,7 @@
 	const dropdownOpen = ref(false)
 	const dropdownRef = ref<HTMLElement | null>(null)
 
-	const menuItems = [{ href: '/profile', icon: UserCircleIcon, text: 'Профиль' }]
+	const menuItems = [{ href: '/admin-panel/profile', icon: UserCircleIcon, text: 'Профиль' }]
 
 	const toggleDropdown = () => {
 		dropdownOpen.value = !dropdownOpen.value

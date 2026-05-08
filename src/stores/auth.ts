@@ -16,6 +16,7 @@ interface IAuthStore {
 export const useAuth = defineStore('auth', (): IAuthStore => {
 	const { cookies } = useCookies()
 	const router = useRouter()
+	const ADMIN_PREFIX = '/admin-panel'
 
 	const user = ref<IAuthUser>({
 		id: null,
@@ -64,7 +65,7 @@ export const useAuth = defineStore('auth', (): IAuthStore => {
 			id: null
 		}
 		cookies.remove('plus_canvas_admin_authorization')
-		router.push('/login')
+		router.push(`${ADMIN_PREFIX}/login`)
 	}
 
 	return {

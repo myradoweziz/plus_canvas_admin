@@ -4,7 +4,7 @@ const Module = () => import('./Module.vue')
 const ContactInfo = () => import('./pages/ContactInfo.vue')
 
 const moduleRoute = {
-	path: '/contact-info',
+	path: '/admin-panel/contact-info',
 	component: Module,
 	children: [
 		{
@@ -18,4 +18,3 @@ const moduleRoute = {
 export default (router: any) => {
 	router.addRoute(moduleRoute)
 }
-

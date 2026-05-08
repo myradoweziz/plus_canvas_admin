@@ -6,7 +6,7 @@ const FeaturedCategories = () => import('./pages/FeaturedCategories.vue')
 const SubCategories = () => import('./pages/SubCategories.vue')
 
 const moduleRoute = {
-	path: '/categories',
+	path: '/admin-panel/categories',
 	component: Module,
 	children: [
 		{

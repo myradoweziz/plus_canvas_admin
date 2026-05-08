@@ -4,7 +4,7 @@ const Login = () => import('./pages/Login.vue')
 import { Layouts } from '@/layouts/layouts.types'
 
 const moduleRoute = {
-	path: '/login',
+	path: '/admin-panel/login',
 	component: Module,
 	children: [
 		{

@@ -172,12 +172,12 @@
 	})
 
 	const openCreate = () => {
-		router.push('/products/create')
+		router.push('/admin-panel/products/create')
 	}
 
 	const editProduct = (product: CanvasProduct) => {
 		if (!product.id) return
-		router.push(`/products/${product.id}/edit`)
+		router.push(`/admin-panel/products/${product.id}/edit`)
 	}
 
 	const deleteProduct = (product: CanvasProduct) => {

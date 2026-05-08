@@ -4,7 +4,7 @@ const Module = () => import('./Module.vue')
 const Banners = () => import('./pages/Banners.vue')
 
 const moduleRoute = {
-	path: '/banners',
+	path: '/admin-panel/banners',
 	component: Module,
 	children: [
 		{
