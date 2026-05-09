@@ -190,7 +190,7 @@
 				},
 				{
 					icon: BrandsIcon,
-					name: 'Бренды',
+					name: 'Теги',
 					path: '/admin-panel/brands'
 				},
 				{

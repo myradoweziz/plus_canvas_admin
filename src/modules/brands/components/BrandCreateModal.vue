@@ -131,7 +131,7 @@
 			<div class="flex items-start justify-between gap-4">
 				<div class="min-w-0">
 					<h3 class="text-lg font-semibold text-gray-900">
-						{{ brand ? 'Редактировать бренд' : 'Добавить бренд' }}
+						{{ brand ? 'Редактировать тег' : 'Добавить тег' }}
 					</h3>
 					<p class="mt-1 text-sm text-gray-600">Заполните поля и сохраните.</p>
 				</div>
