@@ -1,7 +1,7 @@
 <script setup lang="ts">
 	import { toTypedSchema } from '@vee-validate/zod'
 	import { useForm } from 'vee-validate'
-import { computed, ref, watch } from 'vue'
+	import { computed, ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
 	import { z } from 'zod'
 
@@ -62,8 +62,29 @@ import { computed, ref, watch } from 'vue'
 	const [order] = defineField('order')
 	const [description, descriptionProps] = defineField('description')
 	const [url, urlProps] = defineField('url')
-	const [isActive] = defineField('is_active')
+	const [isActive, isActiveProps] = defineField('is_active')
 	const [image, imageProps] = defineField('image')
+
+	const descriptionModel = computed<string>({
+		get: () => (description.value ?? '') as string,
+		set: (v) => {
+			description.value = v as any
+		}
+	})
+
+	const imageModel = computed<File | null>({
+		get: () => (image.value as File | null | undefined) ?? null,
+		set: (v) => {
+			image.value = v as any
+		}
+	})
+
+	const isActiveModel = computed<boolean>({
+		get: () => !!isActive.value,
+		set: (v) => {
+			isActive.value = v as any
+		}
+	})
 
 	const resetLocalForm = () => {
 		resetForm({
@@ -163,48 +184,45 @@ import { computed, ref, watch } from 'vue'
 
 				<div class="md:col-span-2">
 					<TextareaField
-						:model-value="description as any"
+						v-model="descriptionModel"
 						v-bind="descriptionProps"
 						label="Описание"
 						name="description"
 						:error-message="errors.description"
-						@update:model-value="(v) => ((description as any).value = v)"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<TextField
-						:model-value="url as any"
+						v-model="url"
 						v-bind="urlProps"
 						label="URL"
 						name="url"
 						placeholder="URL"
 						:error-message="errors.url"
-						@update:model-value="(v) => ((url as any).value = v)"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<ImageUpload
-						:model-value="image as any"
+						v-model="imageModel"
 						v-bind="imageProps"
 						:current-url="values.image_url || ''"
 						:error-message="errors.image"
-						@update:model-value="(v) => ((image as any).value = v)"
 					/>
 				</div>
 
 				<CheckboxField
-					:model-value="isActive as any"
+					v-model="isActiveModel"
+					v-bind="isActiveProps"
 					label="Активно"
 					name="is_active"
 					class="md:col-span-2"
-					@update:model-value="(v) => ((isActive as any).value = v)"
 				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || !isFormValid" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>
