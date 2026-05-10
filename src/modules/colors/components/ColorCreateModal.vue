@@ -1,14 +1,12 @@
 <script setup lang="ts">
-	import { toTypedSchema } from '@vee-validate/zod'
-	import { useForm } from 'vee-validate'
-import { ref, watch } from 'vue'
+	import { reactive, ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
-	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import ColorPicker from '@/shared/ui/ColorPicker.vue'
+	import ImageUpload from '@/shared/ui/ImageUpload.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
@@ -20,30 +18,53 @@ import { ref, watch } from 'vue'
 	const props = defineProps<{ open: boolean; color: Color | null }>()
 
 	const saving = ref(false)
+	const imageError = ref('')
 
-	const { errors, defineField, handleSubmit, resetForm, setValues } = useForm({
-		initialValues: {
-			id: null as number | null,
-			name: '',
-			hex_code: '#000000',
-			is_active: false
-		},
-		validationSchema: toTypedSchema(
-			z.object({
-				id: z.number().nullable().optional(),
-				name: z.string().trim().min(1, 'Укажите название'),
-				hex_code: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Укажите корректный цвет'),
-				is_active: z.boolean()
-			})
-		)
+	const form = reactive({
+		id: null as number | null,
+		name: '',
+		hex_code: '#000000',
+		is_active: false,
+		image_url: '',
+		image: null as File | null
 	})
 
-	const [name, nameProps] = defineField('name')
-	const [hexCode, hexCodeProps] = defineField('hex_code')
-	const [isActive] = defineField('is_active')
+	const fieldErrors = reactive({
+		name: '',
+		hex_code: ''
+	})
+
+	const onImageUpdate = (file: File | null) => {
+		form.image = file
+		imageError.value = ''
+	}
 
 	const resetLocalForm = () => {
-		resetForm({ values: { id: null, name: '', hex_code: '#000000', is_active: false } })
+		Object.assign(form, { id: null, name: '', hex_code: '#000000', is_active: false, image_url: '', image: null })
+		fieldErrors.name = ''
+		fieldErrors.hex_code = ''
+		imageError.value = ''
+	}
+
+	const validate = () => {
+		fieldErrors.name = ''
+		fieldErrors.hex_code = ''
+		imageError.value = ''
+
+		let ok = true
+		if (!form.name.trim()) {
+			fieldErrors.name = 'Укажите название'
+			ok = false
+		}
+		if (!/^#[0-9A-Fa-f]{6}$/.test(String(form.hex_code || ''))) {
+			fieldErrors.hex_code = 'Укажите корректный цвет'
+			ok = false
+		}
+		if (!form.id && !form.image && !form.image_url) {
+			imageError.value = 'Выберите изображение'
+			ok = false
+		}
+		return ok
 	}
 
 	watch(
@@ -55,24 +76,33 @@ import { ref, watch } from 'vue'
 				return
 			}
 
-			setValues({
+			Object.assign(form, {
 				id: color.id ?? null,
 				name: color.name ?? '',
 				hex_code: color.hex_code ?? '#000000',
-				is_active: !!color.is_active
+				is_active: !!color.is_active,
+				image_url: (color as any).image_url ?? (color as any).image ?? '',
+				image: null
 			})
+			fieldErrors.name = ''
+			fieldErrors.hex_code = ''
+			imageError.value = ''
 		},
 		{ immediate: true }
 	)
 
-	const onSubmit = handleSubmit(async (values) => {
+	const onSubmit = async () => {
+		if (!validate()) return
+
 		saving.value = true
 		try {
 			const payload: Color = {
-				id: values.id ?? null,
-				name: values.name,
-				hex_code: values.hex_code,
-				is_active: !!values.is_active
+				id: form.id ?? null,
+				name: form.name.trim(),
+				hex_code: form.hex_code,
+				is_active: !!form.is_active,
+				image_url: form.image_url || '',
+				image: form.image || null
 			}
 
 			if (payload.id) {
@@ -94,7 +124,7 @@ import { ref, watch } from 'vue'
 		} finally {
 			saving.value = false
 		}
-	})
+	}
 </script>
 
 <template>
@@ -115,30 +145,37 @@ import { ref, watch } from 'vue'
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
 					<TextField
-						v-model="name"
-						v-bind="nameProps"
+						v-model="form.name"
 						label="Название *"
 						name="name"
 						placeholder="Название"
-						:error-message="errors.name"
+						:error-message="fieldErrors.name"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
-					<ColorPicker v-model="hexCode" v-bind="hexCodeProps" label="Цвет *" name="hex_code" :error-message="errors.hex_code" />
+					<ColorPicker v-model="form.hex_code" label="Цвет *" name="hex_code" :error-message="fieldErrors.hex_code" />
+				</div>
+
+				<div class="md:col-span-2">
+					<ImageUpload
+						:model-value="form.image"
+						:current-url="form.image_url || ''"
+						:error-message="imageError"
+						@update:model-value="onImageUpdate"
+					/>
 				</div>
 
 				<CheckboxField
-					:model-value="isActive as any"
+					v-model="form.is_active"
 					label="Активно"
 					name="is_active"
 					class="md:col-span-2"
-					@update:model-value="(v) => ((isActive as any).value = v)"
 				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

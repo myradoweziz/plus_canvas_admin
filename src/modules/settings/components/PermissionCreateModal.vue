@@ -1,9 +1,6 @@
 <script setup lang="ts">
-	import { toTypedSchema } from '@vee-validate/zod'
-	import { useForm } from 'vee-validate'
-import { ref, watch } from 'vue'
+	import { reactive, ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
-	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -19,61 +16,68 @@ import { ref, watch } from 'vue'
 	const saving = ref(false)
 	const triedSubmit = ref(false)
 
-	const { errors, defineField, handleSubmit, resetForm, setValues } = useForm({
-		initialValues: {
-			id: null as number | null,
-			name: ''
-		},
-		validationSchema: toTypedSchema(
-			z.object({
-				id: z.number().nullable().optional(),
-				name: z.string().trim().min(1, 'Укажите название')
-			})
-		)
+	const form = reactive({
+		id: null as number | null,
+		name: ''
 	})
 
-	const [name, nameProps] = defineField('name')
+	const fieldErrors = reactive({
+		name: ''
+	})
+
+	const resetLocalForm = () => {
+		Object.assign(form, { id: null, name: '' })
+		fieldErrors.name = ''
+		triedSubmit.value = false
+	}
+
+	const validate = () => {
+		fieldErrors.name = ''
+		let ok = true
+		if (!form.name.trim()) {
+			fieldErrors.name = 'Укажите название'
+			ok = false
+		}
+		return ok
+	}
 
 	watch(
 		() => [props.open, props.permission] as const,
 		([open, permission]) => {
 			if (!open) {
-				triedSubmit.value = false
-				resetForm({ values: { id: null, name: '' } })
+				resetLocalForm()
 				return
 			}
 
 			triedSubmit.value = false
-			setValues({ id: permission?.id ?? null, name: permission?.name ?? '' })
+			Object.assign(form, { id: permission?.id ?? null, name: permission?.name ?? '' })
+			fieldErrors.name = ''
 		}
 	)
 
-	const onSubmit = handleSubmit(
-		async (values) => {
-			triedSubmit.value = true
-			saving.value = true
-			try {
-				if (values.id) {
-					await permissionsApi.updatePermission({ id: values.id, name: values.name })
-				} else {
-					const payload: Permission = { id: null, name: values.name }
-					await permissionsApi.createPermission(payload)
-				}
-				emit('saved')
-				emit('close')
-				resetForm({ values: { id: null, name: '' } })
-			} catch (err) {
-				const msg = getFirstBackendValidationMessage(err)
-				if (msg) toast.error(msg)
-				else throw err
-			} finally {
-				saving.value = false
+	const onSubmit = async () => {
+		triedSubmit.value = true
+		if (!validate()) return
+
+		saving.value = true
+		try {
+			if (form.id) {
+				await permissionsApi.updatePermission({ id: form.id, name: form.name.trim() })
+			} else {
+				const payload: Permission = { id: null, name: form.name.trim() }
+				await permissionsApi.createPermission(payload)
 			}
-		},
-		() => {
-			triedSubmit.value = true
+			emit('saved')
+			emit('close')
+			resetLocalForm()
+		} catch (err) {
+			const msg = getFirstBackendValidationMessage(err)
+			if (msg) toast.error(msg)
+			else throw err
+		} finally {
+			saving.value = false
 		}
-	)
+	}
 </script>
 
 <template>
@@ -93,17 +97,16 @@ import { ref, watch } from 'vue'
 
 			<form class="mt-6 grid grid-cols-1 gap-4" @submit.prevent="onSubmit">
 				<TextField
-					v-model="name"
-					v-bind="nameProps"
+					v-model="form.name"
 					label="Название *"
 					name="name"
 					placeholder="название права"
-					:error-message="triedSubmit ? errors.name : ''"
+					:error-message="triedSubmit ? fieldErrors.name : ''"
 				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3">
 					<Button type="button" variant="outline" size="sm" :on-click="() => $emit('close')">Отмена</Button>
-					<Button type="submit" size="sm" :disabled="saving || !!errors.name" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

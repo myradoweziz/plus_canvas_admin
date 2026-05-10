@@ -1,9 +1,6 @@
 <script setup lang="ts">
-	import { toTypedSchema } from '@vee-validate/zod'
-	import { useForm } from 'vee-validate'
-	import { ref, watch } from 'vue'
+	import { reactive, ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
-	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -20,37 +17,61 @@
 
 	const saving = ref(false)
 
-	const { errors, defineField, handleSubmit, resetForm, setValues } = useForm({
-		initialValues: {
-			id: null as number | null,
-			phone_number: '',
-			address: '',
-			email: '',
-			slogan: '',
-			logo: null as File | null
-		},
-		validationSchema: toTypedSchema(
-			z.object({
-				id: z.number().nullable().optional(),
-				phone_number: z.string().trim().min(1, 'Укажите телефон'),
-				address: z.string().trim().min(1, 'Укажите адрес'),
-				email: z.string().trim().min(1, 'Укажите email').email('Некорректный email'),
-				slogan: z.string().trim().min(1, 'Укажите слоган'),
-				logo: z.custom<File | null>().optional()
-			})
-		)
+	const form = reactive({
+		id: null as number | null,
+		phone_number: '',
+		address: '',
+		email: '',
+		slogan: '',
+		logo: null as File | null
 	})
 
-	const [phoneNumber, phoneNumberProps] = defineField('phone_number')
-	const [email, emailProps] = defineField('email')
-	const [address, addressProps] = defineField('address')
-	const [slogan, sloganProps] = defineField('slogan')
-	const [logo, logoProps] = defineField('logo')
+	const fieldErrors = reactive({
+		phone_number: '',
+		address: '',
+		email: '',
+		slogan: '',
+		logo: ''
+	})
 
 	const reset = () => {
-		resetForm({
-			values: { id: null, phone_number: '', address: '', email: '', slogan: '', logo: null }
-		})
+		Object.assign(form, { id: null, phone_number: '', address: '', email: '', slogan: '', logo: null })
+		fieldErrors.phone_number = ''
+		fieldErrors.address = ''
+		fieldErrors.email = ''
+		fieldErrors.slogan = ''
+		fieldErrors.logo = ''
+	}
+
+	const validate = () => {
+		fieldErrors.phone_number = ''
+		fieldErrors.address = ''
+		fieldErrors.email = ''
+		fieldErrors.slogan = ''
+		fieldErrors.logo = ''
+
+		let ok = true
+		if (!form.phone_number.trim()) {
+			fieldErrors.phone_number = 'Укажите телефон'
+			ok = false
+		}
+		if (!form.address.trim()) {
+			fieldErrors.address = 'Укажите адрес'
+			ok = false
+		}
+		const email = form.email.trim()
+		if (!email) {
+			fieldErrors.email = 'Укажите email'
+			ok = false
+		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+			fieldErrors.email = 'Некорректный email'
+			ok = false
+		}
+		if (!form.slogan.trim()) {
+			fieldErrors.slogan = 'Укажите слоган'
+			ok = false
+		}
+		return ok
 	}
 
 	watch(
@@ -61,7 +82,7 @@
 				return
 			}
 
-			setValues({
+			Object.assign(form, {
 				id: contactInfo?.id ?? null,
 				phone_number: contactInfo?.phone_number ? String(contactInfo.phone_number) : '',
 				address: contactInfo?.address ? String(contactInfo.address) : '',
@@ -69,19 +90,26 @@
 				slogan: contactInfo?.slogan ? String(contactInfo.slogan) : '',
 				logo: null
 			})
+			fieldErrors.phone_number = ''
+			fieldErrors.address = ''
+			fieldErrors.email = ''
+			fieldErrors.slogan = ''
+			fieldErrors.logo = ''
 		}
 	)
 
-	const onSubmit = handleSubmit(async (v) => {
+	const onSubmit = async () => {
+		if (!validate()) return
+
 		saving.value = true
 		try {
 			await contactInfoApi.saveContactInfo({
 				id: props.contactInfo?.id ?? null,
-				phone_number: v.phone_number,
-				address: v.address,
-				email: v.email,
-				slogan: v.slogan,
-				logo: (v.logo as File | null) ?? null
+				phone_number: form.phone_number.trim(),
+				address: form.address.trim(),
+				email: form.email.trim(),
+				slogan: form.slogan.trim(),
+				logo: form.logo ?? null
 			})
 			toast.success('Данные сохранены')
 			emit('saved')
@@ -92,7 +120,7 @@
 		} finally {
 			saving.value = false
 		}
-	})
+	}
 </script>
 
 <template>
@@ -112,57 +140,49 @@
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<TextField
-					v-model="phoneNumber"
-					v-bind="phoneNumberProps"
+					v-model="form.phone_number"
 					label="Телефон"
 					name="phone_number"
-					:error-message="errors.phone_number"
+					:error-message="fieldErrors.phone_number"
 					type="tel"
 				/>
 				<TextField
-					:model-value="email as any"
-					v-bind="emailProps"
+					v-model="form.email"
 					label="Email"
 					name="email"
 					type="email"
 					placeholder="email@example.com"
-					:error-message="errors.email"
-					@update:model-value="(v) => ((email as any).value = v)"
+					:error-message="fieldErrors.email"
 				/>
 
 				<div class="md:col-span-2">
 					<TextareaField
-						:model-value="address as any"
-						v-bind="addressProps"
+						v-model="form.address"
 						label="Адрес"
 						name="address"
 						placeholder="Адрес"
-						:error-message="errors.address"
-						@update:model-value="(v) => ((address as any).value = v)"
+						:error-message="fieldErrors.address"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<TextareaField
-						:model-value="slogan as any"
-						v-bind="sloganProps"
+						v-model="form.slogan"
 						label="Слоган"
 						name="slogan"
 						placeholder="Слоган"
-						:error-message="errors.slogan"
-						@update:model-value="(v) => ((slogan as any).value = v)"
+						:error-message="fieldErrors.slogan"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<ImageUpload
-						:model-value="logo as any"
-						v-bind="logoProps"
+						:model-value="form.logo"
 						label="Логотип"
 						description="Выберите изображение — отправим как файл при сохранении."
 						:current-url="props.contactInfo?.logo || ''"
-						:error-message="errors.logo"
-						@update:model-value="(v) => ((logo as any).value = v)"
+						:error-message="fieldErrors.logo"
+						@update:model-value="(v) => (form.logo = v)"
 					/>
 				</div>
 

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-	import { toTypedSchema } from '@vee-validate/zod'
-	import { useForm } from 'vee-validate'
-	import { computed, onBeforeUnmount, ref, watch } from 'vue'
-	import { z } from 'zod'
+	import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -25,37 +22,57 @@
 	const slugManuallyEdited = ref(false)
 	const lastGeneratedSlug = ref('')
 
-	const { errors, defineField, handleSubmit, resetForm, setValues, values } = useForm({
-		initialValues: {
-			id: null as number | null,
-			category_id: null as number | null,
-			name: '',
-			slug: '',
-			is_active: false,
-			featured_order: 0
-		},
-		validationSchema: toTypedSchema(
-			z.object({
-				id: z.number().nullable().optional(),
-				category_id: z.number({ message: 'Выберите категорию' }).nullable().refine((v) => v !== null, 'Выберите категорию'),
-				name: z.string().trim().min(1, 'Укажите название'),
-				slug: z.string().trim().min(1, 'Укажите slug'),
-				is_active: z.boolean(),
-				featured_order: z.coerce.number().min(0, 'Укажите корректный порядок')
-			})
-		)
+	const form = reactive({
+		id: null as number | null,
+		category_id: null as number | null,
+		name: '',
+		slug: '',
+		is_active: false,
+		featured_order: 0 as number | string
 	})
 
-	const [categoryId, categoryIdProps] = defineField('category_id')
-	const [name, nameProps] = defineField('name')
-	const [slug, slugProps] = defineField('slug')
-	const [featuredOrder, featuredOrderProps] = defineField('featured_order')
-	const [isActive] = defineField('is_active')
+	const fieldErrors = reactive({
+		category_id: '',
+		name: '',
+		slug: '',
+		featured_order: ''
+	})
 
 	const resetLocalForm = () => {
-		resetForm({ values: { id: null, category_id: null, name: '', slug: '', is_active: false, featured_order: 0 } })
+		Object.assign(form, { id: null, category_id: null, name: '', slug: '', is_active: false, featured_order: 0 })
+		fieldErrors.category_id = ''
+		fieldErrors.name = ''
+		fieldErrors.slug = ''
+		fieldErrors.featured_order = ''
 		slugManuallyEdited.value = false
 		lastGeneratedSlug.value = ''
+	}
+
+	const validate = () => {
+		fieldErrors.category_id = ''
+		fieldErrors.name = ''
+		fieldErrors.slug = ''
+		fieldErrors.featured_order = ''
+
+		let ok = true
+		if (form.category_id === null) {
+			fieldErrors.category_id = 'Выберите категорию'
+			ok = false
+		}
+		if (!form.name.trim()) {
+			fieldErrors.name = 'Укажите название'
+			ok = false
+		}
+		if (!form.slug.trim()) {
+			fieldErrors.slug = 'Укажите slug'
+			ok = false
+		}
+		const featuredOrder = Number(form.featured_order)
+		if (!Number.isFinite(featuredOrder) || featuredOrder < 0) {
+			fieldErrors.featured_order = 'Укажите корректный порядок'
+			ok = false
+		}
+		return ok
 	}
 
 	watch(
@@ -67,7 +84,7 @@
 				return
 			}
 
-			setValues({
+			Object.assign(form, {
 				id: category.id ?? null,
 				category_id: category.category_id ?? null,
 				name: category.name ?? '',
@@ -75,6 +92,10 @@
 				is_active: !!category.is_active,
 				featured_order: category.featured_order ?? 0
 			})
+			fieldErrors.category_id = ''
+			fieldErrors.name = ''
+			fieldErrors.slug = ''
+			fieldErrors.featured_order = ''
 			lastGeneratedSlug.value = slugify(category.name ?? '')
 			slugManuallyEdited.value = Boolean(category.slug && category.slug !== lastGeneratedSlug.value)
 		},
@@ -82,12 +103,12 @@
 	)
 
 	watch(
-		() => values.name,
+		() => form.name,
 		(name) => {
 			const generatedSlug = slugify(name ?? '')
 
-			if (!slugManuallyEdited.value || !values.slug || values.slug === lastGeneratedSlug.value) {
-				setValues({ ...values, slug: generatedSlug } as any)
+			if (!slugManuallyEdited.value || !form.slug || form.slug === lastGeneratedSlug.value) {
+				form.slug = generatedSlug
 				slugManuallyEdited.value = false
 			}
 
@@ -144,20 +165,22 @@
 	onBeforeUnmount(searchFeaturedCategories.cancel)
 
 	const onSlugInput = (value: string | number) => {
-		setValues({ ...values, slug: String(value) } as any)
+		form.slug = String(value)
 		slugManuallyEdited.value = String(value) !== lastGeneratedSlug.value
 	}
 
-	const onSubmit = handleSubmit(async (v) => {
+	const onSubmit = async () => {
+		if (!validate()) return
+
 		saving.value = true
 		try {
 			const payload: SubCategory = {
-				id: v.id ?? null,
-				category_id: v.category_id,
-				name: v.name,
-				slug: v.slug,
-				is_active: !!v.is_active,
-				featured_order: v.featured_order ?? 0
+				id: form.id ?? null,
+				category_id: form.category_id,
+				name: form.name.trim(),
+				slug: form.slug.trim(),
+				is_active: !!form.is_active,
+				featured_order: Number(form.featured_order) || 0
 			}
 			if (payload.id) {
 				await categoriesApi.updateSubCategory(payload)
@@ -174,7 +197,7 @@
 		} finally {
 			saving.value = false
 		}
-	})
+	}
 </script>
 
 <template>
@@ -195,14 +218,13 @@
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
 					<SelectField
-						v-model="categoryId"
-						v-bind="categoryIdProps"
+						v-model="form.category_id"
 						label="Категория *"
 						name="category_id"
 						placeholder="Выберите категорию"
 						:options="featuredCategoryOptions"
 						:disabled="loadingFeaturedCategories"
-						:error-message="errors.category_id"
+						:error-message="fieldErrors.category_id"
 						remote-search
 						@search="searchFeaturedCategories"
 					/>
@@ -210,51 +232,46 @@
 
 				<div class="md:col-span-1">
 					<TextField
-						v-model="name"
-						v-bind="nameProps"
+						v-model="form.name"
 						label="Название *"
 						name="name"
 						placeholder="Название"
-						:error-message="errors.name"
+						:error-message="fieldErrors.name"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						v-model="slug"
-						v-bind="slugProps"
+						v-model="form.slug"
 						label="Slug"
 						name="slug"
 						placeholder="Slug"
-						:error-message="errors.slug"
+						:error-message="fieldErrors.slug"
 						@update:model-value="onSlugInput"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						:model-value="featuredOrder as any"
-						v-bind="featuredOrderProps"
+						v-model.number="form.featured_order"
 						label="Порядок"
 						name="featured_order"
 						type="number"
 						min="0"
-						:error-message="errors.featured_order"
-						@update:model-value="(v) => ((featuredOrder as any).value = v)"
+						:error-message="fieldErrors.featured_order"
 					/>
 				</div>
 
 				<CheckboxField
-					:model-value="isActive as any"
+					v-model="form.is_active"
 					label="Активно"
 					name="is_active"
 					class="md:col-span-2"
-					@update:model-value="(v) => ((isActive as any).value = v)"
 				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

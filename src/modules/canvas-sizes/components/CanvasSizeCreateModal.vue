@@ -1,9 +1,6 @@
 <script setup lang="ts">
-	import { toTypedSchema } from '@vee-validate/zod'
-	import { useForm } from 'vee-validate'
-	import { ref, watch } from 'vue'
+	import { reactive, ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
-	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -22,35 +19,57 @@
 
 	const saving = ref(false)
 
-	const { errors, defineField, handleSubmit, resetForm, setValues } = useForm({
-		initialValues: {
-			id: null as number | null,
-			width: 0,
-			height: 0,
-			unit: 'cm',
-			is_active: true,
-			sort_order: 0
-		},
-		validationSchema: toTypedSchema(
-			z.object({
-				id: z.number().nullable().optional(),
-				width: z.coerce.number().positive('Укажите ширину'),
-				height: z.coerce.number().positive('Укажите высоту'),
-				unit: z.string().trim().min(1, 'Выберите единицу'),
-				is_active: z.boolean(),
-				sort_order: z.coerce.number().min(0, 'Укажите корректный порядок')
-			})
-		)
+	const form = reactive({
+		id: null as number | null,
+		width: 0 as number | string,
+		height: 0 as number | string,
+		unit: 'cm',
+		is_active: true,
+		sort_order: 0 as number | string
 	})
 
-	const [width, widthProps] = defineField('width')
-	const [height, heightProps] = defineField('height')
-	const [unit, unitProps] = defineField('unit')
-	const [sortOrder, sortOrderProps] = defineField('sort_order')
-	const [isActive] = defineField('is_active')
+	const fieldErrors = reactive({
+		width: '',
+		height: '',
+		unit: '',
+		sort_order: ''
+	})
 
 	const resetLocalForm = () => {
-		resetForm({ values: { id: null, width: 0, height: 0, unit: 'cm', is_active: true, sort_order: 0 } })
+		Object.assign(form, { id: null, width: 0, height: 0, unit: 'cm', is_active: true, sort_order: 0 })
+		fieldErrors.width = ''
+		fieldErrors.height = ''
+		fieldErrors.unit = ''
+		fieldErrors.sort_order = ''
+	}
+
+	const validate = () => {
+		fieldErrors.width = ''
+		fieldErrors.height = ''
+		fieldErrors.unit = ''
+		fieldErrors.sort_order = ''
+
+		let ok = true
+		const width = Number(form.width)
+		if (!Number.isFinite(width) || width <= 0) {
+			fieldErrors.width = 'Укажите ширину'
+			ok = false
+		}
+		const height = Number(form.height)
+		if (!Number.isFinite(height) || height <= 0) {
+			fieldErrors.height = 'Укажите высоту'
+			ok = false
+		}
+		if (!String(form.unit || '').trim()) {
+			fieldErrors.unit = 'Выберите единицу'
+			ok = false
+		}
+		const sortOrder = Number(form.sort_order)
+		if (!Number.isFinite(sortOrder) || sortOrder < 0) {
+			fieldErrors.sort_order = 'Укажите корректный порядок'
+			ok = false
+		}
+		return ok
 	}
 
 	watch(
@@ -62,7 +81,7 @@
 				return
 			}
 
-			setValues({
+			Object.assign(form, {
 				id: canvasSize.id ?? null,
 				width: canvasSize.width ?? 0,
 				height: canvasSize.height ?? 0,
@@ -70,20 +89,26 @@
 				is_active: !!canvasSize.is_active,
 				sort_order: canvasSize.sort_order ?? 0
 			})
+			fieldErrors.width = ''
+			fieldErrors.height = ''
+			fieldErrors.unit = ''
+			fieldErrors.sort_order = ''
 		},
 		{ immediate: true }
 	)
 
-	const onSubmit = handleSubmit(async (values) => {
+	const onSubmit = async () => {
+		if (!validate()) return
+
 		saving.value = true
 		try {
 			const payload: CanvasSize = {
-				id: values.id ?? null,
-				width: values.width,
-				height: values.height,
-				unit: values.unit,
-				is_active: !!values.is_active,
-				sort_order: values.sort_order ?? 0
+				id: form.id ?? null,
+				width: Number(form.width),
+				height: Number(form.height),
+				unit: String(form.unit),
+				is_active: !!form.is_active,
+				sort_order: Number(form.sort_order) || 0
 			}
 
 			if (payload.id) {
@@ -105,7 +130,7 @@
 		} finally {
 			saving.value = false
 		}
-	})
+	}
 </script>
 
 <template>
@@ -126,66 +151,58 @@
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
 					<TextField
-						:model-value="width as any"
-						v-bind="widthProps"
+						v-model.number="form.width"
 						label="Ширина *"
 						name="width"
 						type="number"
 						min="0"
-						:error-message="errors.width"
-						@update:model-value="(v) => ((width as any).value = v)"
+						:error-message="fieldErrors.width"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						:model-value="height as any"
-						v-bind="heightProps"
+						v-model.number="form.height"
 						label="Высота *"
 						name="height"
 						type="number"
 						min="0"
-						:error-message="errors.height"
-						@update:model-value="(v) => ((height as any).value = v)"
+						:error-message="fieldErrors.height"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<SelectField
-						v-model="unit"
-						v-bind="unitProps"
+						v-model="form.unit"
 						label="Единица *"
 						name="unit"
 						placeholder="Выберите единицу"
 						:options="CANVAS_SIZE_UNIT_OPTIONS"
-						:error-message="errors.unit"
+						:error-message="fieldErrors.unit"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						:model-value="sortOrder as any"
-						v-bind="sortOrderProps"
+						v-model.number="form.sort_order"
 						label="Порядок"
 						name="sort_order"
 						type="number"
 						min="0"
-						:error-message="errors.sort_order"
-						@update:model-value="(v) => ((sortOrder as any).value = v)"
+						:error-message="fieldErrors.sort_order"
 					/>
 				</div>
 
 				<CheckboxField
-					:model-value="isActive as any"
+					v-model="form.is_active"
 					label="Активно"
 					name="is_active"
 					class="md:col-span-2"
-					@update:model-value="(v) => ((isActive as any).value = v)"
 				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

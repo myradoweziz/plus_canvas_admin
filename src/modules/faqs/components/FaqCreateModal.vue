@@ -1,9 +1,6 @@
 <script setup lang="ts">
-	import { toTypedSchema } from '@vee-validate/zod'
-	import { useForm } from 'vee-validate'
-import { ref, watch } from 'vue'
+	import { reactive, ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
-	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -21,32 +18,47 @@ import { ref, watch } from 'vue'
 
 	const saving = ref(false)
 
-	const { errors, defineField, handleSubmit, resetForm, setValues } = useForm({
-		initialValues: {
-			id: null as number | null,
-			question: '',
-			answer: '',
-			order: 0,
-			is_active: true
-		},
-		validationSchema: toTypedSchema(
-			z.object({
-				id: z.number().nullable().optional(),
-				question: z.string().trim().min(1, 'Укажите вопрос'),
-				answer: z.string().trim().min(1, 'Укажите ответ'),
-				order: z.coerce.number().min(0, 'Укажите корректный порядок'),
-				is_active: z.boolean()
-			})
-		)
+	const form = reactive({
+		id: null as number | null,
+		question: '',
+		answer: '',
+		order: 0,
+		is_active: true
 	})
 
-	const [question, questionProps] = defineField('question')
-	const [answer, answerProps] = defineField('answer')
-	const [order, orderProps] = defineField('order')
-	const [isActive] = defineField('is_active')
+	const fieldErrors = reactive({
+		question: '',
+		answer: '',
+		order: ''
+	})
 
 	const resetLocalForm = () => {
-		resetForm({ values: { id: null, question: '', answer: '', order: 0, is_active: true } })
+		Object.assign(form, { id: null, question: '', answer: '', order: 0, is_active: true })
+		fieldErrors.question = ''
+		fieldErrors.answer = ''
+		fieldErrors.order = ''
+	}
+
+	const validate = () => {
+		fieldErrors.question = ''
+		fieldErrors.answer = ''
+		fieldErrors.order = ''
+
+		let ok = true
+		if (!form.question.trim()) {
+			fieldErrors.question = 'Укажите вопрос'
+			ok = false
+		}
+		if (!form.answer.trim()) {
+			fieldErrors.answer = 'Укажите ответ'
+			ok = false
+		}
+		const order = Number(form.order)
+		if (!Number.isFinite(order) || order < 0) {
+			fieldErrors.order = 'Укажите корректный порядок'
+			ok = false
+		}
+		return ok
 	}
 
 	watch(
@@ -58,26 +70,31 @@ import { ref, watch } from 'vue'
 				return
 			}
 
-			setValues({
+			Object.assign(form, {
 				id: faq.id ?? null,
 				question: faq.question ?? '',
 				answer: faq.answer ?? '',
 				order: faq.order ?? 0,
 				is_active: !!faq.is_active
 			})
+			fieldErrors.question = ''
+			fieldErrors.answer = ''
+			fieldErrors.order = ''
 		},
 		{ immediate: true }
 	)
 
-	const onSubmit = handleSubmit(async (values) => {
+	const onSubmit = async () => {
+		if (!validate()) return
+
 		saving.value = true
 		try {
 			const payload: Faq = {
-				id: values.id ?? null,
-				question: values.question,
-				answer: values.answer,
-				order: values.order ?? 0,
-				is_active: !!values.is_active
+				id: form.id ?? null,
+				question: form.question.trim(),
+				answer: form.answer.trim(),
+				order: Number(form.order) || 0,
+				is_active: !!form.is_active
 			}
 
 			if (payload.id) {
@@ -97,7 +114,7 @@ import { ref, watch } from 'vue'
 		} finally {
 			saving.value = false
 		}
-	})
+	}
 </script>
 
 <template>
@@ -118,52 +135,46 @@ import { ref, watch } from 'vue'
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-2">
 					<TextField
-						v-model="question"
-						v-bind="questionProps"
+						v-model="form.question"
 						label="Вопрос *"
 						name="question"
 						placeholder="Вопрос"
-						:error-message="errors.question"
+						:error-message="fieldErrors.question"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<TextareaField
-						:model-value="answer as any"
-						v-bind="answerProps"
+						v-model="form.answer"
 						label="Ответ *"
 						name="answer"
 						placeholder="Ответ"
-						:error-message="errors.answer"
-						@update:model-value="(v) => ((answer as any).value = v)"
+						:error-message="fieldErrors.answer"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						:model-value="order as any"
-						v-bind="orderProps"
+						v-model.number="form.order"
 						label="Порядок"
 						name="order"
 						type="number"
 						min="0"
-						:error-message="errors.order"
-						@update:model-value="(v) => ((order as any).value = v)"
+						:error-message="fieldErrors.order"
 					/>
 				</div>
 
 				<div class="md:col-span-1 flex items-end">
 					<CheckboxField
-						:model-value="isActive as any"
+						v-model="form.is_active"
 						label="Активно"
 						name="is_active"
-						@update:model-value="(v) => ((isActive as any).value = v)"
 					/>
 				</div>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

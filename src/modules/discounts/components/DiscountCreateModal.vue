@@ -1,9 +1,6 @@
 <script setup lang="ts">
-	import { toTypedSchema } from '@vee-validate/zod'
-	import { useForm } from 'vee-validate'
-	import { ref, watch } from 'vue'
+	import { reactive, ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
-	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -22,45 +19,60 @@
 
 	const saving = ref(false)
 
-	const { errors, defineField, handleSubmit, resetForm, setValues, values } = useForm({
-		initialValues: {
-			id: null as number | null,
+	const form = reactive({
+		id: null as number | null,
+		title: '',
+		description: '',
+		image_url: '',
+		is_active: false,
+		order: 0 as number | string,
+		image: null as File | null
+	})
+
+	const fieldErrors = reactive({
+		title: '',
+		description: '',
+		order: '',
+		image: ''
+	})
+
+	const resetLocalForm = () => {
+		Object.assign(form, {
+			id: null,
 			title: '',
 			description: '',
 			image_url: '',
 			is_active: false,
 			order: 0,
-			image: null as File | null
-		},
-		validationSchema: toTypedSchema(
-			z
-				.object({
-					id: z.number().nullable().optional(),
-					title: z.string().trim().min(1, 'Укажите заголовок'),
-					description: z.string().trim().optional().nullable(),
-					image_url: z.string().trim().optional().nullable(),
-					is_active: z.boolean(),
-					order: z.coerce.number().min(0, 'Укажите корректный порядок'),
-					image: z.custom<File | null>().optional()
-				})
-				.superRefine((v, ctx) => {
-					if (!v.id && !v.image && !v.image_url) {
-						ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['image'], message: 'Выберите изображение' })
-					}
-				})
-		)
-	})
-
-	const [title, titleProps] = defineField('title')
-	const [order, orderProps] = defineField('order')
-	const [description, descriptionProps] = defineField('description')
-	const [isActive] = defineField('is_active')
-	const [image, imageProps] = defineField('image')
-
-	const resetLocalForm = () => {
-		resetForm({
-			values: { id: null, title: '', description: '', image_url: '', is_active: false, order: 0, image: null }
+			image: null
 		})
+		fieldErrors.title = ''
+		fieldErrors.description = ''
+		fieldErrors.order = ''
+		fieldErrors.image = ''
+	}
+
+	const validate = () => {
+		fieldErrors.title = ''
+		fieldErrors.description = ''
+		fieldErrors.order = ''
+		fieldErrors.image = ''
+
+		let ok = true
+		if (!form.title.trim()) {
+			fieldErrors.title = 'Укажите заголовок'
+			ok = false
+		}
+		const order = Number(form.order)
+		if (!Number.isFinite(order) || order < 0) {
+			fieldErrors.order = 'Укажите корректный порядок'
+			ok = false
+		}
+		if (!form.id && !form.image && !form.image_url) {
+			fieldErrors.image = 'Выберите изображение'
+			ok = false
+		}
+		return ok
 	}
 
 	watch(
@@ -72,7 +84,7 @@
 				return
 			}
 
-			setValues({
+			Object.assign(form, {
 				id: discount.id ?? null,
 				title: discount.title ?? '',
 				description: discount.description ?? '',
@@ -81,20 +93,26 @@
 				order: discount.order ?? 0,
 				image: null
 			})
+			fieldErrors.title = ''
+			fieldErrors.description = ''
+			fieldErrors.order = ''
+			fieldErrors.image = ''
 		},
 		{ immediate: true }
 	)
 
-	const onSubmit = handleSubmit(async (values) => {
+	const onSubmit = async () => {
+		if (!validate()) return
+
 		saving.value = true
 		try {
 			const payload: Discount = {
-				id: values.id ?? null,
-				title: values.title,
-				description: values.description ?? '',
-				is_active: !!values.is_active,
-				order: values.order ?? 0,
-				image: (values.image as File | null) ?? null
+				id: form.id ?? null,
+				title: form.title.trim(),
+				description: form.description?.trim?.() ? form.description.trim() : form.description ?? '',
+				is_active: !!form.is_active,
+				order: Number(form.order) || 0,
+				image: form.image ?? null
 			}
 
 			if (payload.id) {
@@ -116,7 +134,7 @@
 		} finally {
 			saving.value = false
 		}
-	})
+	}
 </script>
 
 <template>
@@ -137,60 +155,53 @@
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-1">
 					<TextField
-						v-model="title"
-						v-bind="titleProps"
+						v-model="form.title"
 						label="Заголовок *"
 						name="title"
 						placeholder="Заголовок"
-						:error-message="errors.title"
+						:error-message="fieldErrors.title"
 					/>
 				</div>
 
 				<div class="md:col-span-1">
 					<TextField
-						:model-value="order as any"
-						v-bind="orderProps"
+						v-model.number="form.order"
 						label="Порядок"
 						name="order"
 						type="number"
 						min="0"
-						:error-message="errors.order"
-						@update:model-value="(v) => ((order as any).value = v)"
+						:error-message="fieldErrors.order"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<TextareaField
-						:model-value="description as any"
-						v-bind="descriptionProps"
+						v-model="form.description"
 						label="Описание"
 						name="description"
-						:error-message="errors.description"
-						@update:model-value="(v) => ((description as any).value = v)"
+						:error-message="fieldErrors.description"
 					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<ImageUpload
-						:model-value="image as any"
-						v-bind="imageProps"
-						:current-url="values.image_url || ''"
-						:error-message="errors.image"
-						@update:model-value="(v) => ((image as any).value = v)"
+						:model-value="form.image"
+						:current-url="form.image_url || ''"
+						:error-message="fieldErrors.image"
+						@update:model-value="(v) => (form.image = v)"
 					/>
 				</div>
 
 				<CheckboxField
-					:model-value="isActive as any"
+					v-model="form.is_active"
 					label="Активно"
 					name="is_active"
 					class="md:col-span-2"
-					@update:model-value="(v) => ((isActive as any).value = v)"
 				/>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

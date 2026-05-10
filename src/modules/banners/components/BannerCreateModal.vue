@@ -178,21 +178,11 @@
 				</div>
 
 				<div class="md:col-span-2">
-					<TextField
-						v-model="form.url"
-						label="URL"
-						name="url"
-						placeholder="URL"
-						:error-message="fieldErrors.url"
-					/>
+					<TextField v-model="form.url" label="URL" name="url" placeholder="URL" :error-message="fieldErrors.url" />
 				</div>
 
 				<div class="md:col-span-2">
-					<ImageUpload
-						v-model="form.image"
-						:current-url="form.image_url || ''"
-						:error-message="fieldErrors.image"
-					/>
+					<ImageUpload v-model="form.image" :current-url="form.image_url || ''" :error-message="fieldErrors.image" />
 				</div>
 
 				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />

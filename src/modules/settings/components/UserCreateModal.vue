@@ -1,9 +1,6 @@
 <script setup lang="ts">
-	import { toTypedSchema } from '@vee-validate/zod'
-	import { useForm } from 'vee-validate'
-import { computed, ref, watch } from 'vue'
+	import { computed, reactive, ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
-	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -29,79 +26,122 @@ import { computed, ref, watch } from 'vue'
 
 	const emptyAddress = (): UserAddress => ({ address: '', city: '', is_default: true })
 
-	const { errors, defineField, handleSubmit, resetForm, setFieldValue, setValues, values } = useForm({
-		initialValues: {
-			id: null as number | null,
+	const form = reactive({
+		id: null as number | null,
+		name: '',
+		email: '',
+		phone_number: '',
+		password: '',
+		password_confirmation: '',
+		roles: [] as string[],
+		addresses: [emptyAddress()] as UserAddress[]
+	})
+
+	const fieldErrors = reactive({
+		name: '',
+		email: '',
+		phone_number: '',
+		password: '',
+		password_confirmation: '',
+		roles: '',
+		addresses: '',
+		addressCities: [] as string[],
+		addressTexts: [] as string[]
+	})
+
+	const resetLocalForm = () => {
+		Object.assign(form, {
+			id: null,
 			name: '',
 			email: '',
 			phone_number: '',
 			password: '',
 			password_confirmation: '',
-			roles: [] as string[],
+			roles: [],
 			addresses: [emptyAddress()]
-		},
-		validationSchema: toTypedSchema(
-			z
-				.object({
-					id: z.number().nullable().optional(),
-					name: z.string().trim().min(1, 'Укажите имя'),
-					email: z.string().trim().min(1, 'Укажите email').email('Некорректный email'),
-					phone_number: z.string().trim().min(1, 'Укажите телефон'),
-					password: z.string().optional(),
-					password_confirmation: z.string().optional(),
-					roles: z.array(z.string()),
-					addresses: z.array(
-						z.object({
-							address: z.string().trim().min(1, 'Укажите адрес'),
-							city: z.string().trim().min(1, 'Укажите город'),
-							is_default: z.boolean()
-						})
-					)
-				})
-				.superRefine((v, ctx) => {
-					if (!v.id && !v.password) {
-						ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['password'], message: 'Укажите пароль' })
-					}
-					if (v.password || v.password_confirmation) {
-						if ((v.password || '').length < 8) {
-							ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['password'], message: 'Пароль минимум 8 символов' })
-						}
-						if (v.password !== v.password_confirmation) {
-							ctx.addIssue({
-								code: z.ZodIssueCode.custom,
-								path: ['password_confirmation'],
-								message: 'Пароли не совпадают'
-							})
-						}
-					}
-					if (v.addresses.length && !v.addresses.some((a) => a.is_default)) {
-						ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['addresses'], message: 'Выберите адрес по умолчанию' })
-					}
-				})
-		)
-	})
-
-	const [name, nameProps] = defineField('name')
-	const [email, emailProps] = defineField('email')
-	const [phoneNumber, phoneNumberProps] = defineField('phone_number')
-	const [password, passwordProps] = defineField('password')
-	const [passwordConfirmation, passwordConfirmationProps] = defineField('password_confirmation')
-
-	const resetLocalForm = () => {
-		resetForm({
-			values: {
-				id: null,
-				name: '',
-				email: '',
-				phone_number: '',
-				password: '',
-				password_confirmation: '',
-				roles: [],
-				addresses: [emptyAddress()]
-			}
 		})
 		triedSubmit.value = false
 		selectedRoleName.value = null
+		fieldErrors.name = ''
+		fieldErrors.email = ''
+		fieldErrors.phone_number = ''
+		fieldErrors.password = ''
+		fieldErrors.password_confirmation = ''
+		fieldErrors.roles = ''
+		fieldErrors.addresses = ''
+		fieldErrors.addressCities = ['']
+		fieldErrors.addressTexts = ['']
+	}
+
+	const validate = () => {
+		fieldErrors.name = ''
+		fieldErrors.email = ''
+		fieldErrors.phone_number = ''
+		fieldErrors.password = ''
+		fieldErrors.password_confirmation = ''
+		fieldErrors.roles = ''
+		fieldErrors.addresses = ''
+
+		const addresses = form.addresses || []
+		fieldErrors.addressCities = addresses.map(() => '')
+		fieldErrors.addressTexts = addresses.map(() => '')
+
+		let ok = true
+
+		if (!form.name.trim()) {
+			fieldErrors.name = 'Укажите имя'
+			ok = false
+		}
+
+		const email = form.email.trim()
+		if (!email) {
+			fieldErrors.email = 'Укажите email'
+			ok = false
+		} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+			fieldErrors.email = 'Некорректный email'
+			ok = false
+		}
+
+		if (!form.phone_number.trim()) {
+			fieldErrors.phone_number = 'Укажите телефон'
+			ok = false
+		}
+
+		const isCreate = !form.id
+		const password = form.password || ''
+		const passwordConfirmation = form.password_confirmation || ''
+		if (isCreate && !password) {
+			fieldErrors.password = 'Укажите пароль'
+			ok = false
+		}
+		if (password || passwordConfirmation) {
+			if (password.length < 8) {
+				fieldErrors.password = 'Пароль минимум 8 символов'
+				ok = false
+			}
+			if (password !== passwordConfirmation) {
+				fieldErrors.password_confirmation = 'Пароли не совпадают'
+				ok = false
+			}
+		}
+
+		addresses.forEach((a, idx) => {
+			if (!String(a.city || '').trim()) {
+				fieldErrors.addressCities[idx] = 'Укажите город'
+				ok = false
+			}
+			if (!String(a.address || '').trim()) {
+				fieldErrors.addressTexts[idx] = 'Укажите адрес'
+				ok = false
+			}
+		})
+
+		if (addresses.length && !addresses.some((a) => a.is_default)) {
+			fieldErrors.addresses = 'Выберите адрес по умолчанию'
+			ok = false
+		}
+
+		return ok
 	}
 
 	const loadRoles = async () => {
@@ -131,7 +171,8 @@ import { computed, ref, watch } from 'vue'
 		() => props.user,
 		(user) => {
 			if (!user) return
-			setValues({
+			const addresses = Array.isArray(user.addresses) && user.addresses.length ? user.addresses : [emptyAddress()]
+			Object.assign(form, {
 				id: user.id ?? null,
 				name: user.name ?? '',
 				email: user.email ?? '',
@@ -139,8 +180,17 @@ import { computed, ref, watch } from 'vue'
 				password: '',
 				password_confirmation: '',
 				roles: Array.isArray(user.roles) ? user.roles : [],
-				addresses: Array.isArray(user.addresses) && user.addresses.length ? user.addresses : [emptyAddress()]
+				addresses
 			})
+			fieldErrors.addressCities = addresses.map(() => '')
+			fieldErrors.addressTexts = addresses.map(() => '')
+			fieldErrors.name = ''
+			fieldErrors.email = ''
+			fieldErrors.phone_number = ''
+			fieldErrors.password = ''
+			fieldErrors.password_confirmation = ''
+			fieldErrors.roles = ''
+			fieldErrors.addresses = ''
 		},
 		{ immediate: true }
 	)
@@ -149,7 +199,7 @@ import { computed, ref, watch } from 'vue'
 		allRoles.value
 			.map((r) => r.name)
 			.filter((name): name is string => typeof name === 'string' && name.length > 0)
-			.filter((name) => !(values.roles || []).includes(name))
+			.filter((name) => !(form.roles || []).includes(name))
 			.map((name) => ({ label: name, value: name }))
 	)
 
@@ -157,11 +207,11 @@ import { computed, ref, watch } from 'vue'
 		selectedRoleName.value = null
 		if (!value) return
 		const name = String(value)
-		if (!(values.roles || []).includes(name)) setValues({ ...values, roles: [...(values.roles || []), name] } as any)
+		if (!(form.roles || []).includes(name)) form.roles = [...(form.roles || []), name]
 	}
 
 	const removeRole = (name: string) => {
-		setValues({ ...values, roles: (values.roles || []).filter((r) => r !== name) } as any)
+		form.roles = (form.roles || []).filter((r) => r !== name)
 	}
 
 	const addAddress = () => {
@@ -170,62 +220,75 @@ import { computed, ref, watch } from 'vue'
 			city: '',
 			is_default: false
 		}
-		setValues({ ...values, addresses: [...(values.addresses || []), next] } as any)
+		form.addresses = [...(form.addresses || []), next]
+		fieldErrors.addressCities = [...(fieldErrors.addressCities || []), '']
+		fieldErrors.addressTexts = [...(fieldErrors.addressTexts || []), '']
 	}
 
 	const removeAddress = (index: number) => {
-		setValues({ ...values, addresses: (values.addresses || []).filter((_, idx) => idx !== index) } as any)
+		form.addresses = (form.addresses || []).filter((_, idx) => idx !== index)
+		fieldErrors.addressCities = (fieldErrors.addressCities || []).filter((_, idx) => idx !== index)
+		fieldErrors.addressTexts = (fieldErrors.addressTexts || []).filter((_, idx) => idx !== index)
 	}
 
 	const setDefaultAddress = (index: number, value: boolean) => {
 		if (!value) {
-			const addresses = [...(values.addresses || [])]
+			const addresses = [...(form.addresses || [])]
 			addresses[index] = { ...addresses[index], is_default: false }
-			setValues({ ...values, addresses } as any)
+			form.addresses = addresses
 			return
 		}
-		const addresses = (values.addresses || []).map((a, idx) => ({
+		const addresses = (form.addresses || []).map((a, idx) => ({
 			...a,
 			is_default: idx === index
 		}))
-		setValues({ ...values, addresses } as any)
+		form.addresses = addresses
 	}
 
-	const onSubmit = handleSubmit(
-		async (v) => {
-			triedSubmit.value = true
-			saving.value = true
-			try {
-				const payload: User = {
-					id: v.id ?? null,
-					name: v.name,
-					email: v.email,
-					phone_number: v.phone_number,
-					password: v.password || '',
-					password_confirmation: v.password_confirmation || '',
-					roles: v.roles || [],
-					addresses: v.addresses || []
-				}
-				if (payload.id) {
-					await usersApi.updateUser(payload)
-				} else {
-					await usersApi.createUser(payload)
-				}
-				emit('saved')
-				emit('close')
-				resetLocalForm()
-			} catch (err) {
-				const msg = getFirstBackendValidationMessage(err)
-				if (msg) toast.error(msg)
-				else throw err
-			} finally {
-				saving.value = false
-			}
-		},
-		() => {
-			triedSubmit.value = true
+	const onSubmit = async () => {
+		triedSubmit.value = true
+		if (!validate()) {
+			const first =
+				fieldErrors.name ||
+				fieldErrors.email ||
+				fieldErrors.phone_number ||
+				fieldErrors.password ||
+				fieldErrors.password_confirmation ||
+				fieldErrors.addresses ||
+				fieldErrors.addressCities.find(Boolean) ||
+				fieldErrors.addressTexts.find(Boolean)
+			if (first) toast.error(first)
+			return
 		}
-	)
+
+		saving.value = true
+		try {
+			const payload: User = {
+				id: form.id ?? null,
+				name: form.name.trim(),
+				email: form.email.trim(),
+				phone_number: form.phone_number.trim(),
+				password: form.password || '',
+				password_confirmation: form.password_confirmation || '',
+				roles: form.roles || [],
+				addresses: form.addresses || []
+			}
+			if (payload.id) {
+				await usersApi.updateUser(payload)
+			} else {
+				await usersApi.createUser(payload)
+			}
+			emit('saved')
+			emit('close')
+			resetLocalForm()
+		} catch (err) {
+			const msg = getFirstBackendValidationMessage(err)
+			if (msg) toast.error(msg)
+			else throw err
+		} finally {
+			saving.value = false
+		}
+	}
 </script>
 
 <template>
@@ -247,51 +310,46 @@ import { computed, ref, watch } from 'vue'
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3" @submit.prevent="onSubmit">
 				<TextField
-					v-model="name"
-					v-bind="nameProps"
+					v-model="form.name"
 					label="Имя *"
 					name="name"
 					placeholder="Имя"
-					:error-message="errors.name"
+					:error-message="triedSubmit ? fieldErrors.name : ''"
 				/>
 				<TextField
-					v-model="email"
-					v-bind="emailProps"
+					v-model="form.email"
 					label="Email *"
 					type="email"
 					name="email"
 					placeholder="Email"
-					:error-message="errors.email"
+					:error-message="triedSubmit ? fieldErrors.email : ''"
 				/>
 				<TextField
-					v-model="phoneNumber"
-					v-bind="phoneNumberProps"
+					v-model="form.phone_number"
 					label="Телефон *"
 					type="tel"
 					name="phone_number"
 					placeholder="Телефон"
-					:error-message="errors.phone_number"
+					:error-message="triedSubmit ? fieldErrors.phone_number : ''"
 				/>
 
 				<TextField
 					v-if="!user"
-					v-model="password"
-					v-bind="passwordProps"
+					v-model="form.password"
 					label="Пароль *"
 					name="password"
 					type="password"
 					placeholder="Пароль"
-					:error-message="errors.password"
+					:error-message="triedSubmit ? fieldErrors.password : ''"
 				/>
 				<TextField
 					v-if="!user"
-					v-model="passwordConfirmation"
-					v-bind="passwordConfirmationProps"
+					v-model="form.password_confirmation"
 					label="Подтверждение пароля *"
 					name="password_confirmation"
 					type="password"
 					placeholder="Подтверждение пароля"
-					:error-message="errors.password_confirmation"
+					:error-message="triedSubmit ? fieldErrors.password_confirmation : ''"
 				/>
 				<div v-if="user" class="md:col-span-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
 					Пароль: оставьте пустым, если не нужно менять.
@@ -307,9 +365,9 @@ import { computed, ref, watch } from 'vue'
 						:disabled="loadingRoles"
 						@update:model-value="addRole"
 					/>
-					<div v-if="(values.roles || []).length" class="mt-3 flex flex-wrap gap-2">
+					<div v-if="(form.roles || []).length" class="mt-3 flex flex-wrap gap-2">
 						<span
-							v-for="role in values.roles || []"
+							v-for="role in form.roles || []"
 							:key="role"
 							class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
 						>
@@ -335,14 +393,14 @@ import { computed, ref, watch } from 'vue'
 
 					<div class="mt-3 space-y-4">
 						<div
-							v-for="(address, index) in values.addresses || []"
+							v-for="(address, index) in form.addresses || []"
 							:key="index"
 							class="rounded-xl border border-gray-200 bg-white p-4"
 						>
 							<div class="flex items-start justify-between gap-3">
 								<p class="text-sm font-semibold text-gray-800">Address #{{ index + 1 }}</p>
 								<Button
-									v-if="(values.addresses || []).length > 1"
+									v-if="(form.addresses || []).length > 1"
 									type="button"
 									variant="ghost"
 									size="icon"
@@ -359,8 +417,10 @@ import { computed, ref, watch } from 'vue'
 									label="Город"
 									name="city"
 									placeholder="Город"
-									:error-message="triedSubmit ? (errors as any)[`addresses[${index}].city`] : ''"
-									@update:model-value="(v) => (setFieldValue as any)(`addresses[${index}].city`, String(v ?? ''))"
+									:error-message="triedSubmit ? fieldErrors.addressCities[index] : ''"
+									@update:model-value="
+										(v) => (form.addresses[index] = { ...form.addresses[index], city: String(v ?? '') })
+									"
 								/>
 								<CheckboxField
 									:model-value="address.is_default"
@@ -375,18 +435,22 @@ import { computed, ref, watch } from 'vue'
 										label="Адрес"
 										name="address"
 										placeholder="Адрес"
-										:error-message="triedSubmit ? (errors as any)[`addresses[${index}].address`] : ''"
-										@update:model-value="(v) => (setFieldValue as any)(`addresses[${index}].address`, String(v ?? ''))"
+										:error-message="triedSubmit ? fieldErrors.addressTexts[index] : ''"
+										@update:model-value="
+											(v) =>
+												(form.addresses[index] = { ...form.addresses[index], address: String(v ?? '') })
+										"
 									/>
 								</div>
 							</div>
 						</div>
 					</div>
+					<p v-if="triedSubmit && fieldErrors.addresses" class="mt-2 text-sm text-red-600">{{ fieldErrors.addresses }}</p>
 				</div>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-3">
 					<Button type="button" variant="outline" size="sm" :on-click="() => $emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

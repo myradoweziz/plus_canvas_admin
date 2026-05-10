@@ -1,9 +1,6 @@
 <script setup lang="ts">
-	import { toTypedSchema } from '@vee-validate/zod'
-	import { useForm } from 'vee-validate'
-import { computed, ref, watch } from 'vue'
+	import { computed, reactive, ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
-	import { z } from 'zod'
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -19,41 +16,52 @@ import { computed, ref, watch } from 'vue'
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 	const props = defineProps<{ open: boolean; role?: Role | null }>()
 
-const saving = ref(false)
-const loadingPermissions = ref(false)
-const allPermissions = ref<Permission[]>([])
-const selectedPermissionName = ref<string | null>(null)
-const permissionsRequestId = ref(0)
-const triedSubmit = ref(false)
+	const saving = ref(false)
+	const loadingPermissions = ref(false)
+	const allPermissions = ref<Permission[]>([])
+	const selectedPermissionName = ref<string | null>(null)
+	const permissionsRequestId = ref(0)
+	const triedSubmit = ref(false)
 
-	const { errors, defineField, handleSubmit, resetForm, setValues, values } = useForm({
-		initialValues: {
-			id: null as number | null,
-			name: '',
-			permissions: [] as string[]
-		},
-		validationSchema: toTypedSchema(
-			z.object({
-				id: z.number().nullable().optional(),
-				name: z.string().trim().min(1, 'Укажите название'),
-				permissions: z.array(z.string()).min(1, 'Выберите хотя бы одно право')
-			})
-		)
+	const form = reactive({
+		id: null as number | null,
+		name: '',
+		permissions: [] as string[]
 	})
 
-	const [name, nameProps] = defineField('name')
+	const fieldErrors = reactive({
+		name: '',
+		permissions: ''
+	})
 
 	const resetLocalForm = () => {
-		resetForm({ values: { id: null, name: '', permissions: [] } })
-	triedSubmit.value = false
+		Object.assign(form, { id: null, name: '', permissions: [] })
+		fieldErrors.name = ''
+		fieldErrors.permissions = ''
+		triedSubmit.value = false
 		selectedPermissionName.value = null
+	}
+
+	const validate = () => {
+		fieldErrors.name = ''
+		fieldErrors.permissions = ''
+		let ok = true
+		if (!form.name.trim()) {
+			fieldErrors.name = 'Укажите название'
+			ok = false
+		}
+		if (!form.permissions.length) {
+			fieldErrors.permissions = 'Выберите хотя бы одно право'
+			ok = false
+		}
+		return ok
 	}
 
 	watch(
 		() => props.open,
 		(open) => {
-		if (!open) resetLocalForm()
-		else triedSubmit.value = false
+			if (!open) resetLocalForm()
+			else triedSubmit.value = false
 		}
 	)
 
@@ -61,7 +69,7 @@ const triedSubmit = ref(false)
 		() => props.role,
 		(role) => {
 			if (!role) return
-			setValues({
+			Object.assign(form, {
 				id: role.id ?? null,
 				name: role.name ?? '',
 				permissions: Array.isArray(role.permissions)
@@ -70,6 +78,8 @@ const triedSubmit = ref(false)
 							.filter((p): p is string => typeof p === 'string' && p.length > 0)
 					: []
 			})
+			fieldErrors.name = ''
+			fieldErrors.permissions = ''
 		},
 		{ immediate: true }
 	)
@@ -78,7 +88,7 @@ const triedSubmit = ref(false)
 		allPermissions.value
 			.map((p) => p.name)
 			.filter((name): name is string => typeof name === 'string' && name.length > 0)
-			.filter((name) => !(values.permissions || []).includes(name))
+			.filter((name) => !(form.permissions || []).includes(name))
 			.map((name) => ({ label: name, value: name }))
 	)
 
@@ -86,13 +96,12 @@ const triedSubmit = ref(false)
 		selectedPermissionName.value = null
 		if (!value) return
 		const name = String(value)
-		if (!(values.permissions || []).includes(name)) {
-			setValues({ ...values, permissions: [...(values.permissions || []), name] } as any)
-		}
+		if (!(form.permissions || []).includes(name)) form.permissions = [...(form.permissions || []), name]
+		fieldErrors.permissions = ''
 	}
 
 	const removePermission = (name: string) => {
-		setValues({ ...values, permissions: (values.permissions || []).filter((p) => p !== name) } as any)
+		form.permissions = (form.permissions || []).filter((p) => p !== name)
 	}
 
 	const loadPermissions = async () => {
@@ -119,36 +128,33 @@ const triedSubmit = ref(false)
 		{ immediate: true }
 	)
 
-	const onSubmit = handleSubmit(
-		async (v) => {
-			triedSubmit.value = true
-			saving.value = true
-			try {
-				const payload: Role = {
-					id: v.id ?? null,
-					name: v.name,
-					permissions: v.permissions || []
-				}
-				if (payload.id) {
-					await rolesApi.updateRole(payload)
-				} else {
-					await rolesApi.createRole(payload)
-				}
-				emit('saved')
-				emit('close')
-				resetLocalForm()
-			} catch (err) {
-				const msg = getFirstBackendValidationMessage(err)
-				if (msg) toast.error(msg)
-				else throw err
-			} finally {
-				saving.value = false
+	const onSubmit = async () => {
+		triedSubmit.value = true
+		if (!validate()) return
+
+		saving.value = true
+		try {
+			const payload: Role = {
+				id: form.id ?? null,
+				name: form.name.trim(),
+				permissions: form.permissions || []
 			}
-		},
-		() => {
-			triedSubmit.value = true
+			if (payload.id) {
+				await rolesApi.updateRole(payload)
+			} else {
+				await rolesApi.createRole(payload)
+			}
+			emit('saved')
+			emit('close')
+			resetLocalForm()
+		} catch (err) {
+			const msg = getFirstBackendValidationMessage(err)
+			if (msg) toast.error(msg)
+			else throw err
+		} finally {
+			saving.value = false
 		}
-	)
+	}
 </script>
 
 <template>
@@ -169,12 +175,11 @@ const triedSubmit = ref(false)
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
 				<div class="md:col-span-2">
 					<TextField
-						v-model="name"
-						v-bind="nameProps"
+						v-model="form.name"
 						label="Название *"
 						name="name"
 						placeholder="название роли"
-						:error-message="errors.name"
+						:error-message="triedSubmit ? fieldErrors.name : ''"
 					/>
 				</div>
 
@@ -186,13 +191,13 @@ const triedSubmit = ref(false)
 						placeholder="Выберите право"
 						:options="permissionOptions"
 						:disabled="loadingPermissions"
-						:error-message="triedSubmit ? errors.permissions : ''"
+						:error-message="triedSubmit ? fieldErrors.permissions : ''"
 						@update:model-value="addPermission"
 					/>
 
-					<div v-if="(values.permissions || []).length" class="mt-3 flex flex-wrap gap-2">
+					<div v-if="(form.permissions || []).length" class="mt-3 flex flex-wrap gap-2">
 						<span
-							v-for="permission in values.permissions || []"
+							v-for="permission in form.permissions || []"
 							:key="permission"
 							class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
 						>
@@ -212,7 +217,7 @@ const triedSubmit = ref(false)
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" :on-click="() => $emit('close')"> Отмена </Button>
-					<Button type="submit" size="sm" :disabled="saving || Object.values(errors).some(Boolean)" :loading="saving">
+					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>

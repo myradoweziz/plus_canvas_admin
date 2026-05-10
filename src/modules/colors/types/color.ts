@@ -3,7 +3,9 @@ export type Color = {
 	name: string
 	hex_code: string
 	is_active: boolean
+	image_url?: string
+	image?: File | null
 }
 
-export type ColorPayload = Omit<Color, 'id'>
+export type ColorPayload = Omit<Color, 'id' | 'image_url' | 'image'>
 
