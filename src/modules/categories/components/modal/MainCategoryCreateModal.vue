@@ -24,7 +24,7 @@
 	const slugManuallyEdited = ref(false)
 	const lastGeneratedSlug = ref('')
 	const categoryTypeOptions = [
-		{ label: 'Kişiye Özel Kanvas', value: 'Kişiye Özel Kanvas ' },
+		{ label: 'Kişiye Özel Kanvas', value: 'Kişiye Özel Kanvas' },
 		{ label: 'Tablo Kanvas Tablo Galerisi', value: 'Tablo  Kanvas Tablo Galerisi' }
 	]
 
@@ -36,7 +36,7 @@
 		images: [] as string[],
 		is_active: false,
 		featured_order: 0 as number | string,
-		category_type: 'Kişiye Özel Kanvas '
+		category_type: 'Kişiye Özel Kanvas'
 	})
 
 	const fieldErrors = reactive({
@@ -63,7 +63,7 @@
 			images: [],
 			is_active: false,
 			featured_order: 0,
-			category_type: 'Kişiye Özel Kanvas '
+			category_type: 'Kişiye Özel Kanvas'
 		})
 		fieldErrors.name = ''
 		fieldErrors.slug = ''
@@ -119,7 +119,7 @@
 				images: Array.isArray(category.images) ? category.images : [],
 				is_active: !!category.is_active,
 				featured_order: category.featured_order ?? 0,
-				category_type: category.category_type ?? 'Kişiye Özel Kanvas '
+				category_type: String(category.category_type ?? 'Kişiye Özel Kanvas').trim()
 			})
 			fieldErrors.name = ''
 			fieldErrors.slug = ''
@@ -160,7 +160,7 @@
 				id: form.id ?? null,
 				name: form.name.trim(),
 				slug: form.slug.trim(),
-				description: form.description?.trim?.() ? form.description.trim() : form.description ?? '',
+				description: form.description?.trim?.() ? form.description.trim() : (form.description ?? ''),
 				images: form.images ?? [],
 				is_active: !!form.is_active,
 				featured_order: Number(form.featured_order) || 0,
@@ -266,12 +266,7 @@
 					/>
 				</div>
 
-				<CheckboxField
-					v-model="form.is_active"
-					label="Активно"
-					name="is_active"
-					class="md:col-span-2"
-				/>
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>

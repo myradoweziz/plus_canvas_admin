@@ -32,6 +32,9 @@
 		<template #cell-price="{ row }">
 			<span class="text-gray-700">{{ toProduct(row).price }}</span>
 		</template>
+		<template #cell-discount="{ row }">
+			<span class="text-gray-700">{{ toProduct(row).discount }}</span>
+		</template>
 
 		<template #cell-product_qode="{ row }">
 			<span class="text-gray-700">{{ toProduct(row).product_qode }}</span>
