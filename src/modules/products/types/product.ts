@@ -4,6 +4,7 @@ export type CanvasProduct = {
 	slug: string
 	description: string
 	price: number
+	discount: number
 	images: Array<string | File>
 	inner_images: Array<string | File>
 	upload_image_count: number

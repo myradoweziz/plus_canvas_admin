@@ -89,22 +89,13 @@
 		setRequiredError(errors, 'slug', 'Slug')
 		setRequiredError(errors, 'description', 'Description')
 		setRequiredError(errors, 'price', 'Price')
-		setRequiredError(errors, 'upload_image_count', 'Upload Image Count')
-		setRequiredError(errors, 'flag', 'Flag')
 		setRequiredError(errors, 'product_qode', 'Product Qode')
 		setRequiredError(errors, 'main_category_id', 'Main Category')
 		setRequiredError(errors, 'category_id', 'Category')
 		setRequiredError(errors, 'sub_category_id', 'Sub Category')
-		setRequiredError(errors, 'brand_id', 'Brand')
-		setRequiredError(errors, 'banner_id', 'Banner')
-		setRequiredError(errors, 'discount_id', 'Discount')
 
 		if (!Number.isFinite(Number(form.value.price)) || Number(form.value.price) <= 0) {
 			errors.price = 'Цена должна быть больше 0.'
-		}
-
-		if (!Number.isFinite(Number(form.value.upload_image_count)) || Number(form.value.upload_image_count) < 0) {
-			errors.upload_image_count = 'Upload Image Count должен быть 0 или больше.'
 		}
 
 		if (!form.value.images.length) {
@@ -129,9 +120,10 @@
 		slug: '',
 		description: '',
 		price: 0,
+		discount: 0,
 		images: [],
 		inner_images: [],
-		upload_image_count: 0,
+		upload_image_count: 1,
 		main_category_id: null,
 		category_id: null,
 		sub_category_id: null,
@@ -151,9 +143,10 @@
 			slug: '',
 			description: '',
 			price: 0,
+			discount: 0,
 			images: [],
 			inner_images: [],
-			upload_image_count: 0,
+			upload_image_count: 1,
 			main_category_id: null,
 			category_id: null,
 			sub_category_id: null,
@@ -230,9 +223,10 @@
 				slug: product.slug ?? '',
 				description: product.description ?? '',
 				price: product.price ?? 0,
+				discount: product.discount ?? 0,
 				images: product.images || [],
 				inner_images: product.inner_images || [],
-				upload_image_count: product.upload_image_count ?? 0,
+				upload_image_count: product.upload_image_count ?? 1,
 				main_category_id: product.main_category_id ?? null,
 				category_id: product.category_id ?? null,
 				sub_category_id: product.sub_category_id ?? null,
@@ -501,21 +495,16 @@
 					:error-message="validationErrors.price"
 				/>
 
+				<TextField v-model.number="form.discount" label="Кол-во скидки" name="discount" type="number" min="0" />
+
 				<TextField
 					v-model.number="form.upload_image_count"
 					label="Кол-во изображений для загрузки"
 					name="upload_image_count"
 					type="number"
-					min="0"
-					:error-message="validationErrors.upload_image_count"
+					min="1"
 				/>
-				<TextField
-					v-model.trim="form.flag"
-					label="Флаг"
-					name="flag"
-					placeholder="Флаг"
-					:error-message="validationErrors.flag"
-				/>
+				<TextField v-model.trim="form.flag" label="Флаг" name="flag" placeholder="Флаг" />
 				<TextField
 					v-model.trim="form.product_qode"
 					label="Код продукта"
@@ -564,9 +553,9 @@
 
 				<SelectField
 					v-model="form.brand_id"
-					label="Бренд"
+					label="Тег"
 					name="brand_id"
-					placeholder="Выберите бренд"
+					placeholder="Выберите тег"
 					:options="brandOptions"
 					:disabled="loadingDictionaries"
 					:error-message="validationErrors.brand_id"
@@ -578,7 +567,6 @@
 					placeholder="Выберите баннер"
 					:options="bannerOptions"
 					:disabled="loadingDictionaries"
-					:error-message="validationErrors.banner_id"
 				/>
 				<SelectField
 					v-model="form.discount_id"
@@ -587,7 +575,6 @@
 					placeholder="Выберите скидку"
 					:options="discountOptions"
 					:disabled="loadingDictionaries"
-					:error-message="validationErrors.discount_id"
 				/>
 
 				<div class="md:col-span-3">

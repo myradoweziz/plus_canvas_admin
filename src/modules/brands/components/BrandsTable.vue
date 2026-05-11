@@ -29,7 +29,7 @@
 		:columns="BRANDS_TABLE_COLUMNS"
 		:rows="brands"
 		:loading="loading"
-		empty-text="Пока нет брендов."
+		empty-text="Пока нет тегов."
 		draggable
 		order-key="featured_order"
 		@reorder="onReorder"

@@ -185,7 +185,7 @@
 				},
 				{
 					icon: DiscountsIcon,
-					name: 'Скидки',
+					name: 'Скидка рекламный баннер',
 					path: '/admin-panel/discounts'
 				},
 				{

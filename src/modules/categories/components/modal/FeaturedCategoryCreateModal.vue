@@ -23,6 +23,7 @@
 	const slugManuallyEdited = ref(false)
 	const lastGeneratedSlug = ref('')
 	const categoryTypeOptions = [
+		{ label: 'Default', value: 'Default' },
 		{ label: 'Öne Çıkan Kategorile', value: 'Öne Çıkan Kategorile' },
 		{ label: 'En Çok Aranan Kategoriler', value: 'En Çok Aranan Kategoriler' }
 	]
@@ -35,7 +36,7 @@
 		description: '',
 		is_active: false,
 		featured_order: 0 as number | string,
-		category_type: 'Öne Çıkan Kategorile'
+		category_type: 'Default'
 	})
 
 	const fieldErrors = reactive({
@@ -56,7 +57,7 @@
 			description: '',
 			is_active: false,
 			featured_order: 0,
-			category_type: 'Öne Çıkan Kategorile'
+			category_type: 'Default'
 		})
 		fieldErrors.main_category_id = ''
 		fieldErrors.name = ''
@@ -118,7 +119,7 @@
 				description: category.description ?? '',
 				is_active: !!category.is_active,
 				featured_order: category.featured_order ?? 0,
-				category_type: category.category_type ?? 'Öne Çıkan Kategorile'
+				category_type: category.category_type ?? 'Default'
 			})
 			fieldErrors.main_category_id = ''
 			fieldErrors.name = ''
@@ -209,7 +210,7 @@
 				main_category_id: form.main_category_id,
 				name: form.name.trim(),
 				slug: form.slug.trim(),
-				description: form.description?.trim?.() ? form.description.trim() : form.description ?? '',
+				description: form.description?.trim?.() ? form.description.trim() : (form.description ?? ''),
 				is_active: !!form.is_active,
 				featured_order: Number(form.featured_order) || 0,
 				category_type: form.category_type as FeaturedCategory['category_type']
@@ -315,21 +316,11 @@
 					/>
 				</div>
 
-				<CheckboxField
-					v-model="form.is_active"
-					label="Активно"
-					name="is_active"
-					class="md:col-span-2"
-				/>
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
-					<Button
-						type="submit"
-						size="sm"
-						:disabled="saving"
-						:loading="saving"
-					>
+					<Button type="submit" size="sm" :disabled="saving" :loading="saving">
 						{{ saving ? 'Сохранение...' : 'Сохранить' }}
 					</Button>
 				</div>
