@@ -1,3 +1,10 @@
+export type ContactSocialLink = {
+	platform: string
+	url: string
+	image?: string | null
+	image_url?: string | null
+}
+
 export type ContactInfo = {
 	id?: number | null
 	phone_number?: string | null
@@ -7,5 +14,5 @@ export type ContactInfo = {
 	logo?: string | null
 	logo_path?: string | null
 	slogan?: string | null
+	social_links?: ContactSocialLink[]
 }
-

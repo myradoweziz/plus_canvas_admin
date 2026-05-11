@@ -53,7 +53,11 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Контактная информация" subtitle="Телефон, адрес, email и логотип для сайта." :total="rows.length">
+		<Banner
+			title="Контактная информация"
+			subtitle="Телефон, адрес, email, логотип и ссылки (соцсети) для сайта."
+			:total="rows.length"
+		>
 			<template #actions>
 				<div class="flex items-center gap-2">
 					<Button type="button" variant="outline" size="sm" :disabled="loading" :on-click="load">Обновить</Button>
