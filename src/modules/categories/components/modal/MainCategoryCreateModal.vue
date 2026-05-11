@@ -24,7 +24,7 @@
 	const slugManuallyEdited = ref(false)
 	const lastGeneratedSlug = ref('')
 	const categoryTypeOptions = [
-		{ label: 'Kişiye Özel Kanvas', value: 'Kişiye Özel Kanvas' },
+		{ label: 'Kişiye Özel Kanvas Tablo', value: 'Kişiye Özel Kanvas Tablo' },
 		{ label: 'Tablo Kanvas Tablo Galerisi', value: 'Tablo  Kanvas Tablo Galerisi' }
 	]
 
@@ -36,7 +36,7 @@
 		images: [] as string[],
 		is_active: false,
 		featured_order: 0 as number | string,
-		category_type: 'Kişiye Özel Kanvas'
+		category_type: 'Kişiye Özel Kanvas Tablo'
 	})
 
 	const fieldErrors = reactive({
@@ -63,7 +63,7 @@
 			images: [],
 			is_active: false,
 			featured_order: 0,
-			category_type: 'Kişiye Özel Kanvas'
+			category_type: 'Kişiye Özel Kanvas Tablo'
 		})
 		fieldErrors.name = ''
 		fieldErrors.slug = ''
@@ -119,7 +119,7 @@
 				images: Array.isArray(category.images) ? category.images : [],
 				is_active: !!category.is_active,
 				featured_order: category.featured_order ?? 0,
-				category_type: String(category.category_type ?? 'Kişiye Özel Kanvas').trim()
+				category_type: String(category.category_type ?? 'Kişiye Özel Kanvas Tablo').trim()
 			})
 			fieldErrors.name = ''
 			fieldErrors.slug = ''

@@ -18,12 +18,6 @@
 
 <template>
 	<DataTable :columns="CONTACT_INFO_TABLE_COLUMNS" :rows="rows" :loading="loading" empty-text="Пока нет данных.">
-		<template #cell-logo="{ value }">
-			<div class="flex items-center gap-3">
-				<img v-if="value" :src="value" alt="logo" class="h-10 w-10 rounded-lg object-cover ring-1 ring-gray-200" />
-			</div>
-		</template>
-
 		<template #cell-actions="{ row }">
 			<Button type="button" variant="ghost" size="sm" :on-click="() => $emit('edit', row as ContactInfo)">
 				<EditIcon />

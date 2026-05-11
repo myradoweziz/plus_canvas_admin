@@ -49,6 +49,15 @@
 			<span class="text-gray-700">{{ toFeaturedCategory(row).category_type }}</span>
 		</template>
 
+		<template #cell-image_url="{ row }">
+			<img
+				v-if="toFeaturedCategory(row).image_url"
+				:src="toFeaturedCategory(row).image_url"
+				:alt="toFeaturedCategory(row).name"
+				class="h-16 w-24 rounded-lg object-cover ring-1 ring-gray-200"
+			/>
+		</template>
+
 		<template #cell-is_active="{ row }">
 			<span
 				class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"

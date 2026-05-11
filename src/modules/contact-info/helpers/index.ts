@@ -5,7 +5,5 @@ export const CONTACT_INFO_TABLE_COLUMNS: Array<{ key: keyof ContactInfo | 'actio
 	{ key: 'email', label: 'Email' },
 	{ key: 'address', label: 'Адрес' },
 	{ key: 'slogan', label: 'Слоган' },
-	{ key: 'logo', label: 'Логотип' },
 	{ key: 'actions', label: 'Действия' }
 ]
-

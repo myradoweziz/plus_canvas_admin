@@ -4,6 +4,7 @@
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
+	import ImageUpload from '@/shared/ui/ImageUpload.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
@@ -24,9 +25,10 @@
 	const lastGeneratedSlug = ref('')
 	const categoryTypeOptions = [
 		{ label: 'Default', value: 'Default' },
-		{ label: 'Öne Çıkan Kategorile', value: 'Öne Çıkan Kategorile' },
+		{ label: 'Öne Çıkan Kategoriler', value: 'Öne Çıkan Kategoriler' },
 		{ label: 'En Çok Aranan Kategoriler', value: 'En Çok Aranan Kategoriler' }
 	]
+	const MAX_IMAGE_SIZE_BYTES = 3 * 1024 * 1024
 
 	const form = reactive({
 		id: null as number | null,
@@ -34,6 +36,8 @@
 		name: '',
 		slug: '',
 		description: '',
+		image_url: '',
+		image: null as File | null,
 		is_active: false,
 		featured_order: 0 as number | string,
 		category_type: 'Default'
@@ -44,6 +48,7 @@
 		name: '',
 		slug: '',
 		description: '',
+		image: '',
 		featured_order: '',
 		category_type: ''
 	})
@@ -55,6 +60,8 @@
 			name: '',
 			slug: '',
 			description: '',
+			image_url: '',
+			image: null,
 			is_active: false,
 			featured_order: 0,
 			category_type: 'Default'
@@ -63,6 +70,7 @@
 		fieldErrors.name = ''
 		fieldErrors.slug = ''
 		fieldErrors.description = ''
+		fieldErrors.image = ''
 		fieldErrors.featured_order = ''
 		fieldErrors.category_type = ''
 		slugManuallyEdited.value = false
@@ -74,10 +82,15 @@
 		fieldErrors.name = ''
 		fieldErrors.slug = ''
 		fieldErrors.description = ''
+		fieldErrors.image = ''
 		fieldErrors.featured_order = ''
 		fieldErrors.category_type = ''
 
 		let ok = true
+		if (form.image && form.image.size > MAX_IMAGE_SIZE_BYTES) {
+			fieldErrors.image = 'Изображение не должно превышать 3MB'
+			ok = false
+		}
 		if (form.main_category_id === null) {
 			fieldErrors.main_category_id = 'Выберите главную категорию'
 			ok = false
@@ -102,6 +115,16 @@
 		return ok
 	}
 
+	const onImageUpdate = (file: File | null) => {
+		fieldErrors.image = ''
+		if (file && file.size > MAX_IMAGE_SIZE_BYTES) {
+			fieldErrors.image = 'Изображение не должно превышать 3MB'
+			form.image = null
+			return
+		}
+		form.image = file
+	}
+
 	watch(
 		() => [props.open, props.category] as const,
 		([open, category]) => {
@@ -117,6 +140,8 @@
 				name: category.name ?? '',
 				slug: category.slug ?? '',
 				description: category.description ?? '',
+				image_url: (category as any).image_url ?? (category as any).image ?? '',
+				image: null,
 				is_active: !!category.is_active,
 				featured_order: category.featured_order ?? 0,
 				category_type: category.category_type ?? 'Default'
@@ -125,6 +150,7 @@
 			fieldErrors.name = ''
 			fieldErrors.slug = ''
 			fieldErrors.description = ''
+			fieldErrors.image = ''
 			fieldErrors.featured_order = ''
 			fieldErrors.category_type = ''
 			lastGeneratedSlug.value = slugify(category.name ?? '')
@@ -211,6 +237,7 @@
 				name: form.name.trim(),
 				slug: form.slug.trim(),
 				description: form.description?.trim?.() ? form.description.trim() : (form.description ?? ''),
+				image: form.image,
 				is_active: !!form.is_active,
 				featured_order: Number(form.featured_order) || 0,
 				category_type: form.category_type as FeaturedCategory['category_type']
@@ -313,6 +340,17 @@
 						name="description"
 						placeholder="Описание"
 						:error-message="fieldErrors.description"
+					/>
+				</div>
+
+				<div class="md:col-span-2">
+					<ImageUpload
+						:model-value="form.image"
+						:current-url="form.image_url || ''"
+						label="Изображение"
+						description="Необязательно. Если выбрать файл — отправим при сохранении."
+						:error-message="fieldErrors.image"
+						@update:model-value="onImageUpdate"
 					/>
 				</div>
 
