@@ -56,7 +56,7 @@ async function updateColor(color: Color): Promise<Color> {
 	return await request({
 		url: `${COLORS_URL}/${color.id}`,
 		method: 'PUT',
-		isFormData: data.image instanceof File,
+		isFormData: true,
 		data
 	})
 }
