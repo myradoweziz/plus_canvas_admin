@@ -21,14 +21,14 @@ export type FeaturedCategory = {
 	name: string
 	slug: string
 	description: string
+	image?: string
 	image_url?: string
-	image?: File | null
 	is_active: boolean
 	featured_order: number
 	category_type: FeaturedCategoryType
 }
 
-export type FeaturedCategoryPayload = Omit<FeaturedCategory, 'id' | 'image_url' | 'image'>
+export type FeaturedCategoryPayload = Omit<FeaturedCategory, 'id'>
 
 export type SubCategory = {
 	id: number | null

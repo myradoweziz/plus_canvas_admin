@@ -27,21 +27,15 @@ async function listDiscounts(params: ListDiscountsParams): Promise<ListDiscounts
 	}
 }
 
-function toDiscountPayload(data: Discount) {
-	const { image, ...payload } = data
-	return image instanceof File ? { ...payload, image } : payload
-}
-
 async function createDiscount(data: Discount): Promise<Discount> {
-	return await request({ url: DISCOUNTS_URL, method: 'POST', isFormData: true, data: toDiscountPayload(data) })
+	return await request({ url: DISCOUNTS_URL, method: 'POST', data })
 }
 
 async function updateDiscount(data: Discount): Promise<Discount> {
 	return await request({
 		url: `${DISCOUNTS_URL}/${data.id}`,
 		method: 'PUT',
-		isFormData: true,
-		data: toDiscountPayload(data)
+		data
 	})
 }
 

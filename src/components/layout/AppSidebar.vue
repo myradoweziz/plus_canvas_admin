@@ -209,6 +209,11 @@
 					path: '/admin-panel/canvas-formats'
 				},
 				{
+					icon: CanvasFormatsIcon,
+					name: 'Рамки',
+					path: '/admin-panel/canvas-frames'
+				},
+				{
 					icon: ChatIcon,
 					name: 'FAQ',
 					path: '/admin-panel/faqs'

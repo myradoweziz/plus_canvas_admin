@@ -8,21 +8,15 @@ async function listBanners(): Promise<Banner[]> {
 	return data || []
 }
 
-function toBannerPayload(data: Banner) {
-	const { image, ...payload } = data
-	return image instanceof File ? { ...payload, image } : payload
-}
-
 async function createBanner(data: Banner): Promise<Banner> {
-	return await request({ url: BANNERS_URL, method: 'POST', isFormData: true, data: toBannerPayload(data) })
+	return await request({ url: BANNERS_URL, method: 'POST', data })
 }
 
 async function updateBanner(data: Banner) {
 	return await request({
 		url: `${BANNERS_URL}/${data.id}`,
 		method: 'PUT',
-		isFormData: true,
-		data: toBannerPayload(data)
+		data
 	})
 }
 

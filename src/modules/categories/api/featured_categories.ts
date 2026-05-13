@@ -34,35 +34,26 @@ function toFeaturedCategoryPayload(category: FeaturedCategory): FeaturedCategory
 		name: category.name,
 		slug: category.slug,
 		description: category.description,
+		image: category.image || '',
 		is_active: category.is_active,
 		featured_order: category.featured_order,
 		category_type: category.category_type
 	}
 }
 
-function toFeaturedCategoryPayloadWithImage(category: FeaturedCategory): Record<string, any> {
-	const payload: Record<string, any> = toFeaturedCategoryPayload(category)
-	if (category.image instanceof File) payload.image = category.image
-	return payload
-}
-
 async function createFeaturedCategory(category: FeaturedCategory): Promise<FeaturedCategory> {
-	const data = toFeaturedCategoryPayloadWithImage(category)
 	return await request({
 		url: FEATURED_CATEGORIES_URL,
 		method: 'POST',
-		data,
-		isFormData: true
+		data: toFeaturedCategoryPayload(category)
 	})
 }
 
 async function updateFeaturedCategory(category: FeaturedCategory): Promise<FeaturedCategory> {
-	const data = toFeaturedCategoryPayloadWithImage(category)
 	return await request({
 		url: `${FEATURED_CATEGORIES_URL}/${category.id}`,
 		method: 'PUT',
-		data,
-		isFormData: true
+		data: toFeaturedCategoryPayload(category)
 	})
 }
 

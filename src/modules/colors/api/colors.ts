@@ -31,34 +31,17 @@ function toColorPayload(color: Color): ColorPayload {
 	return {
 		name: color.name,
 		hex_code: color.hex_code,
-		is_active: color.is_active
+		is_active: color.is_active,
+		image: color.image || ''
 	}
 }
 
-function toColorPayloadWithImage(color: Color): Record<string, any> {
-	const payload: Record<string, any> = toColorPayload(color)
-	if (color.image instanceof File) payload.image = color.image
-	return payload
-}
-
 async function createColor(color: Color): Promise<Color> {
-	const data = toColorPayloadWithImage(color)
-	return await request({
-		url: COLORS_URL,
-		method: 'POST',
-		isFormData: true,
-		data
-	})
+	return await request({ url: COLORS_URL, method: 'POST', data: toColorPayload(color) })
 }
 
 async function updateColor(color: Color): Promise<Color> {
-	const data = toColorPayloadWithImage(color)
-	return await request({
-		url: `${COLORS_URL}/${color.id}`,
-		method: 'PUT',
-		isFormData: true,
-		data
-	})
+	return await request({ url: `${COLORS_URL}/${color.id}`, method: 'PUT', data: toColorPayload(color) })
 }
 
 async function deleteColor(id: number): Promise<void> {

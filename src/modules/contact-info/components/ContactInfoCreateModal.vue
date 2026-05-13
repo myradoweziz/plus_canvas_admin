@@ -4,10 +4,11 @@
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
-	import ImageUpload from '@/shared/ui/ImageUpload.vue'
+	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
+	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { contactInfoApi } from '../api/contact-info'
 	import type { ContactInfo } from '../types/contact-info'
@@ -15,17 +16,15 @@
 	type SocialFormRow = {
 		platform: string
 		url: string
-		image: string | null
-		image_url: string | null
-		imageFile: File | null
+		image: string
+		image_url?: string
 	}
 
 	const emptySocialRow = (): SocialFormRow => ({
 		platform: '',
 		url: '',
-		image: null,
-		image_url: null,
-		imageFile: null
+		image: '',
+		image_url: ''
 	})
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
@@ -39,7 +38,8 @@
 		address: '',
 		email: '',
 		slogan: '',
-		logo: null as File | null,
+		logo: '',
+		logo_url: '',
 		social_links: [] as SocialFormRow[]
 	})
 
@@ -59,7 +59,8 @@
 			address: '',
 			email: '',
 			slogan: '',
-			logo: null,
+			logo: '',
+			logo_url: '',
 			social_links: [emptySocialRow()]
 		})
 		fieldErrors.phone_number = ''
@@ -101,7 +102,7 @@
 		}
 
 		form.social_links.forEach((row, index) => {
-			const hasAny = row.platform.trim() || row.url.trim() || row.image || row.image_url || row.imageFile
+			const hasAny = row.platform.trim() || row.url.trim() || row.image
 			if (!hasAny) return
 			if (!row.platform.trim() || !row.url.trim()) {
 				fieldErrors.social_links = `Строка ${index + 1}: укажите platform и url`
@@ -133,14 +134,18 @@
 			}
 
 			const links = contactInfo?.social_links?.length
-				? contactInfo.social_links.map((l) => ({
-						platform: l.platform ?? '',
-						url: l.url ?? '',
-						image: l.image ?? null,
-						image_url: l.image_url ?? null,
-						imageFile: null as File | null
-					}))
+				? contactInfo.social_links.map((l) => {
+						const icon = String(l.image_url ?? '').trim()
+						return {
+							platform: l.platform ?? '',
+							url: l.url ?? '',
+							image: icon,
+							image_url: String(l.image_url ?? '').trim() || undefined
+						}
+					})
 				: [emptySocialRow()]
+
+			const logoFromApi = contactInfo?.logo_path
 
 			Object.assign(form, {
 				id: contactInfo?.id ?? null,
@@ -148,7 +153,7 @@
 				address: contactInfo?.address ? String(contactInfo.address) : '',
 				email: contactInfo?.email ? String(contactInfo.email) : '',
 				slogan: contactInfo?.slogan ? String(contactInfo.slogan) : '',
-				logo: null,
+				logo: logoFromApi || '',
 				social_links: links
 			})
 			fieldErrors.phone_number = ''
@@ -171,7 +176,7 @@
 				address: form.address.trim(),
 				email: form.email.trim(),
 				slogan: form.slogan.trim(),
-				logo: form.logo ?? null,
+				logo: form.logo || form.logo_url || '',
 				social_links: form.social_links
 			})
 			toast.success('Данные сохранены')
@@ -241,13 +246,12 @@
 				</div>
 
 				<div class="md:col-span-2">
-					<ImageUpload
-						:model-value="form.logo"
+					<SingleImageUpload
+						v-model="form.logo"
 						label="Логотип"
-						description="Выберите изображение — отправим как файл при сохранении."
-						:current-url="props.contactInfo?.logo || ''"
+						description="Необязательно. Файл будет загружен сразу, в форму сохранится URL."
 						:error-message="fieldErrors.logo"
-						@update:model-value="(v) => (form.logo = v)"
+						:uploader="mediaApi.uploadImages"
 					/>
 				</div>
 
@@ -258,7 +262,7 @@
 					</div>
 					<p v-if="fieldErrors.social_links" class="mt-2 text-sm text-red-600">{{ fieldErrors.social_links }}</p>
 					<p class="mt-1 text-xs text-gray-500">
-						Необязательно. Для каждой строки: platform, url; иконка — по желанию (файл или уже сохранённый URL).
+						Необязательно. Для каждой строки: platform, url; иконка — по желанию.
 					</p>
 
 					<div class="mt-4 space-y-6">
@@ -283,12 +287,12 @@
 								<TextField v-model="row.url" label="URL" :name="`url_${index}`" placeholder="https://..." />
 							</div>
 							<div class="mt-3">
-								<ImageUpload
-									:model-value="row.imageFile"
+								<SingleImageUpload
+									:model-value="row.image || ''"
 									label="Иконка"
-									description="Необязательно. Новый файл заменит текущую иконку для этой строки."
-									:current-url="row.image_url || ''"
-									@update:model-value="(v) => (row.imageFile = v)"
+									description="Необязательно. Файл будет загружен сразу, в форму сохранится URL."
+									:uploader="mediaApi.uploadImages"
+									@update:model-value="(v) => (row.image = v || '')"
 								/>
 							</div>
 						</div>

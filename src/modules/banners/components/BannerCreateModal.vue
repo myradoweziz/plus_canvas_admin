@@ -5,10 +5,11 @@
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
-	import ImageUpload from '@/shared/ui/ImageUpload.vue'
+	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 
+	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { bannersApi } from '../api/banners'
 	import type { Banner } from '../types/banner'
@@ -18,17 +19,33 @@
 	const props = defineProps<{ open: boolean; banner: Banner | null }>()
 
 	const saving = ref(false)
-	const urlRegex = /^https?:\/\/\S+$/i
+
+	const normalizeUrl = (raw: string) => {
+		const trimmed = raw.trim()
+		if (!trimmed) return ''
+		return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+	}
+
+	const isValidUrl = (raw: string) => {
+		const value = normalizeUrl(raw)
+		if (!value) return false
+		try {
+			// eslint-disable-next-line no-new
+			new URL(value)
+			return true
+		} catch {
+			return false
+		}
+	}
 
 	const form = reactive({
 		id: null as number | null,
 		title: '',
 		description: '',
-		image_url: '',
+		image: '',
 		url: '',
 		order: 0,
-		is_active: false,
-		image: null as File | null
+		is_active: false
 	})
 
 	const fieldErrors = reactive({
@@ -56,12 +73,12 @@
 		if (!urlTrim) {
 			fieldErrors.url = 'Укажите URL'
 			ok = false
-		} else if (!urlRegex.test(urlTrim)) {
+		} else if (!isValidUrl(urlTrim)) {
 			fieldErrors.url = 'Некорректный URL'
 			ok = false
 		}
 
-		if (!form.id && !form.image && !form.image_url.trim()) {
+		if (!form.id && !form.image.trim()) {
 			fieldErrors.image = 'Выберите изображение'
 			ok = false
 		}
@@ -74,11 +91,10 @@
 			id: null,
 			title: '',
 			description: '',
-			image_url: '',
 			url: '',
 			order: 0,
 			is_active: false,
-			image: null
+			image: ''
 		})
 		clearFieldErrors()
 	}
@@ -95,11 +111,10 @@
 				id: banner.id ?? null,
 				title: banner.title ?? '',
 				description: banner.description ?? '',
-				image_url: banner.image_url ?? '',
 				url: banner.url ?? '',
 				order: banner.order ?? 0,
 				is_active: !!banner.is_active,
-				image: null
+				image: banner.image_url ?? ''
 			})
 			clearFieldErrors()
 		},
@@ -115,10 +130,10 @@
 				id: form.id,
 				title: form.title.trim(),
 				description: form.description.trim(),
-				url: form.url.trim(),
+				url: normalizeUrl(form.url),
 				order: Number(form.order) || 0,
 				is_active: form.is_active,
-				image: form.image
+				image: form.image || ''
 			}
 
 			if (props.banner?.id) {
@@ -182,7 +197,12 @@
 				</div>
 
 				<div class="md:col-span-2">
-					<ImageUpload v-model="form.image" :current-url="form.image_url || ''" :error-message="fieldErrors.image" />
+					<SingleImageUpload
+						v-model="form.image"
+						:current-url="form.image || ''"
+						:error-message="fieldErrors.image"
+						:uploader="mediaApi.uploadImages"
+					/>
 				</div>
 
 				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />

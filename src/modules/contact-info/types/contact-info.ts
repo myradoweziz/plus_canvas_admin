@@ -1,8 +1,8 @@
 export type ContactSocialLink = {
 	platform: string
 	url: string
-	image?: string | null
-	image_url?: string | null
+	image?: string
+	image_url?: string
 }
 
 export type ContactInfo = {
@@ -10,9 +10,8 @@ export type ContactInfo = {
 	phone_number?: string | null
 	address?: string | null
 	email?: string | null
-	// backend: `logo` приходит как full url, `logo_path` как путь
-	logo?: string | null
-	logo_path?: string | null
+	logo?: string
+	logo_path?: string
 	slogan?: string | null
 	social_links?: ContactSocialLink[]
 }

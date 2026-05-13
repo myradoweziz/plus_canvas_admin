@@ -17,12 +17,14 @@ const normalize = (raw: any): ContactInfo => {
 		? socialRaw.map(normalizeSocialLink).filter((l) => l.platform || l.url || l.image || l.image_url)
 		: undefined
 
+	const logo = raw.logo ?? raw.logo_path ?? null
+
 	return {
 		id: raw.id ?? null,
 		phone_number: raw.phone_number ?? null,
 		address: raw.address ?? null,
 		email: raw.email ?? null,
-		logo: raw.logo ?? raw.logo_url ?? raw.logoUrl ?? null,
+		logo,
 		logo_path: raw.logo_path ?? raw.logoPath ?? null,
 		slogan: raw.slogan ?? null,
 		social_links
@@ -46,9 +48,8 @@ async function getContactInfo(): Promise<ContactInfo | null> {
 export type SaveContactInfoSocialRow = {
 	platform: string
 	url: string
-	image?: string | null
 	image_url?: string | null
-	imageFile?: File | null
+	image?: string | null
 }
 
 async function saveContactInfo(payload: {
@@ -57,7 +58,7 @@ async function saveContactInfo(payload: {
 	address: string
 	email: string
 	slogan: string
-	logo?: File | null
+	logo?: string | null
 	social_links?: SaveContactInfoSocialRow[]
 }): Promise<ContactInfo> {
 	const data: Record<string, any> = {
@@ -71,33 +72,21 @@ async function saveContactInfo(payload: {
 	if (payload.logo) data.logo = payload.logo
 
 	const rows = payload.social_links ?? []
-	let index = 0
+	const social_links = rows
+		.map((row) => ({
+			platform: String(row.platform ?? '').trim(),
+			url: String(row.url ?? '').trim(),
+			image: row.image || row.image_url ? String(row.image || row.image_url || '').trim() : null
+		}))
+		.filter((row) => row.platform || row.url || row.image)
 
-	for (const row of rows) {
-		const platform = (row.platform ?? '').trim()
-		const url = (row.url ?? '').trim()
-		const hasFile = row.imageFile instanceof File
-		if (!platform && !url && !row.image && !row.image_url && !hasFile) continue
-
-		const key = (field: string) => `social_links[${index}][${field}]`
-
-		data[key('platform')] = platform
-		data[key('url')] = url
-		if (row.image_url) data[key('image_url')] = String(row.image_url)
-		if (hasFile) {
-			data[key('image')] = row.imageFile
-		} else if (row.image) {
-			data[key('image')] = String(row.image)
-		}
-
-		index += 1
-	}
+	data.social_links = social_links
 
 	const res: any = await request({
 		url: CONTACT_INFO_URL,
 		method: 'POST',
 		data,
-		isFormData: true
+		isFormData: false
 	})
 
 	return normalize(res?.data ?? res)

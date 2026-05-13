@@ -6,9 +6,10 @@
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import ColorPicker from '@/shared/ui/ColorPicker.vue'
-	import ImageUpload from '@/shared/ui/ImageUpload.vue'
+	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
+	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { colorsApi } from '../api/colors'
 	import type { Color } from '../types/color'
@@ -25,8 +26,8 @@
 		name: '',
 		hex_code: '#000000',
 		is_active: false,
-		image_url: '',
-		image: null as File | null
+		image: '',
+		image_url: ''
 	})
 
 	const fieldErrors = reactive({
@@ -34,13 +35,8 @@
 		hex_code: ''
 	})
 
-	const onImageUpdate = (file: File | null) => {
-		form.image = file
-		imageError.value = ''
-	}
-
 	const resetLocalForm = () => {
-		Object.assign(form, { id: null, name: '', hex_code: '#000000', is_active: false, image_url: '', image: null })
+		Object.assign(form, { id: null, name: '', hex_code: '#000000', is_active: false, image: '', image_url: '' })
 		fieldErrors.name = ''
 		fieldErrors.hex_code = ''
 		imageError.value = ''
@@ -60,7 +56,7 @@
 			fieldErrors.hex_code = 'Укажите корректный цвет'
 			ok = false
 		}
-		if (!form.id && !form.image && !form.image_url) {
+		if (!form.id && !form.image) {
 			imageError.value = 'Выберите изображение'
 			ok = false
 		}
@@ -81,8 +77,7 @@
 				name: color.name ?? '',
 				hex_code: color.hex_code ?? '#000000',
 				is_active: !!color.is_active,
-				image_url: (color as any).image_url ?? (color as any).image ?? '',
-				image: null
+				image: color.image_url ?? ''
 			})
 			fieldErrors.name = ''
 			fieldErrors.hex_code = ''
@@ -101,8 +96,7 @@
 				name: form.name.trim(),
 				hex_code: form.hex_code,
 				is_active: !!form.is_active,
-				image_url: form.image_url || '',
-				image: form.image || null
+				image: form.image || form.image_url || ''
 			}
 
 			if (payload.id) {
@@ -158,20 +152,10 @@
 				</div>
 
 				<div class="md:col-span-2">
-					<ImageUpload
-						:model-value="form.image"
-						:current-url="form.image_url || ''"
-						:error-message="imageError"
-						@update:model-value="onImageUpdate"
-					/>
+					<SingleImageUpload v-model="form.image" :error-message="imageError" :uploader="mediaApi.uploadImages" />
 				</div>
 
-				<CheckboxField
-					v-model="form.is_active"
-					label="Активно"
-					name="is_active"
-					class="md:col-span-2"
-				/>
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
