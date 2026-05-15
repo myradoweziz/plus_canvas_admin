@@ -4,6 +4,7 @@
 	import { toast } from 'vue3-toastify'
 
 	import Button from '@/shared/ui/Button.vue'
+	import CollageLayoutSvgImport from '@/shared/ui/CollageLayoutSvgImport.vue'
 	import MultiImageUpload from '@/shared/ui/MultiImageUpload.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
@@ -26,7 +27,7 @@
 	import { discountsApi } from '@/modules/discounts/api/discounts'
 	import type { Discount } from '@/modules/discounts/types/discount'
 	import { slugify } from '@/shared'
-	import { canvasProductsApi } from '../api/products'
+	import { api } from '../api'
 	import type { CanvasProduct } from '../types/product'
 
 	const route = useRoute()
@@ -137,6 +138,7 @@
 		inner_images: [],
 		upload_image_count: 1,
 		main_category_id: null,
+		main_category_slug: '',
 		category_id: null,
 		sub_category_id: null,
 		brand_id: null,
@@ -147,7 +149,9 @@
 		colors: [],
 		canvas_formats: [],
 		frames: [],
-		effects: []
+		effects: [],
+		collage_layout_id: null,
+		collage_layout: null
 	})
 
 	const resetForm = () => {
@@ -162,6 +166,7 @@
 			inner_images: [],
 			upload_image_count: 1,
 			main_category_id: null,
+			main_category_slug: '',
 			category_id: null,
 			sub_category_id: null,
 			brand_id: null,
@@ -172,7 +177,32 @@
 			colors: [],
 			canvas_formats: [],
 			frames: [],
-			effects: []
+			effects: [],
+			collage_layout_id: null,
+			collage_layout: null
+		}
+	}
+
+	const INNER_IMAGES_MAIN_CATEGORY_SLUG = 'kisiye-ozel-kanvas-tablo'
+
+	const syncMainCategorySlug = (mainCategoryId: number | null) => {
+		if (!mainCategoryId) {
+			form.value.main_category_slug = ''
+			if (!isApplyingProduct.value) {
+				form.value.inner_images = []
+			}
+			return
+		}
+
+		const category = mainCategories.value.find((item) => item.id === mainCategoryId)
+		if (!category && mainCategories.value.length === 0) {
+			return
+		}
+
+		form.value.main_category_slug = category?.slug ?? ''
+
+		if (form.value.main_category_slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG && !isApplyingProduct.value) {
+			form.value.inner_images = []
 		}
 	}
 
@@ -266,6 +296,8 @@
 				inner_images: product.inner_images || [],
 				upload_image_count: product.upload_image_count ?? 1,
 				main_category_id: product.main_category_id ?? null,
+				main_category_slug:
+					product.main_category_slug ?? (product as { main_category?: { slug?: string } }).main_category?.slug ?? '',
 				category_id: product.category_id ?? null,
 				sub_category_id: product.sub_category_id ?? null,
 				brand_id: product.brand_id ?? null,
@@ -276,9 +308,12 @@
 				colors: product.colors || [],
 				canvas_formats: product.canvas_formats || [],
 				frames: product.frames || [],
-				effects: product.effects || []
+				effects: product.effects || [],
+				collage_layout_id: product.collage_layout_id ?? product.collage_layout?.id ?? null,
+				collage_layout: product.collage_layout ?? null
 			}
 			nextTick(() => {
+				syncMainCategorySlug(form.value.main_category_id)
 				isApplyingProduct.value = false
 			})
 			lastGeneratedSlug.value = slugify(product.name ?? '')
@@ -339,6 +374,7 @@
 			canvasEffects.value = canvasEffectsResult.items || []
 
 			if (form.value.main_category_id) {
+				syncMainCategorySlug(form.value.main_category_id)
 				await loadFeaturedCategories(form.value.main_category_id)
 			}
 
@@ -354,7 +390,7 @@
 
 	const loadProduct = async () => {
 		if (!productId.value) return
-		product.value = await canvasProductsApi.getCanvasProduct(productId.value)
+		product.value = await api.getCanvasProduct(productId.value)
 	}
 
 	const loadFeaturedCategories = async (mainCategoryId: number) => {
@@ -399,12 +435,28 @@
 		}
 	}
 
+	watch(mainCategories, () => {
+		if (form.value.main_category_id) {
+			syncMainCategorySlug(form.value.main_category_id)
+		}
+	})
+
 	watch(
 		() => form.value.main_category_id,
 		(mainCategoryId, oldMainCategoryId) => {
+			syncMainCategorySlug(mainCategoryId ?? null)
+
 			if (!isApplyingProduct.value && oldMainCategoryId !== undefined && mainCategoryId !== oldMainCategoryId) {
 				form.value.category_id = null
 				form.value.sub_category_id = null
+
+				const category = mainCategories.value.find((item) => item.id === mainCategoryId)
+				const slug = category?.slug ?? ''
+				if (slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG) {
+					form.value.inner_images = []
+					form.value.collage_layout_id = null
+					form.value.collage_layout = null
+				}
 			}
 
 			featuredCategories.value = []
@@ -518,10 +570,10 @@
 
 		try {
 			if (product.value?.id) {
-				await canvasProductsApi.updateCanvasProduct(form.value)
+				await api.updateCanvasProduct(form.value)
 				toast.success('Продукт успешно обновлен')
 			} else {
-				await canvasProductsApi.createCanvasProduct(form.value)
+				await api.createCanvasProduct(form.value)
 				toast.success('Продукт успешно добавлен')
 			}
 
@@ -663,17 +715,25 @@
 						label="Images"
 						description="Выберите одну или несколько картинок продукта."
 						:error-message="validationErrors.images"
-						:uploader="(files, onProgress) => canvasProductsApi.uploadImages(files, onProgress)"
+						:uploader="(files, onProgress) => api.uploadImages(files, onProgress)"
 					/>
 				</div>
-				<div v-if="form.main_category_id !== 5" class="md:col-span-3">
+				<div v-if="form.main_category_slug === INNER_IMAGES_MAIN_CATEGORY_SLUG" class="md:col-span-3 space-y-4">
 					<MultiImageUpload
 						v-model="form.inner_images"
 						label="Inner Images"
 						description="Выберите одну или несколько внутренних картинок продукта."
-						:uploader="(files, onProgress) => canvasProductsApi.uploadImages(files, onProgress)"
+						:uploader="(files, onProgress) => api.uploadImages(files, onProgress)"
 					/>
 				</div>
+				<CollageLayoutSvgImport
+					v-model="form.collage_layout_id"
+					:current-layout="form.collage_layout"
+					:disabled="loadingDictionaries"
+					:error-message="validationErrors.collage_layout_id"
+					@update:current-layout="(layout) => (form.collage_layout = layout)"
+					class="md:col-span-3"
+				/>
 
 				<div class="md:col-span-3">
 					<SelectField

@@ -1,5 +1,6 @@
 import { getTotal, request } from '@/shared'
 import type { CanvasProduct, CanvasProductPayload } from '../types/product'
+import { collageLayoutsApi } from './collage-layouts'
 
 const CANVAS_PRODUCTS_URL = '/api/admin/canvas-products'
 const CANVAS_PRODUCTS_IMAGES_URL = '/api/admin/media/upload/'
@@ -54,6 +55,7 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		inner_images: toImageArray(product.inner_images),
 		upload_image_count: Number(product.upload_image_count ?? 0),
 		main_category_id: product.main_category_id ?? product.main_category?.id ?? null,
+		main_category_slug: product.main_category_slug ?? product.main_category?.slug ?? '',
 		category_id: product.category_id ?? product.category?.id ?? null,
 		sub_category_id: product.sub_category_id ?? product.sub_category?.id ?? null,
 		brand_id: product.brand_id ?? product.brand?.id ?? null,
@@ -64,7 +66,11 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		colors: toIdArray(product.colors),
 		canvas_formats: toIdArray(product.canvas_formats),
 		frames: toIdArray(product.frames),
-		effects: toIdArray(product.effects)
+		effects: toIdArray(product.effects),
+		collage_layout_id: product.collage_layout_id ?? product.collage_layout?.id ?? null,
+		collage_layout: product.collage_layout
+			? collageLayoutsApi.normalizeCollageLayout(product.collage_layout as Record<string, unknown>)
+			: null
 	}
 }
 
@@ -107,7 +113,8 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		colors: product.colors,
 		canvas_formats: product.canvas_formats,
 		frames: product.frames,
-		effects: product.effects
+		effects: product.effects,
+		collage_layout_id: product.collage_layout_id
 	}
 }
 
@@ -131,6 +138,12 @@ function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 	payload.inner_images.forEach((image, index) => {
 		data[`inner_images[${index}]`] = image
 	})
+
+	if (payload.collage_layout_id != null) {
+		data.collage_layout_id = payload.collage_layout_id
+	} else {
+		delete data.collage_layout_id
+	}
 
 	return data
 }
@@ -194,7 +207,7 @@ async function uploadImages(files: File[], onProgress?: (percent: number) => voi
 	return uploaded
 }
 
-export const canvasProductsApi = {
+export const productsApi = {
 	listCanvasProducts,
 	getCanvasProduct,
 	createCanvasProduct,
@@ -202,3 +215,5 @@ export const canvasProductsApi = {
 	deleteCanvasProduct,
 	uploadImages
 }
+
+export const canvasProductsApi = productsApi

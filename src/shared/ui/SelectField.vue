@@ -43,7 +43,9 @@
 		props.options.find((option) => String(option.value) === String(props.modelValue))
 	)
 
-	const hasValue = computed(() => props.modelValue !== null && props.modelValue !== undefined && props.modelValue !== '')
+	const hasValue = computed(
+		() => props.modelValue !== null && props.modelValue !== undefined && props.modelValue !== ''
+	)
 
 	const filteredOptions = computed(() => {
 		if (props.remoteSearch) return props.options
