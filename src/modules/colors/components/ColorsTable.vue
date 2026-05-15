@@ -35,15 +35,6 @@
 			</div>
 		</template>
 
-		<template #cell-image_url="{ row }">
-			<img
-				v-if="toColor(row).image_url"
-				:src="toColor(row).image_url"
-				alt="Color Image"
-				class="h-40 w-40 object-contain"
-			/>
-		</template>
-
 		<template #cell-is_active="{ row }">
 			<span
 				class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"

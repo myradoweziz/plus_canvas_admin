@@ -31,8 +31,7 @@ function toColorPayload(color: Color): ColorPayload {
 	return {
 		name: color.name,
 		hex_code: color.hex_code,
-		is_active: color.is_active,
-		image: color.image || ''
+		is_active: color.is_active
 	}
 }
 

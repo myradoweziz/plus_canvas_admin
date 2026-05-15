@@ -6,10 +6,8 @@
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import ColorPicker from '@/shared/ui/ColorPicker.vue'
-	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
-	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { colorsApi } from '../api/colors'
 	import type { Color } from '../types/color'
@@ -19,15 +17,12 @@
 	const props = defineProps<{ open: boolean; color: Color | null }>()
 
 	const saving = ref(false)
-	const imageError = ref('')
 
 	const form = reactive({
 		id: null as number | null,
 		name: '',
 		hex_code: '#000000',
-		is_active: false,
-		image: '',
-		image_url: ''
+		is_active: false
 	})
 
 	const fieldErrors = reactive({
@@ -36,16 +31,14 @@
 	})
 
 	const resetLocalForm = () => {
-		Object.assign(form, { id: null, name: '', hex_code: '#000000', is_active: false, image: '', image_url: '' })
+		Object.assign(form, { id: null, name: '', hex_code: '#000000', is_active: false })
 		fieldErrors.name = ''
 		fieldErrors.hex_code = ''
-		imageError.value = ''
 	}
 
 	const validate = () => {
 		fieldErrors.name = ''
 		fieldErrors.hex_code = ''
-		imageError.value = ''
 
 		let ok = true
 		if (!form.name.trim()) {
@@ -54,10 +47,6 @@
 		}
 		if (!/^#[0-9A-Fa-f]{6}$/.test(String(form.hex_code || ''))) {
 			fieldErrors.hex_code = 'Укажите корректный цвет'
-			ok = false
-		}
-		if (!form.id && !form.image) {
-			imageError.value = 'Выберите изображение'
 			ok = false
 		}
 		return ok
@@ -76,12 +65,10 @@
 				id: color.id ?? null,
 				name: color.name ?? '',
 				hex_code: color.hex_code ?? '#000000',
-				is_active: !!color.is_active,
-				image: color.image_url ?? ''
+				is_active: !!color.is_active
 			})
 			fieldErrors.name = ''
 			fieldErrors.hex_code = ''
-			imageError.value = ''
 		},
 		{ immediate: true }
 	)
@@ -95,8 +82,7 @@
 				id: form.id ?? null,
 				name: form.name.trim(),
 				hex_code: form.hex_code,
-				is_active: !!form.is_active,
-				image: form.image || form.image_url || ''
+				is_active: !!form.is_active
 			}
 
 			if (payload.id) {
@@ -149,10 +135,6 @@
 
 				<div class="md:col-span-1">
 					<ColorPicker v-model="form.hex_code" label="Цвет *" name="hex_code" :error-message="fieldErrors.hex_code" />
-				</div>
-
-				<div class="md:col-span-2">
-					<SingleImageUpload v-model="form.image" :error-message="imageError" :uploader="mediaApi.uploadImages" />
 				</div>
 
 				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
