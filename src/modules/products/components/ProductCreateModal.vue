@@ -13,8 +13,12 @@
 	import type { Banner } from '@/modules/banners/types/banner'
 	import { brandsApi } from '@/modules/brands/api/brands'
 	import type { Brand } from '@/modules/brands/types/brand'
+	import { canvasEffectsApi } from '@/modules/canvas-effects/api/canvas-effects'
+	import type { CanvasEffect } from '@/modules/canvas-effects/types/canvas-effect'
 	import { canvasFormatsApi } from '@/modules/canvas-formats/api/canvas-formats'
 	import type { CanvasFormat } from '@/modules/canvas-formats/types/canvas-format'
+	import { canvasFramesApi } from '@/modules/canvas-frames/api/canvas-frames'
+	import type { CanvasFrame } from '@/modules/canvas-frames/types/canvas-frame'
 	import { categoriesApi } from '@/modules/categories/api'
 	import type { FeaturedCategory, MainCategory, SubCategory } from '@/modules/categories/types/category'
 	import { colorsApi } from '@/modules/colors/api/colors'
@@ -40,6 +44,8 @@
 	const lastGeneratedSlug = ref('')
 	const selectedColorId = ref<number | null>(null)
 	const selectedCanvasFormatId = ref<number | null>(null)
+	const selectedCanvasFrameId = ref<number | null>(null)
+	const selectedCanvasEffectId = ref<number | null>(null)
 
 	const mainCategories = ref<MainCategory[]>([])
 	const featuredCategories = ref<FeaturedCategory[]>([])
@@ -49,6 +55,8 @@
 	const discounts = ref<Discount[]>([])
 	const colors = ref<Color[]>([])
 	const canvasFormats = ref<CanvasFormat[]>([])
+	const canvasFrames = ref<CanvasFrame[]>([])
+	const canvasEffects = ref<CanvasEffect[]>([])
 	const product = ref<CanvasProduct | null>(null)
 	const productId = computed(() => {
 		const id = Number(route.params.id)
@@ -110,6 +118,10 @@
 			errors.canvas_formats = 'Выберите хотя бы один формат.'
 		}
 
+		if (!form.value.frames.length) {
+			errors.frames = 'Выберите хотя бы одну рамку.'
+		}
+
 		validationErrors.value = errors
 		return Object.keys(errors).length === 0
 	}
@@ -133,7 +145,9 @@
 		product_qode: '',
 		discount_id: null,
 		colors: [],
-		canvas_formats: []
+		canvas_formats: [],
+		frames: [],
+		effects: []
 	})
 
 	const resetForm = () => {
@@ -156,7 +170,9 @@
 			product_qode: '',
 			discount_id: null,
 			colors: [],
-			canvas_formats: []
+			canvas_formats: [],
+			frames: [],
+			effects: []
 		}
 	}
 
@@ -206,6 +222,28 @@
 			label: canvasFormats.value.find((format) => format.id === id)?.name ?? `#${id}`
 		}))
 	)
+	const canvasFrameOptions = computed(() =>
+		toSelectOptions(canvasFrames.value, (item) => item.name).filter(
+			(item) => !form.value.frames.includes(Number(item.value))
+		)
+	)
+	const canvasEffectOptions = computed(() =>
+		toSelectOptions(canvasEffects.value, (item) => item.name).filter(
+			(item) => !form.value.effects.includes(Number(item.value))
+		)
+	)
+	const selectedCanvasFrames = computed(() =>
+		form.value.frames.map((id) => ({
+			id,
+			label: canvasFrames.value.find((frame) => frame.id === id)?.name ?? `#${id}`
+		}))
+	)
+	const selectedCanvasEffects = computed(() =>
+		form.value.effects.map((id) => ({
+			id,
+			label: canvasEffects.value.find((effect) => effect.id === id)?.name ?? `#${id}`
+		}))
+	)
 	watch(
 		() => product.value,
 		(product) => {
@@ -236,7 +274,9 @@
 				product_qode: product.product_qode ?? '',
 				discount_id: product.discount_id ?? null,
 				colors: product.colors || [],
-				canvas_formats: product.canvas_formats || []
+				canvas_formats: product.canvas_formats || [],
+				frames: product.frames || [],
+				effects: product.effects || []
 			}
 			nextTick(() => {
 				isApplyingProduct.value = false
@@ -267,15 +307,25 @@
 		loadingDictionaries.value = true
 
 		try {
-			const [mainCategoriesResult, brandsResult, bannersResult, discountsResult, colorsResult, canvasFormatsResult] =
-				await Promise.all([
-					categoriesApi.listMainCategories({ limit: 100, offset: 0 }),
-					brandsApi.listBrands({ limit: 100, offset: 0 }),
-					bannersApi.listBanners(),
-					discountsApi.listDiscounts({ limit: 100, offset: 0 }),
-					colorsApi.listColors({ limit: 100, offset: 0 }),
-					canvasFormatsApi.listCanvasFormats({ limit: 100, offset: 0 })
-				])
+			const [
+				mainCategoriesResult,
+				brandsResult,
+				bannersResult,
+				discountsResult,
+				colorsResult,
+				canvasFormatsResult,
+				canvasFramesResult,
+				canvasEffectsResult
+			] = await Promise.all([
+				categoriesApi.listMainCategories({ limit: 100, offset: 0 }),
+				brandsApi.listBrands({ limit: 100, offset: 0 }),
+				bannersApi.listBanners(),
+				discountsApi.listDiscounts({ limit: 100, offset: 0 }),
+				colorsApi.listColors({ limit: 100, offset: 0 }),
+				canvasFormatsApi.listCanvasFormats({ limit: 100, offset: 0 }),
+				canvasFramesApi.listCanvasFrames({ limit: 100, offset: 0 }),
+				canvasEffectsApi.listCanvasEffects({ limit: 100, offset: 0 })
+			])
 
 			if (requestId !== dictionaryRequestId.value) return
 
@@ -285,6 +335,8 @@
 			discounts.value = discountsResult.items || []
 			colors.value = colorsResult.items || []
 			canvasFormats.value = canvasFormatsResult.items || []
+			canvasFrames.value = canvasFramesResult.items || []
+			canvasEffects.value = canvasEffectsResult.items || []
 
 			if (form.value.main_category_id) {
 				await loadFeaturedCategories(form.value.main_category_id)
@@ -424,6 +476,34 @@
 
 	const removeCanvasFormat = (id: number) => {
 		form.value.canvas_formats = form.value.canvas_formats.filter((item) => item !== id)
+	}
+
+	const addCanvasFrame = (value: string | number | null) => {
+		selectedCanvasFrameId.value = null
+		if (value === null) return
+
+		const id = Number(value)
+		if (Number.isFinite(id) && !form.value.frames.includes(id)) {
+			form.value.frames.push(id)
+		}
+	}
+
+	const removeCanvasFrame = (id: number) => {
+		form.value.frames = form.value.frames.filter((item) => item !== id)
+	}
+
+	const addCanvasEffect = (value: string | number | null) => {
+		selectedCanvasEffectId.value = null
+		if (value === null) return
+
+		const id = Number(value)
+		if (Number.isFinite(id) && !form.value.effects.includes(id)) {
+			form.value.effects.push(id)
+		}
+	}
+
+	const removeCanvasEffect = (id: number) => {
+		form.value.effects = form.value.effects.filter((item) => item !== id)
 	}
 
 	const onSubmit = async () => {
@@ -654,6 +734,68 @@
 								size="icon"
 								class-name="h-5 w-5 text-gray-500 hover:text-red-600"
 								:on-click="() => removeCanvasFormat(format.id)"
+							>
+								✕
+							</Button>
+						</span>
+					</div>
+				</div>
+
+				<div class="md:col-span-3">
+					<SelectField
+						:model-value="selectedCanvasFrameId"
+						label="Рамки *"
+						name="frames"
+						placeholder="Выберите рамку"
+						:options="canvasFrameOptions"
+						:disabled="loadingDictionaries"
+						:error-message="validationErrors.frames"
+						@update:model-value="addCanvasFrame"
+					/>
+					<div v-if="selectedCanvasFrames.length" class="mt-3 flex flex-wrap gap-2">
+						<span
+							v-for="frame in selectedCanvasFrames"
+							:key="frame.id"
+							class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+						>
+							{{ frame.label }}
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								class-name="h-5 w-5 text-gray-500 hover:text-red-600"
+								:on-click="() => removeCanvasFrame(frame.id)"
+							>
+								✕
+							</Button>
+						</span>
+					</div>
+				</div>
+
+				<div class="md:col-span-3">
+					<SelectField
+						:model-value="selectedCanvasEffectId"
+						label="Эффекты"
+						name="effects"
+						placeholder="Выберите эффект (необязательно)"
+						:options="canvasEffectOptions"
+						:disabled="loadingDictionaries"
+						:error-message="validationErrors.effects"
+						@update:model-value="addCanvasEffect"
+					/>
+					<div v-if="selectedCanvasEffects.length" class="mt-3 flex flex-wrap gap-2">
+						<span
+							v-for="effect in selectedCanvasEffects"
+							:key="effect.id"
+							class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+						>
+							{{ effect.label }}
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								class-name="h-5 w-5 text-gray-500 hover:text-red-600"
+								:on-click="() => removeCanvasEffect(effect.id)"
 							>
 								✕
 							</Button>

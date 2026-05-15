@@ -3,6 +3,7 @@ import { registerModules } from './register-modules'
 import banners from '@/modules/banners'
 import brands from '@/modules/brands'
 import canvasFormats from '@/modules/canvas-formats'
+import canvasEffects from '@/modules/canvas-effects'
 import canvasFrames from '@/modules/canvas-frames'
 import canvasSizes from '@/modules/canvas-sizes'
 import categories from '@/modules/categories'
@@ -27,6 +28,7 @@ registerModules({
 	canvasSizes: canvasSizes,
 	canvasFormats: canvasFormats,
 	canvasFrames: canvasFrames,
+	canvasEffects: canvasEffects,
 	banners: banners,
 	products: products,
 	faqs: faqs,

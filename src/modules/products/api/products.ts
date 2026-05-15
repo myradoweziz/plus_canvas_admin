@@ -62,7 +62,9 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		product_qode: product.product_qode ?? '',
 		discount_id: product.discount_id ?? product.discount?.id ?? null,
 		colors: toIdArray(product.colors),
-		canvas_formats: toIdArray(product.canvas_formats)
+		canvas_formats: toIdArray(product.canvas_formats),
+		frames: toIdArray(product.frames),
+		effects: toIdArray(product.effects)
 	}
 }
 
@@ -103,7 +105,9 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		product_qode: product.product_qode,
 		discount_id: product.discount_id,
 		colors: product.colors,
-		canvas_formats: product.canvas_formats
+		canvas_formats: product.canvas_formats,
+		frames: product.frames,
+		effects: product.effects
 	}
 }
 
@@ -112,7 +116,9 @@ function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 	const data: Record<string, any> = {
 		...payload,
 		colors: JSON.stringify(payload.colors),
-		canvas_formats: JSON.stringify(payload.canvas_formats)
+		canvas_formats: JSON.stringify(payload.canvas_formats),
+		frames: JSON.stringify(payload.frames),
+		effects: JSON.stringify(payload.effects)
 	}
 
 	delete data.images

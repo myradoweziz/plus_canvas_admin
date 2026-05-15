@@ -122,19 +122,24 @@
 	import {
 		BannerIcon,
 		BrandsIcon,
+		CanvasEffectsIcon,
 		CanvasFormatsIcon,
+		CanvasFramesIcon,
 		CanvasSizesIcon,
 		CategoriesIcon,
 		ChatIcon,
 		ChevronDownIcon,
 		ColorsIcon,
+		ContactInfoIcon,
 		DiscountsIcon,
 		FeaturedCategoriesIcon,
 		HomeIcon,
+		MainCategoriesIcon,
 		PermissionsIcon,
 		ProductsIcon,
-		SettingsIcon,
+		RolesIcon,
 		SubCategoriesIcon,
+		UserCircleIcon,
 		UsersIcon
 	} from '@/shared/icons'
 	import HeaderLogo from './header/HeaderLogo.vue'
@@ -146,103 +151,36 @@
 	const menuGroups = [
 		{
 			items: [
-				{
-					icon: HomeIcon,
-					name: 'Панель',
-					path: '/admin-panel'
-				},
-				{
-					icon: BannerIcon,
-					name: 'Баннеры',
-					path: '/admin-panel/banners'
-				},
-				{
-					icon: ProductsIcon,
-					name: 'Продукты',
-					path: '/admin-panel/products'
-				},
+				{ icon: HomeIcon, name: 'Панель', path: '/admin-panel' },
+				{ icon: BannerIcon, name: 'Баннеры', path: '/admin-panel/banners' },
+				{ icon: ProductsIcon, name: 'Продукты', path: '/admin-panel/products' },
 				{
 					icon: CategoriesIcon,
 					name: 'Категории',
 					path: '/admin-panel/categories',
 					subItems: [
-						{
-							name: 'Главные категории',
-							path: '/admin-panel/categories/main-categories',
-							icon: CategoriesIcon
-						},
-						{
-							name: 'Категории',
-							path: '/admin-panel/categories/featured-categories',
-							icon: FeaturedCategoriesIcon
-						},
-						{
-							name: 'Подкатегории',
-							path: '/admin-panel/categories/sub-categories',
-							icon: SubCategoriesIcon
-						}
+						{ name: 'Главные категории', path: '/admin-panel/categories/main-categories', icon: MainCategoriesIcon },
+						{ name: 'Категории', path: '/admin-panel/categories/featured-categories', icon: FeaturedCategoriesIcon },
+						{ name: 'Подкатегории', path: '/admin-panel/categories/sub-categories', icon: SubCategoriesIcon }
 					]
 				},
-				{
-					icon: DiscountsIcon,
-					name: 'Скидка рекламный баннер',
-					path: '/admin-panel/discounts'
-				},
-				{
-					icon: BrandsIcon,
-					name: 'Теги',
-					path: '/admin-panel/brands'
-				},
-				{
-					icon: ColorsIcon,
-					name: 'Цвета',
-					path: '/admin-panel/colors'
-				},
-				{
-					icon: CanvasSizesIcon,
-					name: 'Размеры холста',
-					path: '/admin-panel/canvas-sizes'
-				},
-				{
-					icon: CanvasFormatsIcon,
-					name: 'Форматы холста',
-					path: '/admin-panel/canvas-formats'
-				},
-				{
-					icon: CanvasFormatsIcon,
-					name: 'Рамки',
-					path: '/admin-panel/canvas-frames'
-				},
-				{
-					icon: ChatIcon,
-					name: 'FAQ',
-					path: '/admin-panel/faqs'
-				},
-				{
-					icon: SettingsIcon,
-					name: 'Контактная информация',
-					path: '/admin-panel/contact-info'
-				},
+				{ icon: DiscountsIcon, name: 'Скидка рекламный баннер', path: '/admin-panel/discounts' },
+				{ icon: BrandsIcon, name: 'Теги', path: '/admin-panel/brands' },
+				{ icon: ColorsIcon, name: 'Цвета', path: '/admin-panel/colors' },
+				{ icon: CanvasSizesIcon, name: 'Размеры холста', path: '/admin-panel/canvas-sizes' },
+				{ icon: CanvasFormatsIcon, name: 'Форматы холста', path: '/admin-panel/canvas-formats' },
+				{ icon: CanvasFramesIcon, name: 'Рамки', path: '/admin-panel/canvas-frames' },
+				{ icon: CanvasEffectsIcon, name: 'Эффекты', path: '/admin-panel/canvas-effects' },
+				{ icon: ChatIcon, name: 'FAQ', path: '/admin-panel/faqs' },
+				{ icon: ContactInfoIcon, name: 'Контактная информация', path: '/admin-panel/contact-info' },
 				{
 					icon: UsersIcon,
 					name: 'Пользователи',
 					path: '/admin-panel/settings/permissions',
 					subItems: [
-						{
-							icon: PermissionsIcon,
-							name: 'Права',
-							path: '/admin-panel/settings/permissions'
-						},
-						{
-							icon: UsersIcon,
-							name: 'Роли',
-							path: '/admin-panel/settings/roles'
-						},
-						{
-							icon: UsersIcon,
-							name: 'Пользователи',
-							path: '/admin-panel/settings/users'
-						}
+						{ icon: PermissionsIcon, name: 'Права', path: '/admin-panel/settings/permissions' },
+						{ icon: RolesIcon, name: 'Роли', path: '/admin-panel/settings/roles' },
+						{ icon: UserCircleIcon, name: 'Пользователи', path: '/admin-panel/settings/users' }
 					]
 				}
 			]

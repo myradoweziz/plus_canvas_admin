@@ -18,6 +18,8 @@ export type CanvasProduct = {
 	discount_id: number | null
 	colors: number[]
 	canvas_formats: number[]
+	frames: number[]
+	effects: number[]
 }
 
 export type CanvasProductPayload = Omit<CanvasProduct, 'id'>
