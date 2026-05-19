@@ -101,7 +101,6 @@
 		setRequiredError(errors, 'product_qode', 'Product Qode')
 		setRequiredError(errors, 'main_category_id', 'Main Category')
 		setRequiredError(errors, 'category_id', 'Category')
-		setRequiredError(errors, 'sub_category_id', 'Sub Category')
 
 		if (!Number.isFinite(Number(form.value.price)) || Number(form.value.price) <= 0) {
 			errors.price = 'Цена должна быть больше 0.'
@@ -680,7 +679,6 @@
 					placeholder="Выберите подкатегорию"
 					:options="subCategoryOptions"
 					:disabled="loadingDictionaries || loadingSubCategories || !form.category_id"
-					:error-message="validationErrors.sub_category_id"
 				/>
 
 				<SelectField

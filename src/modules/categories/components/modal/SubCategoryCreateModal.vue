@@ -120,7 +120,7 @@
 		featuredCategories.value
 			.filter((category): category is FeaturedCategory & { id: number } => category.id !== null)
 			.map((category) => ({
-				label: category.name,
+				label: `${category.name} (${category.main_category?.name})`,
 				value: category.id
 			}))
 	)
@@ -262,12 +262,7 @@
 					/>
 				</div>
 
-				<CheckboxField
-					v-model="form.is_active"
-					label="Активно"
-					name="is_active"
-					class="md:col-span-2"
-				/>
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>
