@@ -5,6 +5,7 @@
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
+	import ColorPicker from '@/shared/ui/ColorPicker.vue'
 	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
@@ -21,6 +22,7 @@
 	const form = reactive({
 		id: null as number | null,
 		name: '',
+		color_hex: '#000000',
 		image: '',
 		image_url: '',
 		price: 0 as number | string,
@@ -30,6 +32,7 @@
 
 	const fieldErrors = reactive({
 		name: '',
+		color_hex: '',
 		price: '',
 		sort_order: '',
 		image: ''
@@ -39,6 +42,7 @@
 		Object.assign(form, {
 			id: null,
 			name: '',
+			color_hex: '#000000',
 			image: '',
 			image_url: '',
 			price: 0,
@@ -46,6 +50,7 @@
 			is_active: true
 		})
 		fieldErrors.name = ''
+		fieldErrors.color_hex = ''
 		fieldErrors.price = ''
 		fieldErrors.sort_order = ''
 		fieldErrors.image = ''
@@ -53,6 +58,7 @@
 
 	const validate = () => {
 		fieldErrors.name = ''
+		fieldErrors.color_hex = ''
 		fieldErrors.price = ''
 		fieldErrors.sort_order = ''
 		fieldErrors.image = ''
@@ -60,6 +66,10 @@
 		let ok = true
 		if (!form.name.trim()) {
 			fieldErrors.name = 'Укажите название'
+			ok = false
+		}
+		if (!/^#[0-9A-Fa-f]{6}$/.test(String(form.color_hex || ''))) {
+			fieldErrors.color_hex = 'Укажите корректный цвет'
 			ok = false
 		}
 		const price = Number(form.price)
@@ -86,12 +96,14 @@
 			Object.assign(form, {
 				id: frame.id ?? null,
 				name: frame.name ?? '',
-				image: frame.image_url ?? '',
+				color_hex: frame.color_hex ?? '#000000',
+				image: frame.image_url ?? frame.image ?? '',
 				price: frame.price ?? 0,
 				sort_order: frame.sort_order ?? 0,
 				is_active: !!frame.is_active
 			})
 			fieldErrors.name = ''
+			fieldErrors.color_hex = ''
 			fieldErrors.price = ''
 			fieldErrors.sort_order = ''
 			fieldErrors.image = ''
@@ -106,6 +118,7 @@
 			const payload: CanvasFrame = {
 				id: form.id ?? null,
 				name: form.name.trim(),
+				color_hex: form.color_hex,
 				image: form.image || form.image_url || '',
 				price: Number(form.price) || 0,
 				sort_order: Number(form.sort_order) || 0,
@@ -149,6 +162,15 @@
 						name="name"
 						placeholder="Название"
 						:error-message="fieldErrors.name"
+					/>
+				</div>
+
+				<div class="md:col-span-1">
+					<ColorPicker
+						v-model="form.color_hex"
+						label="Цвет *"
+						name="color_hex"
+						:error-message="fieldErrors.color_hex"
 					/>
 				</div>
 

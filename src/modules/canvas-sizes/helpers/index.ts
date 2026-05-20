@@ -7,6 +7,7 @@ export const CANVAS_SIZE_UNIT_OPTIONS = [
 
 export const CANVAS_SIZES_TABLE_COLUMNS = [
 	{ key: 'size', label: 'Размер' },
+	{ key: 'price', label: 'Цена' },
 	{ key: 'is_active', label: 'Активно' },
 	{ key: 'sort_order', label: 'Порядок' },
 	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }

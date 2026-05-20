@@ -30,6 +30,7 @@ async function listCanvasFrames(params: ListCanvasFramesParams): Promise<ListCan
 function toCanvasFramePayload(frame: CanvasFrame): CanvasFramePayload {
 	return {
 		name: frame.name,
+		color_hex: frame.color_hex,
 		image: frame.image || frame.image_url || '',
 		price: frame.price,
 		is_active: frame.is_active,

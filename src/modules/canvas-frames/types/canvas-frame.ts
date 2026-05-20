@@ -1,6 +1,7 @@
 export type CanvasFrame = {
 	id: number | null
 	name: string
+	color_hex: string
 	image?: string
 	image_url?: string
 	price: number

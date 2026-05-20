@@ -25,21 +25,24 @@
 		height: 0 as number | string,
 		unit: 'cm',
 		is_active: true,
-		sort_order: 0 as number | string
+		sort_order: 0 as number | string,
+		price: 0 as number | string
 	})
 
 	const fieldErrors = reactive({
 		width: '',
 		height: '',
 		unit: '',
+		price: '',
 		sort_order: ''
 	})
 
 	const resetLocalForm = () => {
-		Object.assign(form, { id: null, width: 0, height: 0, unit: 'cm', is_active: true, sort_order: 0 })
+		Object.assign(form, { id: null, width: 0, height: 0, unit: 'cm', is_active: true, sort_order: 0, price: 0 })
 		fieldErrors.width = ''
 		fieldErrors.height = ''
 		fieldErrors.unit = ''
+		fieldErrors.price = ''
 		fieldErrors.sort_order = ''
 	}
 
@@ -47,6 +50,7 @@
 		fieldErrors.width = ''
 		fieldErrors.height = ''
 		fieldErrors.unit = ''
+		fieldErrors.price = ''
 		fieldErrors.sort_order = ''
 
 		let ok = true
@@ -69,6 +73,11 @@
 			fieldErrors.sort_order = 'Укажите корректный порядок'
 			ok = false
 		}
+		const price = Number(form.price)
+		if (!Number.isFinite(price) || price < 0) {
+			fieldErrors.price = 'Укажите корректную цену'
+			ok = false
+		}
 		return ok
 	}
 
@@ -87,11 +96,13 @@
 				height: canvasSize.height ?? 0,
 				unit: canvasSize.unit ?? 'cm',
 				is_active: !!canvasSize.is_active,
-				sort_order: canvasSize.sort_order ?? 0
+				sort_order: canvasSize.sort_order ?? 0,
+				price: canvasSize.price ?? 0
 			})
 			fieldErrors.width = ''
 			fieldErrors.height = ''
 			fieldErrors.unit = ''
+			fieldErrors.price = ''
 			fieldErrors.sort_order = ''
 		},
 		{ immediate: true }
@@ -108,7 +119,8 @@
 				height: Number(form.height),
 				unit: String(form.unit),
 				is_active: !!form.is_active,
-				sort_order: Number(form.sort_order) || 0
+				sort_order: Number(form.sort_order) || 0,
+				price: Number(form.price) || 0
 			}
 
 			if (payload.id) {
@@ -193,12 +205,18 @@
 					/>
 				</div>
 
-				<CheckboxField
-					v-model="form.is_active"
-					label="Активно"
-					name="is_active"
-					class="md:col-span-2"
-				/>
+				<div class="md:col-span-1">
+					<TextField
+						v-model.number="form.price"
+						label="Цена"
+						name="price"
+						type="number"
+						min="0"
+						:error-message="fieldErrors.price"
+					/>
+				</div>
+
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
 					<Button type="button" variant="outline" size="sm" @click="$emit('close')"> Отмена </Button>

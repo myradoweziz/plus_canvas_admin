@@ -40,6 +40,10 @@
 			</span>
 		</template>
 
+		<template #cell-price="{ row }">
+			<span class="font-medium text-gray-700">{{ toCanvasSize(row).price }}</span>
+		</template>
+
 		<template #cell-is_active="{ row }">
 			<span
 				class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"

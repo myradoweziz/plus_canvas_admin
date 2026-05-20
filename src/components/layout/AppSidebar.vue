@@ -14,7 +14,7 @@
 		@mouseleave="isHovered = false"
 	>
 		<div :class="['py-8 flex', !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start']">
-			<router-link to="/">
+			<router-link to="/admin-panel">
 				<HeaderLogo :class="[isExpanded || isHovered || isMobileOpen ? '' : 'scale-90 origin-left']" />
 			</router-link>
 		</div>

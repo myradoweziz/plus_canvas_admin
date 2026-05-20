@@ -28,6 +28,7 @@ function toCanvasSizePayload(canvasSize: CanvasSize): CanvasSizePayload {
 		width: canvasSize.width,
 		height: canvasSize.height,
 		unit: canvasSize.unit,
+		price: canvasSize.price,
 		is_active: canvasSize.is_active,
 		sort_order: canvasSize.sort_order
 	}

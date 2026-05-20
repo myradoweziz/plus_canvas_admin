@@ -5,7 +5,7 @@ export type CanvasSize = {
 	unit: string
 	is_active: boolean
 	sort_order: number
+	price: number
 }
 
 export type CanvasSizePayload = Omit<CanvasSize, 'id'>
-

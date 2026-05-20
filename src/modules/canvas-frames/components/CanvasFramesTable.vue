@@ -25,6 +25,16 @@
 			<span class="font-medium text-gray-800">{{ toFrame(row).name }}</span>
 		</template>
 
+		<template #cell-hex_code="{ row }">
+			<div class="flex items-center gap-2">
+				<span
+					class="h-6 w-6 rounded-full border border-gray-200"
+					:style="{ backgroundColor: toFrame(row).color_hex }"
+				></span>
+				<span class="font-medium text-gray-700">{{ toFrame(row).color_hex }}</span>
+			</div>
+		</template>
+
 		<template #cell-image_url="{ row }">
 			<img
 				v-if="toFrame(row).image_url"
@@ -78,4 +88,3 @@
 		</template>
 	</DataTable>
 </template>
-

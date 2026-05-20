@@ -6,7 +6,12 @@ import { useCookies } from 'vue3-cookies'
 
 const ADMIN_PREFIX = '/admin-panel'
 
-const routes: Array<RouteRecordRaw> = []
+const routes: Array<RouteRecordRaw> = [
+	{
+		path: '/',
+		redirect: `${ADMIN_PREFIX}`
+	}
+]
 
 const router = createRouter({
 	history: createWebHistory(),
