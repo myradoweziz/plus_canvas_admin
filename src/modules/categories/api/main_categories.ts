@@ -1,5 +1,15 @@
+import { downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import type { MainCategory, MainCategoryPayload } from '../types/category'
+
+export const mainCategoriesApi = {
+	listMainCategories,
+	createMainCategory,
+	updateMainCategory,
+	deleteMainCategory,
+	reorderMainCategories,
+	exportMainCategoriesXml
+}
 
 const MAIN_CATEGORIES_URL = '/api/admin/main-categories'
 
@@ -26,7 +36,9 @@ const toImageUrls = (items: ImageItem[] | null | undefined): string[] => {
 const normalizeMainCategory = (item: any): MainCategory => ({
 	...item,
 	description: item?.description ?? '',
-	images: toImageUrls(item?.images)
+	images: toImageUrls(item?.images),
+	meta_title: item?.meta_title ?? '',
+	meta_description: item?.meta_description ?? ''
 })
 
 async function listMainCategories(params: ListMainCategoriesParams): Promise<ListMainCategoriesResult> {
@@ -51,7 +63,9 @@ function toMainCategoryPayload(category: MainCategory): MainCategoryPayload {
 		images: category.images,
 		is_active: category.is_active,
 		featured_order: category.featured_order,
-		category_type: category.category_type
+		category_type: category.category_type,
+		meta_title: category.meta_title ?? '',
+		meta_description: category.meta_description ?? ''
 	}
 }
 
@@ -102,10 +116,24 @@ async function reorderMainCategories(data: ReorderMainCategoriesPayload): Promis
 	return await request({ url: `${MAIN_CATEGORIES_URL}/reorder`, method: 'POST', data })
 }
 
-export const mainCategoriesApi = {
-	listMainCategories,
-	createMainCategory,
-	updateMainCategory,
-	deleteMainCategory,
-	reorderMainCategories
+async function exportMainCategoriesXml(): Promise<void> {
+	const response = await request({
+		url: `${MAIN_CATEGORIES_URL}/export/xml`,
+		method: 'GET',
+		headers: { Accept: 'application/xml, text/xml' },
+		responseType: 'text'
+	})
+
+	const xml =
+		typeof response === 'string'
+			? response
+			: typeof (response as { data?: string })?.data === 'string'
+				? (response as { data: string }).data
+				: ''
+
+	if (!xml.trim()) {
+		throw new Error('Пустой ответ XML')
+	}
+
+	downloadTextFile(xml, 'main_categories.xml', 'application/xml;charset=utf-8')
 }

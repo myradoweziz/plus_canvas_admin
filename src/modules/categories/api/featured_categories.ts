@@ -1,5 +1,15 @@
+import { downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import type { FeaturedCategory, FeaturedCategoryPayload } from '../types/category'
+
+export const featuredCategoriesApi = {
+	listFeaturedCategories,
+	createFeaturedCategory,
+	updateFeaturedCategory,
+	deleteFeaturedCategory,
+	reorderFeaturedCategories,
+	exportFeaturedCategoriesXml
+}
 
 const FEATURED_CATEGORIES_URL = '/api/admin/categories'
 
@@ -37,7 +47,9 @@ function toFeaturedCategoryPayload(category: FeaturedCategory): FeaturedCategory
 		image: category.image || '',
 		is_active: category.is_active,
 		featured_order: category.featured_order,
-		category_type: category.category_type
+		category_type: category.category_type,
+		meta_title: category.meta_title ?? '',
+		meta_description: category.meta_description ?? ''
 	}
 }
 
@@ -72,10 +84,24 @@ async function reorderFeaturedCategories(data: ReorderFeaturedCategoriesPayload)
 	return await request({ url: `${FEATURED_CATEGORIES_URL}/reorder`, method: 'POST', data })
 }
 
-export const featuredCategoriesApi = {
-	listFeaturedCategories,
-	createFeaturedCategory,
-	updateFeaturedCategory,
-	deleteFeaturedCategory,
-	reorderFeaturedCategories
+async function exportFeaturedCategoriesXml(): Promise<void> {
+	const response = await request({
+		url: `${FEATURED_CATEGORIES_URL}/export/xml`,
+		method: 'GET',
+		headers: { Accept: 'application/xml, text/xml' },
+		responseType: 'text'
+	})
+
+	const xml =
+		typeof response === 'string'
+			? response
+			: typeof (response as { data?: string })?.data === 'string'
+				? (response as { data: string }).data
+				: ''
+
+	if (!xml.trim()) {
+		throw new Error('Пустой ответ XML')
+	}
+
+	downloadTextFile(xml, 'categories.xml', 'application/xml;charset=utf-8')
 }

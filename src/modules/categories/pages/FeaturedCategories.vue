@@ -162,6 +162,15 @@
 		offset.value = value
 		await load()
 	}
+
+	const exportXml = async () => {
+		try {
+			await categoriesApi.exportFeaturedCategoriesXml()
+			toast.success('XML файл скачан')
+		} catch {
+			toast.error('Не удалось экспортировать XML')
+		}
+	}
 </script>
 
 <template>
@@ -173,7 +182,10 @@
 			:total="total"
 		>
 			<template #actions>
-				<Button type="button" size="sm" :on-click="openCreate">Добавить категорию</Button>
+				<div class="flex items-center gap-2">
+					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>
+					<Button type="button" size="sm" :on-click="openCreate">Добавить категорию</Button>
+				</div>
 			</template>
 		</Banner>
 

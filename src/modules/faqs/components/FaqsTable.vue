@@ -43,7 +43,7 @@
 				class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
 				:class="toFaq(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
 			>
-				{{ toFaq(row).is_active ? 'true' : 'false' }}
+				{{ toFaq(row).is_active ? 'Активно' : 'Не активно' }}
 			</span>
 		</template>
 

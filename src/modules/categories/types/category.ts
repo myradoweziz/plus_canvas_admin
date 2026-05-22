@@ -10,6 +10,8 @@ export type MainCategory = {
 	is_active: boolean
 	featured_order: number
 	category_type: CategoryType
+	meta_title: string
+	meta_description: string
 }
 
 export type MainCategoryPayload = Omit<MainCategory, 'id'>
@@ -21,11 +23,13 @@ export type FeaturedCategory = {
 	name: string
 	slug: string
 	description: string
-	image?: string
+	image: string
 	image_url?: string
 	is_active: boolean
 	featured_order: number
 	category_type: FeaturedCategoryType
+	meta_title: string
+	meta_description: string
 }
 
 export type FeaturedCategoryPayload = Omit<FeaturedCategory, 'id'>
@@ -38,6 +42,10 @@ export type SubCategory = {
 	slug: string
 	is_active: boolean
 	featured_order: number
+	image: string
+	image_url?: string
+	meta_title: string
+	meta_description: string
 }
 
 export type SubCategoryPayload = Omit<SubCategory, 'id'>

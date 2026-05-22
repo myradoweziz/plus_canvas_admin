@@ -1,5 +1,15 @@
+import { downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import type { SubCategory, SubCategoryPayload } from '../types/category'
+
+export const subCategoriesApi = {
+	listSubCategories,
+	createSubCategory,
+	updateSubCategory,
+	deleteSubCategory,
+	reorderSubCategories,
+	exportSubCategoriesXml
+}
 
 const SUB_CATEGORIES_URL = '/api/admin/sub-categories'
 
@@ -33,8 +43,11 @@ function toSubCategoryPayload(category: SubCategory): SubCategoryPayload {
 		category_id: category.category_id,
 		name: category.name,
 		slug: category.slug,
+		image: category.image || category.image_url || '',
 		is_active: category.is_active,
-		featured_order: category.featured_order
+		featured_order: category.featured_order,
+		meta_title: category.meta_title ?? '',
+		meta_description: category.meta_description ?? ''
 	}
 }
 
@@ -65,10 +78,24 @@ async function reorderSubCategories(data: ReorderSubCategoriesPayload): Promise<
 	return await request({ url: `${SUB_CATEGORIES_URL}/reorder`, method: 'POST', data })
 }
 
-export const subCategoriesApi = {
-	listSubCategories,
-	createSubCategory,
-	updateSubCategory,
-	deleteSubCategory,
-	reorderSubCategories
+async function exportSubCategoriesXml(): Promise<void> {
+	const response = await request({
+		url: `${SUB_CATEGORIES_URL}/export/xml`,
+		method: 'GET',
+		headers: { Accept: 'application/xml, text/xml' },
+		responseType: 'text'
+	})
+
+	const xml =
+		typeof response === 'string'
+			? response
+			: typeof (response as { data?: string })?.data === 'string'
+				? (response as { data: string }).data
+				: ''
+
+	if (!xml.trim()) {
+		throw new Error('Пустой ответ XML')
+	}
+
+	downloadTextFile(xml, 'sub_categories.xml', 'application/xml;charset=utf-8')
 }

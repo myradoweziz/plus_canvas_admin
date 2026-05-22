@@ -36,7 +36,9 @@
 		images: [] as string[],
 		is_active: false,
 		featured_order: 0 as number | string,
-		category_type: 'Kişiye Özel Kanvas Tablo'
+		category_type: 'Kişiye Özel Kanvas Tablo',
+		meta_title: '',
+		meta_description: ''
 	})
 
 	const fieldErrors = reactive({
@@ -63,7 +65,9 @@
 			images: [],
 			is_active: false,
 			featured_order: 0,
-			category_type: 'Kişiye Özel Kanvas Tablo'
+			category_type: 'Kişiye Özel Kanvas Tablo',
+			meta_title: '',
+			meta_description: ''
 		})
 		fieldErrors.name = ''
 		fieldErrors.slug = ''
@@ -119,7 +123,9 @@
 				images: Array.isArray(category.images) ? category.images : [],
 				is_active: !!category.is_active,
 				featured_order: category.featured_order ?? 0,
-				category_type: String(category.category_type ?? 'Kişiye Özel Kanvas Tablo').trim()
+				category_type: String(category.category_type ?? 'Kişiye Özel Kanvas Tablo').trim(),
+				meta_title: category.meta_title ?? '',
+				meta_description: category.meta_description ?? ''
 			})
 			fieldErrors.name = ''
 			fieldErrors.slug = ''
@@ -164,7 +170,9 @@
 				images: form.images ?? [],
 				is_active: !!form.is_active,
 				featured_order: Number(form.featured_order) || 0,
-				category_type: form.category_type as MainCategory['category_type']
+				category_type: form.category_type as MainCategory['category_type'],
+				meta_title: form.meta_title.trim(),
+				meta_description: form.meta_description.trim()
 			}
 			if (payload.id) {
 				await categoriesApi.updateMainCategory(payload)
@@ -190,14 +198,13 @@
 
 <template>
 	<Modal v-if="open" @close="$emit('close')">
-		<div class="relative z-100000 mx-auto w-[92vw] max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+		<div
+			class="relative z-100000 mx-auto w-[92vw] max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+		>
 			<div class="flex items-start justify-between gap-4">
-				<div class="min-w-0">
-					<h3 class="text-lg font-semibold text-gray-900">
-						{{ props.category ? 'Редактировать главную категорию' : 'Добавить главную категорию' }}
-					</h3>
-					<p class="mt-1 text-sm text-gray-600">Заполните поля и сохраните.</p>
-				</div>
+				<h3 class="text-lg font-semibold text-gray-900">
+					{{ props.category ? 'Редактировать главную категорию' : 'Добавить главную категорию' }}
+				</h3>
 				<Button type="button" variant="ghost" size="icon" :on-click="() => $emit('close')" aria-label="Close">
 					✕
 				</Button>
@@ -254,6 +261,24 @@
 						name="description"
 						placeholder="Описание"
 						:error-message="fieldErrors.description"
+					/>
+				</div>
+
+				<div class="md:col-span-2">
+					<TextField
+						v-model.trim="form.meta_title"
+						label="Meta title (SEO)"
+						name="meta_title"
+						placeholder="Meta title"
+					/>
+				</div>
+
+				<div class="md:col-span-2">
+					<TextareaField
+						v-model.trim="form.meta_description"
+						label="Meta description (SEO)"
+						name="meta_description"
+						placeholder="Meta description"
 					/>
 				</div>
 

@@ -5,9 +5,12 @@
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
+	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
+	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { debounce, slugify } from '@/shared'
+	import { mediaApi } from '@/shared/api/media'
 	import { categoriesApi } from '../../api'
 	import type { FeaturedCategory, SubCategory } from '../../types/category'
 
@@ -27,22 +30,39 @@
 		category_id: null as number | null,
 		name: '',
 		slug: '',
+		image: '',
+		image_url: '',
 		is_active: false,
-		featured_order: 0 as number | string
+		featured_order: 0 as number | string,
+		meta_title: '',
+		meta_description: ''
 	})
 
 	const fieldErrors = reactive({
 		category_id: '',
 		name: '',
 		slug: '',
+		image: '',
 		featured_order: ''
 	})
 
 	const resetLocalForm = () => {
-		Object.assign(form, { id: null, category_id: null, name: '', slug: '', is_active: false, featured_order: 0 })
+		Object.assign(form, {
+			id: null,
+			category_id: null,
+			name: '',
+			slug: '',
+			image: '',
+			image_url: '',
+			is_active: false,
+			featured_order: 0,
+			meta_title: '',
+			meta_description: ''
+		})
 		fieldErrors.category_id = ''
 		fieldErrors.name = ''
 		fieldErrors.slug = ''
+		fieldErrors.image = ''
 		fieldErrors.featured_order = ''
 		slugManuallyEdited.value = false
 		lastGeneratedSlug.value = ''
@@ -52,6 +72,7 @@
 		fieldErrors.category_id = ''
 		fieldErrors.name = ''
 		fieldErrors.slug = ''
+		fieldErrors.image = ''
 		fieldErrors.featured_order = ''
 
 		let ok = true
@@ -72,6 +93,10 @@
 			fieldErrors.featured_order = 'Укажите корректный порядок'
 			ok = false
 		}
+		if (!String(form.image || form.image_url || '').trim()) {
+			fieldErrors.image = 'Загрузите изображение'
+			ok = false
+		}
 		return ok
 	}
 
@@ -89,12 +114,17 @@
 				category_id: category.category_id ?? null,
 				name: category.name ?? '',
 				slug: category.slug ?? '',
+				image: category.image_url ?? category.image ?? '',
+				image_url: category.image_url ?? category.image ?? '',
 				is_active: !!category.is_active,
-				featured_order: category.featured_order ?? 0
+				featured_order: category.featured_order ?? 0,
+				meta_title: category.meta_title ?? '',
+				meta_description: category.meta_description ?? ''
 			})
 			fieldErrors.category_id = ''
 			fieldErrors.name = ''
 			fieldErrors.slug = ''
+			fieldErrors.image = ''
 			fieldErrors.featured_order = ''
 			lastGeneratedSlug.value = slugify(category.name ?? '')
 			slugManuallyEdited.value = Boolean(category.slug && category.slug !== lastGeneratedSlug.value)
@@ -113,6 +143,13 @@
 			}
 
 			lastGeneratedSlug.value = generatedSlug
+		}
+	)
+
+	watch(
+		() => form.image,
+		(image) => {
+			if (String(image || '').trim()) fieldErrors.image = ''
 		}
 	)
 
@@ -179,8 +216,11 @@
 				category_id: form.category_id,
 				name: form.name.trim(),
 				slug: form.slug.trim(),
+				image: form.image || form.image_url || '',
 				is_active: !!form.is_active,
-				featured_order: Number(form.featured_order) || 0
+				featured_order: Number(form.featured_order) || 0,
+				meta_title: form.meta_title.trim(),
+				meta_description: form.meta_description.trim()
 			}
 			if (payload.id) {
 				await categoriesApi.updateSubCategory(payload)
@@ -204,12 +244,9 @@
 	<Modal v-if="open" @close="$emit('close')">
 		<div class="relative z-100000 mx-auto w-[92vw] max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
 			<div class="flex items-start justify-between gap-4">
-				<div class="min-w-0">
-					<h3 class="text-lg font-semibold text-gray-900">
-						{{ props.category ? 'Редактировать категорию' : 'Добавить категорию' }}
-					</h3>
-					<p class="mt-1 text-sm text-gray-600">Заполните поля и сохраните.</p>
-				</div>
+				<h3 class="text-lg font-semibold text-gray-900">
+					{{ props.category ? 'Редактировать категорию' : 'Добавить категорию' }}
+				</h3>
 				<Button type="button" variant="ghost" size="icon" :on-click="() => $emit('close')" aria-label="Close">
 					✕
 				</Button>
@@ -259,6 +296,34 @@
 						type="number"
 						min="0"
 						:error-message="fieldErrors.featured_order"
+					/>
+				</div>
+
+				<div class="md:col-span-2">
+					<TextField
+						v-model.trim="form.meta_title"
+						label="Meta title (SEO)"
+						name="meta_title"
+						placeholder="Meta title"
+					/>
+				</div>
+
+				<div class="md:col-span-2">
+					<TextareaField
+						v-model.trim="form.meta_description"
+						label="Meta description (SEO)"
+						name="meta_description"
+						placeholder="Meta description"
+					/>
+				</div>
+
+				<div class="md:col-span-2">
+					<SingleImageUpload
+						v-model="form.image"
+						label="Изображение *"
+						description="Обязательно. Файл будет загружен сразу, в форму сохранится URL."
+						:error-message="fieldErrors.image"
+						:uploader="mediaApi.uploadImages"
 					/>
 				</div>
 

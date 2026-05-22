@@ -15,7 +15,7 @@
 	import { categoriesApi } from '@/modules/categories/api'
 	import type { FeaturedCategory, MainCategory, SubCategory } from '@/modules/categories/types/category'
 	import { BoxCubeIcon } from '@/shared/icons'
-	import { canvasProductsApi } from '../api/products'
+	import { api } from '../api'
 	import type { CanvasProduct } from '../types/product'
 
 	const router = useRouter()
@@ -63,7 +63,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await canvasProductsApi.listCanvasProducts({
+			const result = await api.listCanvasProducts({
 				name: filters.value.search,
 				main_category_id: filters.value.main_category_id ?? undefined,
 				category_id: filters.value.category_id ?? undefined,
@@ -190,7 +190,7 @@
 
 		loadingDeleteModal.value = true
 		try {
-			await canvasProductsApi.deleteCanvasProduct(selectedProduct.value.id)
+			await api.deleteCanvasProduct(selectedProduct.value.id)
 			showDeleteModal.value = false
 			selectedProduct.value = null
 			await load()

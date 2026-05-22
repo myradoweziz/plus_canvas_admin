@@ -66,7 +66,7 @@
 			clearText: 'Очистить',
 			accept: 'image/*',
 			errorMessage: '',
-			maxFileSizeMb: 3,
+			maxFileSizeMb: 10,
 			previewAlt: ''
 		}
 	)
@@ -107,7 +107,7 @@
 
 		if (!file) return
 
-		const maxSizeBytes = (props.maxFileSizeMb || 3) * 1024 * 1024
+		const maxSizeBytes = (props.maxFileSizeMb || 10) * 1024 * 1024
 		if (file.size > maxSizeBytes) {
 			localError.value = `Максимальный размер файла: ${props.maxFileSizeMb}MB`
 			return

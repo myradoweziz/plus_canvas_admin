@@ -30,15 +30,33 @@ const toIdArray = (items: RelationItem[] | null | undefined): number[] => {
 		.filter((id): id is number => typeof id === 'number')
 }
 
-type ImageItem = string | File | { url?: string | null; path?: string | null }
+type ImageItem =
+	| string
+	| File
+	| {
+			url?: string | null
+			path?: string | null
+			image?: string | null
+			image_url?: string | null
+			image_path?: string | null
+	  }
+
+const toImageUrl = (item: Exclude<ImageItem, string | File>): string | null => {
+	const url = item.url ?? item.image_url ?? item.image ?? item.path ?? item.image_path ?? null
+	return typeof url === 'string' && url.trim() ? url.trim() : null
+}
 
 const toImageArray = (items: ImageItem[] | null | undefined): Array<string | File> => {
 	if (!Array.isArray(items)) return []
 
 	return items
 		.map((item) => {
-			if (typeof item === 'string' || item instanceof File) return item
-			return item.url || item.path || null
+			if (typeof item === 'string') {
+				const trimmed = item.trim()
+				return trimmed || null
+			}
+			if (item instanceof File) return item
+			return toImageUrl(item)
 		})
 		.filter((item): item is string | File => item !== null)
 }
@@ -79,11 +97,12 @@ async function listCanvasProducts(params: ListCanvasProductsParams): Promise<Lis
 		Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
 	)
 	const response = await request({ url: CANVAS_PRODUCTS_URL, method: 'GET', params: filteredParams })
-	const items = Array.isArray(response) ? response : response?.data || []
+	const rawItems = Array.isArray(response) ? response : response?.data || []
+	const items = rawItems.map((item: Record<string, unknown>) => normalizeCanvasProduct(item))
 
 	return {
 		items,
-		total: getTotal(response, items.length)
+		total: getTotal(response, rawItems.length)
 	}
 }
 
@@ -215,5 +234,3 @@ export const productsApi = {
 	deleteCanvasProduct,
 	uploadImages
 }
-
-export const canvasProductsApi = productsApi

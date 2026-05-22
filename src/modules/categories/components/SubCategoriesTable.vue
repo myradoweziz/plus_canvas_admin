@@ -46,12 +46,21 @@
 			<span class="text-gray-700">{{ toSubCategory(row).slug }}</span>
 		</template>
 
+		<template #cell-image_url="{ row }">
+			<img
+				v-if="toSubCategory(row).image_url"
+				:src="toSubCategory(row).image_url"
+				:alt="toSubCategory(row).name"
+				class="h-10 w-10 rounded-md object-cover ring-1 ring-gray-200"
+			/>
+		</template>
+
 		<template #cell-is_active="{ row }">
 			<span
 				class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
 				:class="toSubCategory(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
 			>
-				{{ toSubCategory(row).is_active ? 'true' : 'false' }}
+				{{ toSubCategory(row).is_active ? 'Активно' : 'Не активно' }}
 			</span>
 		</template>
 

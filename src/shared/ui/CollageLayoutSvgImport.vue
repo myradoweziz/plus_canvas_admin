@@ -52,6 +52,8 @@
 		}
 	)
 
+	const displayError = computed(() => props.errorMessage || localError.value)
+
 	const previewLayout = computed(() => {
 		const layout = displayLayout.value
 		if (!layout) return null
@@ -134,7 +136,7 @@
 <template>
 	<div
 		class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4"
-		:class="{ 'border-red-500': errorMessage || localError }"
+		:class="{ 'border-red-500': displayError }"
 	>
 		<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 			<div class="min-w-0">
@@ -191,6 +193,6 @@
 			</p>
 		</div>
 
-		<p v-if="errorMessage || localError" class="mt-2 text-xs text-red-500">{{ errorMessage || localError }}</p>
+		<p v-if="displayError" class="mt-2 text-xs text-red-500">{{ displayError }}</p>
 	</div>
 </template>

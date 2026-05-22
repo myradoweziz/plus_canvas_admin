@@ -28,6 +28,7 @@
 	import type { Discount } from '@/modules/discounts/types/discount'
 	import { slugify } from '@/shared'
 	import { api } from '../api'
+	import type { CollageLayout } from '../types/collage-layout'
 	import type { CanvasProduct } from '../types/product'
 
 	const route = useRoute()
@@ -68,12 +69,21 @@
 		return (error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
 	}
 
+	const BACKEND_FIELD_ALIASES: Record<string, string> = {
+		collage_layout: 'collage_layout_id',
+		'collage_layout.id': 'collage_layout_id'
+	}
+
 	const getValidationErrors = (error: unknown) => {
 		const errors = getErrorData(error)?.errors
 		if (!errors) return {}
 
 		return Object.fromEntries(
-			Object.entries(errors).map(([field, messages]) => [field, messages?.[0] ?? 'Некорректное значение'])
+			Object.entries(errors).map(([field, messages]) => {
+				const targetField = BACKEND_FIELD_ALIASES[field] ?? field
+				const message = Array.isArray(messages) ? messages[0] : messages
+				return [targetField, message ?? 'Некорректное значение']
+			})
 		)
 	}
 
@@ -122,8 +132,26 @@
 			errors.frames = 'Выберите хотя бы одну рамку.'
 		}
 
+		if (form.value.main_category_slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG) {
+			if (form.value.collage_layout_id == null) {
+				errors.collage_layout_id = 'Импортируйте SVG layout.'
+			}
+
+			const slots = uploadImageCountFromLayout(form.value.collage_layout ?? null)
+			if (slots > 0 && form.value.inner_images.length !== slots) {
+				errors.inner_images = `Загрузите ровно ${slots} внутренних изображений — по числу слотов в SVG layout.`
+			}
+		}
+
 		validationErrors.value = errors
 		return Object.keys(errors).length === 0
+	}
+
+	const clearValidationError = (field: string) => {
+		if (!validationErrors.value[field]) return
+		const next = { ...validationErrors.value }
+		delete next[field]
+		validationErrors.value = next
 	}
 
 	const form = ref<CanvasProduct>({
@@ -182,7 +210,57 @@
 		}
 	}
 
+	const clearValidationErrorOnChange = <K extends keyof CanvasProduct>(field: K) => {
+		watch(
+			() => form.value[field],
+			() => clearValidationError(field as string),
+			{ deep: Array.isArray(form.value[field]) }
+		)
+	}
+
+	;(
+		[
+			'name',
+			'slug',
+			'description',
+			'price',
+			'product_qode',
+			'main_category_id',
+			'category_id',
+			'images',
+			'colors',
+			'canvas_formats',
+			'frames',
+			'collage_layout_id',
+			'inner_images'
+		] as const
+	).forEach((field) => clearValidationErrorOnChange(field))
+
 	const INNER_IMAGES_MAIN_CATEGORY_SLUG = 'kisiye-ozel-kanvas-tablo'
+
+	const uploadImageCountFromLayout = (layout: CollageLayout | null): number => {
+		if (!layout) return 0
+		const slots = layout.layout_json?.length ?? 0
+		if (slots > 0) return slots
+		const maxImages = layout.max_images ?? 0
+		return maxImages > 0 ? maxImages : 0
+	}
+
+	const requiredInnerImagesCount = computed(() =>
+		form.value.main_category_slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG
+			? uploadImageCountFromLayout(form.value.collage_layout ?? null)
+			: 0
+	)
+
+	const onCollageLayoutUpdate = (layout: CollageLayout | null) => {
+		form.value.collage_layout = layout
+		const slots = uploadImageCountFromLayout(layout)
+		form.value.upload_image_count = slots > 0 ? slots : 1
+		if (layout?.id != null) {
+			clearValidationError('collage_layout_id')
+		}
+		clearValidationError('inner_images')
+	}
 
 	const syncMainCategorySlug = (mainCategoryId: number | null) => {
 		if (!mainCategoryId) {
@@ -200,8 +278,11 @@
 
 		form.value.main_category_slug = category?.slug ?? ''
 
-		if (form.value.main_category_slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG && !isApplyingProduct.value) {
+		if (form.value.main_category_slug === INNER_IMAGES_MAIN_CATEGORY_SLUG && !isApplyingProduct.value) {
 			form.value.inner_images = []
+			form.value.collage_layout_id = null
+			form.value.collage_layout = null
+			form.value.upload_image_count = 1
 		}
 	}
 
@@ -310,6 +391,9 @@
 				effects: product.effects || [],
 				collage_layout_id: product.collage_layout_id ?? product.collage_layout?.id ?? null,
 				collage_layout: product.collage_layout ?? null
+			}
+			if (form.value.collage_layout) {
+				form.value.upload_image_count = uploadImageCountFromLayout(form.value.collage_layout)
 			}
 			nextTick(() => {
 				syncMainCategorySlug(form.value.main_category_id)
@@ -451,10 +535,11 @@
 
 				const category = mainCategories.value.find((item) => item.id === mainCategoryId)
 				const slug = category?.slug ?? ''
-				if (slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG) {
+				if (slug === INNER_IMAGES_MAIN_CATEGORY_SLUG) {
 					form.value.inner_images = []
 					form.value.collage_layout_id = null
 					form.value.collage_layout = null
+					form.value.upload_image_count = 1
 				}
 			}
 
@@ -628,13 +713,6 @@
 
 				<TextField v-model.number="form.discount" label="Кол-во скидки" name="discount" type="number" min="0" />
 
-				<TextField
-					v-model.number="form.upload_image_count"
-					label="Кол-во изображений для загрузки"
-					name="upload_image_count"
-					type="number"
-					min="1"
-				/>
 				<TextField v-model.trim="form.flag" label="Флаг" name="flag" placeholder="Флаг" />
 				<TextField
 					v-model.trim="form.product_qode"
@@ -716,20 +794,27 @@
 						:uploader="(files, onProgress) => api.uploadImages(files, onProgress)"
 					/>
 				</div>
-				<div v-if="form.main_category_slug === INNER_IMAGES_MAIN_CATEGORY_SLUG" class="md:col-span-3 space-y-4">
+
+				<div v-if="form.main_category_slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG" class="md:col-span-3 space-y-4">
 					<MultiImageUpload
 						v-model="form.inner_images"
 						label="Inner Images"
-						description="Выберите одну или несколько внутренних картинок продукта."
+						:description="
+							requiredInnerImagesCount > 0
+								? `Загрузите ровно ${requiredInnerImagesCount} изображений — по числу слотов в SVG layout.`
+								: 'Сначала импортируйте SVG layout.'
+						"
+						:error-message="validationErrors.inner_images"
 						:uploader="(files, onProgress) => api.uploadImages(files, onProgress)"
 					/>
 				</div>
+
 				<CollageLayoutSvgImport
 					v-model="form.collage_layout_id"
 					:current-layout="form.collage_layout"
 					:disabled="loadingDictionaries"
-					:error-message="validationErrors.collage_layout_id"
-					@update:current-layout="(layout) => (form.collage_layout = layout)"
+					:error-message="validationErrors.collage_layout_id ?? ''"
+					@update:current-layout="onCollageLayoutUpdate"
 					class="md:col-span-3"
 				/>
 

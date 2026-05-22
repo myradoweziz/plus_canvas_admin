@@ -19,7 +19,7 @@
 			description: 'Выберите одну или несколько картинок.',
 			buttonText: 'Выбрать файлы',
 			accept: 'image/*',
-			maxFileSizeMb: 3
+			maxFileSizeMb: 10
 		}
 	)
 
@@ -78,7 +78,7 @@
 
 		if (!files.length) return
 
-		const maxSizeBytes = (props.maxFileSizeMb || 3) * 1024 * 1024
+		const maxSizeBytes = (props.maxFileSizeMb || 10) * 1024 * 1024
 		const acceptedFiles = files.filter((file) => file.size <= maxSizeBytes)
 		const rejectedCount = files.length - acceptedFiles.length
 
