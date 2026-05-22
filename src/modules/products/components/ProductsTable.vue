@@ -26,7 +26,7 @@
 		</template>
 
 		<template #cell-slug="{ row }">
-			<span class="text-gray-700">{{ toProduct(row).slug }}</span>
+			<span class="text-gray-700">{{ toProduct(row).seo.slug }}</span>
 		</template>
 
 		<template #cell-price="{ row }">

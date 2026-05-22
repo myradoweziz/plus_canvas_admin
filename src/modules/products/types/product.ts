@@ -1,9 +1,15 @@
 import type { CollageLayout } from './collage-layout'
 
+export interface CanvasProductSeo {
+	meta_title: string
+	meta_description: string
+	meta_keywords: string
+	slug: string
+}
+
 export type CanvasProduct = {
 	id: number | null
 	name: string
-	slug: string
 	description: string
 	price: number
 	discount: number
@@ -25,6 +31,31 @@ export type CanvasProduct = {
 	effects: number[]
 	collage_layout_id: number | null
 	collage_layout?: CollageLayout | null
+	product_type: 'Simple Product' | 'Grouped Product'
+	short_description: string
+	admin_comment: string
+	show_on_homepage: boolean
+	allow_customer_reviews: boolean
+	old_price: number | null
+	cost_price: number | null
+	special_price: number | null
+	special_price_start: string | null
+	special_price_end: string | null
+	disable_buy_button: boolean
+	available_for_preorder: boolean
+	call_for_price: boolean
+	min_cart_qty: number
+	max_cart_qty: number | null
+	shipping_included: boolean
+	free_shipping: boolean
+	separate_shipment: boolean
+	additional_shipping_charge: number | null
+	weight: number | null
+	delivery_time: string | null
+	availability_start: string | null
+	availability_end: string | null
+	is_published: boolean
+	seo: CanvasProductSeo
 }
 
-export type CanvasProductPayload = Omit<CanvasProduct, 'id' | 'main_category_slug' | 'collage_layout'>
+export type CanvasProductPayload = Omit<CanvasProduct, 'id' | 'main_category_slug' | 'collage_layout' | 'seo'>

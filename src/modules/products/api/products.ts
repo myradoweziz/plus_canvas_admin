@@ -1,5 +1,6 @@
 import { getTotal, request } from '@/shared'
-import type { CanvasProduct, CanvasProductPayload } from '../types/product'
+import { createEmptyCanvasProduct } from '../helpers/product-form'
+import type { CanvasProduct, CanvasProductPayload, CanvasProductSeo } from '../types/product'
 import { collageLayoutsApi } from './collage-layouts'
 
 const CANVAS_PRODUCTS_URL = '/api/admin/canvas-products'
@@ -61,11 +62,41 @@ const toImageArray = (items: ImageItem[] | null | undefined): Array<string | Fil
 		.filter((item): item is string | File => item !== null)
 }
 
-function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
+const toNullableNumber = (value: unknown): number | null => {
+	if (value === null || value === undefined || value === '') return null
+	const num = Number(value)
+	return Number.isFinite(num) ? num : null
+}
+
+const toDatetimeLocalValue = (value: unknown): string | null => {
+	if (value == null || value === '') return null
+	const date = value instanceof Date ? value : new Date(String(value))
+	if (Number.isNaN(date.getTime())) return null
+	const pad = (n: number) => String(n).padStart(2, '0')
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+const toProductType = (value: unknown): CanvasProduct['product_type'] =>
+	value === 'Grouped Product' ? 'Grouped Product' : 'Simple Product'
+
+const normalizeCanvasProductSeo = (product: Record<string, unknown>): CanvasProductSeo => {
+	const seo = (product.seo as Record<string, unknown> | undefined) ?? {}
+
 	return {
+		meta_title: String(seo.meta_title ?? product.meta_title ?? ''),
+		meta_description: String(seo.meta_description ?? product.meta_description ?? ''),
+		meta_keywords: String(seo.meta_keywords ?? product.meta_keywords ?? ''),
+		slug: String(seo.slug ?? product.slug ?? '')
+	}
+}
+
+function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
+	const defaults = createEmptyCanvasProduct()
+
+	return {
+		...defaults,
 		id: product.id ?? null,
 		name: product.name ?? '',
-		slug: product.slug ?? '',
 		description: product.description ?? '',
 		price: Number(product.price ?? 0),
 		discount: Number(product.discount ?? 0),
@@ -88,7 +119,32 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		collage_layout_id: product.collage_layout_id ?? product.collage_layout?.id ?? null,
 		collage_layout: product.collage_layout
 			? collageLayoutsApi.normalizeCollageLayout(product.collage_layout as Record<string, unknown>)
-			: null
+			: null,
+		product_type: toProductType(product.product_type),
+		short_description: product.short_description ?? '',
+		admin_comment: product.admin_comment ?? '',
+		show_on_homepage: !!product.show_on_homepage,
+		allow_customer_reviews: product.allow_customer_reviews !== false,
+		old_price: toNullableNumber(product.old_price),
+		cost_price: toNullableNumber(product.cost_price),
+		special_price: toNullableNumber(product.special_price),
+		special_price_start: toDatetimeLocalValue(product.special_price_start),
+		special_price_end: toDatetimeLocalValue(product.special_price_end),
+		disable_buy_button: !!product.disable_buy_button,
+		available_for_preorder: !!product.available_for_preorder,
+		call_for_price: !!product.call_for_price,
+		min_cart_qty: Number(product.min_cart_qty ?? 1) || 1,
+		max_cart_qty: toNullableNumber(product.max_cart_qty),
+		shipping_included: !!product.shipping_included,
+		free_shipping: !!product.free_shipping,
+		separate_shipment: !!product.separate_shipment,
+		additional_shipping_charge: toNullableNumber(product.additional_shipping_charge),
+		weight: toNullableNumber(product.weight),
+		delivery_time: product.delivery_time ?? null,
+		availability_start: toDatetimeLocalValue(product.availability_start),
+		availability_end: toDatetimeLocalValue(product.availability_end),
+		is_published: product.is_published !== false,
+		seo: normalizeCanvasProductSeo(product)
 	}
 }
 
@@ -114,7 +170,6 @@ async function getCanvasProduct(id: number): Promise<CanvasProduct> {
 function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 	return {
 		name: product.name,
-		slug: product.slug,
 		description: product.description,
 		price: product.price,
 		discount: product.discount,
@@ -133,8 +188,49 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		canvas_formats: product.canvas_formats,
 		frames: product.frames,
 		effects: product.effects,
-		collage_layout_id: product.collage_layout_id
+		collage_layout_id: product.collage_layout_id,
+		product_type: product.product_type,
+		short_description: product.short_description,
+		admin_comment: product.admin_comment,
+		show_on_homepage: product.show_on_homepage,
+		allow_customer_reviews: product.allow_customer_reviews,
+		old_price: product.old_price,
+		cost_price: product.cost_price,
+		special_price: product.special_price,
+		special_price_start: product.special_price_start,
+		special_price_end: product.special_price_end,
+		disable_buy_button: product.disable_buy_button,
+		available_for_preorder: product.available_for_preorder,
+		call_for_price: product.call_for_price,
+		min_cart_qty: product.min_cart_qty,
+		max_cart_qty: product.max_cart_qty,
+		shipping_included: product.shipping_included,
+		free_shipping: product.free_shipping,
+		separate_shipment: product.separate_shipment,
+		additional_shipping_charge: product.additional_shipping_charge,
+		weight: product.weight,
+		delivery_time: product.delivery_time,
+		availability_start: product.availability_start,
+		availability_end: product.availability_end,
+		is_published: product.is_published
 	}
+}
+
+function toCanvasProductSeoPayload(seo: CanvasProductSeo): CanvasProductSeo {
+	return {
+		meta_title: seo.meta_title,
+		meta_description: seo.meta_description,
+		meta_keywords: seo.meta_keywords,
+		slug: seo.slug
+	}
+}
+
+const omitNullFormValues = (data: Record<string, unknown>) => {
+	Object.keys(data).forEach((key) => {
+		if (data[key] === null || data[key] === undefined) {
+			delete data[key]
+		}
+	})
 }
 
 function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
@@ -164,25 +260,41 @@ function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 		delete data.collage_layout_id
 	}
 
+	omitNullFormValues(data)
+
 	return data
 }
 
 async function createCanvasProduct(product: CanvasProduct): Promise<CanvasProduct> {
-	return await request({
+	const response = await request({
 		url: CANVAS_PRODUCTS_URL,
 		method: 'POST',
 		isFormData: true,
 		data: toCanvasProductFormData(product)
 	})
+
+	return normalizeCanvasProduct((response?.data || response) as Record<string, unknown>)
 }
 
 async function updateCanvasProduct(product: CanvasProduct): Promise<CanvasProduct> {
-	return await request({
+	const response = await request({
 		url: `${CANVAS_PRODUCTS_URL}/${product.id}`,
 		method: 'PUT',
 		isFormData: true,
 		data: toCanvasProductFormData(product)
 	})
+
+	return normalizeCanvasProduct((response?.data || response) as Record<string, unknown>)
+}
+
+async function updateCanvasProductSeo(productId: number, seo: CanvasProductSeo): Promise<CanvasProductSeo> {
+	const response = await request({
+		url: `${CANVAS_PRODUCTS_URL}/${productId}/seo`,
+		method: 'PUT',
+		data: toCanvasProductSeoPayload(seo)
+	})
+
+	return normalizeCanvasProductSeo((response?.data || response) as Record<string, unknown>)
 }
 
 async function deleteCanvasProduct(id: number): Promise<void> {
@@ -231,6 +343,7 @@ export const productsApi = {
 	getCanvasProduct,
 	createCanvasProduct,
 	updateCanvasProduct,
+	updateCanvasProductSeo,
 	deleteCanvasProduct,
 	uploadImages
 }
