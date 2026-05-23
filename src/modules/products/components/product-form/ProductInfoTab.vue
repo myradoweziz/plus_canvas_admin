@@ -13,8 +13,6 @@
 
 	import { bannersApi } from '@/modules/banners/api/banners'
 	import type { Banner } from '@/modules/banners/types/banner'
-	import { productTagsApi } from '@/modules/product-tags/api/productTags'
-	import type { ProductTag } from '@/modules/product-tags/types/productTag'
 	import { canvasEffectsApi } from '@/modules/canvas-effects/api/canvas-effects'
 	import type { CanvasEffect } from '@/modules/canvas-effects/types/canvas-effect'
 	import { canvasFormatsApi } from '@/modules/canvas-formats/api/canvas-formats'
@@ -86,7 +84,6 @@
 	const mainCategories = ref<MainCategory[]>([])
 	const featuredCategories = ref<FeaturedCategory[]>([])
 	const subCategories = ref<SubCategory[]>([])
-	const productTags = ref<ProductTag[]>([])
 	const banners = ref<Banner[]>([])
 	const stocks = ref<Stock[]>([])
 	const colors = ref<Color[]>([])
@@ -179,11 +176,6 @@
 	const mainCategoryOptions = computed(() => toSelectOptions(mainCategories.value, (item) => item.name))
 	const featuredCategoryOptions = computed(() => toSelectOptions(featuredCategories.value, (item) => item.name))
 	const subCategoryOptions = computed(() => toSelectOptions(subCategories.value, (item) => item.name))
-	const productTagOptions = computed(() =>
-		toSelectOptions(productTags.value, (item) => item.name).filter(
-			(item) => !form.value.product_tags.includes(Number(item.value))
-		)
-	)
 	const bannerOptions = computed(() => toSelectOptions(banners.value, (item) => item.title))
 	const stockOptions = computed(() => toSelectOptions(stocks.value, (item) => item.title))
 	const colorOptions = computed(() =>
@@ -240,12 +232,6 @@
 			label: canvasEffects.value.find((effect) => effect.id === id)?.name ?? `#${id}`
 		}))
 	)
-	const selectedProductTags = computed(() =>
-		form.value.product_tags.map((id) => ({
-			id,
-			label: productTags.value.find((tag) => tag.id === id)?.name ?? `#${id}`
-		}))
-	)
 	const applyLoadedProduct = (product: CanvasProduct) => {
 		isApplyingProduct.value = true
 		form.value = {
@@ -275,7 +261,6 @@
 		try {
 			const [
 				mainCategoriesResult,
-				productTagsResult,
 				bannersResult,
 				stocksResult,
 				colorsResult,
@@ -284,7 +269,6 @@
 				canvasEffectsResult
 			] = await Promise.all([
 				categoriesApi.listMainCategories({ limit: 100, offset: 0 }),
-				productTagsApi.listProductTags({ limit: 100, offset: 0 }),
 				bannersApi.listBanners(),
 				stocksApi.listStocks({ limit: 100, offset: 0 }),
 				colorsApi.listColors({ limit: 100, offset: 0 }),
@@ -296,7 +280,6 @@
 			if (requestId !== dictionaryRequestId.value) return
 
 			mainCategories.value = mainCategoriesResult.items || []
-			productTags.value = productTagsResult.items || []
 			banners.value = bannersResult || []
 			stocks.value = stocksResult.items || []
 			colors.value = colorsResult.items || []
@@ -476,22 +459,6 @@
 		form.value.effects = form.value.effects.filter((item) => item !== id)
 	}
 
-	const selectedProductTagId = ref<number | null>(null)
-
-	const addProductTag = (value: string | number | null) => {
-		selectedProductTagId.value = null
-		if (value === null) return
-
-		const id = Number(value)
-		if (Number.isFinite(id) && !form.value.product_tags.includes(id)) {
-			form.value.product_tags.push(id)
-		}
-	}
-
-	const removeProductTag = (id: number) => {
-		form.value.product_tags = form.value.product_tags.filter((item) => item !== id)
-	}
-
 	const onSubmit = async () => {
 		validationErrors.value = validateProductInfo(form.value)
 		if (Object.keys(validationErrors.value).length > 0) {
@@ -606,39 +573,6 @@
 			:options="subCategoryOptions"
 			:disabled="loadingDictionaries || loadingSubCategories || !form.category_id"
 		/>
-
-		<div class="md:col-span-3 border-t border-gray-200 pt-4"></div>
-
-		<div class="md:col-span-3">
-			<SelectField
-				:model-value="selectedProductTagId"
-				label="Теги товара"
-				name="product_tags"
-				placeholder="Выберите тег"
-				:options="productTagOptions"
-				:disabled="loadingDictionaries"
-				:error-message="validationErrors.product_tags"
-				@update:model-value="addProductTag"
-			/>
-			<div v-if="selectedProductTags.length" class="mt-3 flex flex-wrap gap-2">
-				<span
-					v-for="tag in selectedProductTags"
-					:key="tag.id"
-					class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
-				>
-					{{ tag.label }}
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon"
-						class-name="h-5 w-5 text-gray-500 hover:text-red-600"
-						:on-click="() => removeProductTag(tag.id)"
-					>
-						✕
-					</Button>
-				</span>
-			</div>
-		</div>
 
 		<SelectField
 			v-model="form.banner_id"

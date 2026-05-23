@@ -2,12 +2,13 @@ import type { CanvasProduct, CanvasProductCategoryMapping, CanvasProductSeo } fr
 
 export const INNER_IMAGES_MAIN_CATEGORY_SLUG = 'kisiye-ozel-kanvas-tablo'
 
-export type ProductFormTab = 'productInfo' | 'seo' | 'categoryMappings'
+export type ProductFormTab = 'productInfo' | 'seo' | 'categoryMappings' | 'productTags'
 
 export const PRODUCT_FORM_TABS: Array<{ id: ProductFormTab; label: string }> = [
 	{ id: 'productInfo', label: 'Product Info' },
 	{ id: 'seo', label: 'SEO' },
-	{ id: 'categoryMappings', label: 'Category mappings' }
+	{ id: 'categoryMappings', label: 'Category mappings' },
+	{ id: 'productTags', label: 'Теги товаров' }
 ] as const
 
 export const createEmptyCategoryMapping = (): CanvasProductCategoryMapping => ({

@@ -7,6 +7,7 @@
 	import ProductInfoTab from './product-form/ProductInfoTab.vue'
 	import ProductCategoryMappingsTab from './product-form/ProductCategoryMappingsTab.vue'
 	import ProductSeoTab from './product-form/ProductSeoTab.vue'
+	import ProductTagsTab from './product-form/ProductTagsTab.vue'
 
 	import { api } from '../api'
 	import { createEmptyCanvasProduct, type ProductFormTab } from '../helpers/product-form'
@@ -86,6 +87,11 @@
 					v-else-if="activeTab === 'categoryMappings'"
 					v-model:category-mappings="form.category_mappings"
 					:product-id="effectiveProductId"
+				/>
+
+				<ProductTagsTab
+					v-else-if="activeTab === 'productTags'"
+					v-model:form="form"
 				/>
 			</div>
 		</div>
