@@ -262,6 +262,13 @@ const omitNullFormValues = (data: Record<string, unknown>) => {
 
 function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 	const payload = toCanvasProductPayload(product)
+	
+	const booleanFields = [
+		'show_on_homepage', 'allow_customer_reviews', 'disable_buy_button', 
+		'available_for_preorder', 'call_for_price', 'shipping_included', 
+		'free_shipping', 'separate_shipment', 'is_published'
+	]
+	
 	const data: Record<string, any> = {
 		...payload,
 		colors: JSON.stringify(payload.colors),
@@ -289,6 +296,12 @@ function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 	}
 
 	omitNullFormValues(data)
+
+	booleanFields.forEach((field) => {
+		if (data[field] !== undefined && data[field] !== null) {
+			data[field] = data[field] ? 1 : 0
+		}
+	})
 
 	return data
 }
