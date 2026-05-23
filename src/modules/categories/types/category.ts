@@ -12,7 +12,6 @@ export type MainCategory = {
 	category_type: CategoryType
 	meta_title: string
 	meta_description: string
-	discount: number
 }
 
 export type MainCategoryPayload = Omit<MainCategory, 'id'>
