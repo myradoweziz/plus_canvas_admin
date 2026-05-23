@@ -25,8 +25,8 @@ export const createEmptyCanvasProductSeo = (): CanvasProductSeo => ({
 })
 
 export const PRODUCT_TYPE_OPTIONS = [
-	{ label: 'Simple Product', value: 'Simple Product' },
-	{ label: 'Grouped Product', value: 'Grouped Product' }
+	{ label: 'Simple Product', value: 'simple' },
+	{ label: 'Grouped Product', value: 'grouped' }
 ] as const
 
 export const createEmptyCanvasProduct = (): CanvasProduct => ({
@@ -53,7 +53,7 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	effects: [],
 	collage_layout_id: null,
 	collage_layout: null,
-	product_type: 'Simple Product',
+	product_type: 'simple',
 	short_description: '',
 	admin_comment: '',
 	show_on_homepage: false,

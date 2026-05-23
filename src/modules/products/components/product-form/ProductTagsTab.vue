@@ -9,6 +9,7 @@
 	import { productTagsApi } from '@/modules/product-tags/api/productTags'
 	import type { ProductTag } from '@/modules/product-tags/types/productTag'
 	import { api } from '../../api'
+	import { getErrorMessage, getValidationErrors } from '../../helpers/form-errors'
 	import type { CanvasProduct } from '../../types/product'
 
 	const form = defineModel<CanvasProduct>('form', { required: true })
@@ -70,7 +71,13 @@
 			await api.updateCanvasProduct(form.value)
 			toast.success('Теги товаров успешно сохранены')
 		} catch (error) {
-			toast.error('Не удалось сохранить теги товаров')
+			const validationErrors = getValidationErrors(error)
+			const firstError = Object.values(validationErrors)[0]
+			if (firstError) {
+				toast.error(firstError)
+			} else {
+				toast.error(getErrorMessage(error, 'Не удалось сохранить теги товаров'))
+			}
 		} finally {
 			saving.value = false
 		}

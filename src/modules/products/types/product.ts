@@ -37,7 +37,7 @@ export type CanvasProduct = {
 	effects: number[]
 	collage_layout_id: number | null
 	collage_layout?: CollageLayout | null
-	product_type: 'Simple Product' | 'Grouped Product'
+	product_type: 'simple' | 'grouped'
 	short_description: string
 	admin_comment: string
 	show_on_homepage: boolean

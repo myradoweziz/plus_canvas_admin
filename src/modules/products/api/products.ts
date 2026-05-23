@@ -84,7 +84,7 @@ const toDatetimeLocalValue = (value: unknown): string | null => {
 }
 
 const toProductType = (value: unknown): CanvasProduct['product_type'] =>
-	value === 'Grouped Product' ? 'Grouped Product' : 'Simple Product'
+	value === 'grouped' || value === 'Grouped Product' ? 'grouped' : 'simple'
 
 const normalizeCanvasProductCategoryMappings = (
 	product: Record<string, unknown>
