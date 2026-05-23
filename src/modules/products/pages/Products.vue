@@ -1,6 +1,7 @@
 <script setup lang="ts">
 	import { computed, onMounted, ref, watch } from 'vue'
 	import { useRouter } from 'vue-router'
+	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -24,6 +25,8 @@
 	const selectedProduct = ref<CanvasProduct | null>(null)
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
+	const selectedProducts = ref<CanvasProduct[]>([])
+	const fileInput = ref<HTMLInputElement | null>(null)
 	const total = ref(0)
 	const limit = ref(10)
 	const offset = ref(0)
@@ -221,13 +224,76 @@
 		offset.value = value
 		await load()
 	}
+
+	const exportXml = async () => {
+		try {
+			const ids = selectedProducts.value.length ? selectedProducts.value.map((c) => c.id!) : undefined
+			await api.exportCanvasProductsXml(ids)
+			toast.success('XML файл скачан')
+		} catch {
+			toast.error('Не удалось экспортировать XML')
+		}
+	}
+
+	const exportExcel = async () => {
+		try {
+			const ids = selectedProducts.value.length ? selectedProducts.value.map((c) => c.id!) : undefined
+			await api.exportCanvasProductsExcel(ids)
+			toast.success('Excel файл скачан')
+		} catch {
+			toast.error('Не удалось экспортировать Excel')
+		}
+	}
+
+	const triggerImportExcel = () => {
+		fileInput.value?.click()
+	}
+
+	const importExcel = async (event: Event) => {
+		const target = event.target as HTMLInputElement
+		if (!target.files?.length) return
+
+		try {
+			await api.importCanvasProductsExcel(target.files[0])
+			toast.success('Excel файл успешно импортирован')
+			await load()
+		} catch {
+			toast.error('Не удалось импортировать Excel')
+		} finally {
+			if (fileInput.value) {
+				fileInput.value.value = ''
+			}
+		}
+	}
+
+	const bulkDelete = async () => {
+		if (!selectedProducts.value.length) return
+		if (!confirm(`Вы действительно хотите удалить ${selectedProducts.value.length} выбранных продуктов?`)) return
+
+		try {
+			const ids = selectedProducts.value.map((c) => c.id!)
+			await api.bulkDeleteCanvasProducts(ids)
+			toast.success('Выбранные продукты удалены')
+			selectedProducts.value = []
+			await load()
+		} catch {
+			toast.error('Не удалось удалить выбранные продукты')
+		}
+	}
 </script>
 
 <template>
 	<div class="space-y-6">
 		<Banner title="Продукты" subtitle="Список canvas products и управление ими." :icon="BoxCubeIcon" :total="total">
 			<template #actions>
-				<Button type="button" size="sm" :on-click="openCreate">Добавить продукт</Button>
+				<div class="flex items-center gap-2 flex-wrap">
+					<input type="file" ref="fileInput" class="hidden" accept=".xlsx,.xls" @change="importExcel" />
+					<Button v-if="selectedProducts.length" type="button" size="sm" class="bg-red-600 hover:bg-red-700 text-white" :on-click="bulkDelete">Удалить выбранные ({{ selectedProducts.length }})</Button>
+					<Button type="button" size="sm" variant="outline" :on-click="triggerImportExcel">Импорт Excel</Button>
+					<Button type="button" size="sm" variant="outline" :on-click="exportExcel">Экспорт Excel</Button>
+					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>
+					<Button type="button" size="sm" :on-click="openCreate">Добавить</Button>
+				</div>
 			</template>
 		</Banner>
 
@@ -275,7 +341,13 @@
 			</div>
 		</form>
 
-		<ProductsTable :products="products" :loading="loading" @edit="editProduct" @delete="deleteProduct" />
+		<ProductsTable
+			:products="products"
+			:loading="loading"
+			v-model:selected-products="selectedProducts"
+			@edit="editProduct"
+			@delete="deleteProduct"
+		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 

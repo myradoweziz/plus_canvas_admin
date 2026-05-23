@@ -1,4 +1,4 @@
-import { downloadBlob, downloadTextFile } from '@/composables'
+import { downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import type { MainCategory, MainCategoryPayload } from '../types/category'
 
@@ -7,11 +7,8 @@ export const mainCategoriesApi = {
 	createMainCategory,
 	updateMainCategory,
 	deleteMainCategory,
-	bulkDeleteMainCategories,
 	reorderMainCategories,
-	exportMainCategoriesXml,
-	exportMainCategoriesExcel,
-	importMainCategoriesExcel
+	exportMainCategoriesXml
 }
 
 const MAIN_CATEGORIES_URL = '/api/admin/main-categories'
@@ -108,10 +105,6 @@ async function deleteMainCategory(id: number): Promise<void> {
 	await request({ url: `${MAIN_CATEGORIES_URL}/${id}`, method: 'DELETE' })
 }
 
-async function bulkDeleteMainCategories(ids: number[]): Promise<void> {
-	await request({ url: `${MAIN_CATEGORIES_URL}/bulk-delete`, method: 'POST', data: { ids } })
-}
-
 type ReorderMainCategoriesPayload = {
 	items: Array<{
 		id: number
@@ -123,12 +116,10 @@ async function reorderMainCategories(data: ReorderMainCategoriesPayload): Promis
 	return await request({ url: `${MAIN_CATEGORIES_URL}/reorder`, method: 'POST', data })
 }
 
-async function exportMainCategoriesXml(ids?: number[]): Promise<void> {
-	const params = ids && ids.length ? { ids: ids.join(',') } : undefined
+async function exportMainCategoriesXml(): Promise<void> {
 	const response = await request({
 		url: `${MAIN_CATEGORIES_URL}/export/xml`,
 		method: 'GET',
-		params,
 		headers: { Accept: 'application/xml, text/xml' },
 		responseType: 'text'
 	})
@@ -145,25 +136,4 @@ async function exportMainCategoriesXml(ids?: number[]): Promise<void> {
 	}
 
 	downloadTextFile(xml, 'main_categories.xml', 'application/xml;charset=utf-8')
-}
-
-async function exportMainCategoriesExcel(ids?: number[]): Promise<void> {
-	const params = ids && ids.length ? { ids: ids.join(',') } : undefined
-	const response = await request({
-		url: `${MAIN_CATEGORIES_URL}/export/excel`,
-		method: 'GET',
-		params,
-		responseType: 'blob'
-	})
-
-	downloadBlob(response as Blob, 'main_categories.xlsx')
-}
-
-async function importMainCategoriesExcel(file: File): Promise<void> {
-	await request({
-		url: `${MAIN_CATEGORIES_URL}/import/excel`,
-		method: 'POST',
-		data: { file },
-		isFormData: true
-	})
 }

@@ -9,18 +9,32 @@
 	defineProps<{
 		products: CanvasProduct[]
 		loading: boolean
+		selectedProducts?: CanvasProduct[]
 	}>()
 
-	defineEmits<{
+	const emit = defineEmits<{
 		(e: 'edit', product: CanvasProduct): void
 		(e: 'delete', product: CanvasProduct): void
+		(e: 'update:selectedProducts', products: CanvasProduct[]): void
 	}>()
+
+	const onUpdateSelected = (rows: unknown[]) => {
+		emit('update:selectedProducts', rows as CanvasProduct[])
+	}
 
 	const toProduct = (row: unknown) => row as CanvasProduct
 </script>
 
 <template>
-	<DataTable :columns="PRODUCTS_TABLE_COLUMNS" :rows="products" :loading="loading" empty-text="Пока нет продуктов.">
+	<DataTable
+		:columns="PRODUCTS_TABLE_COLUMNS"
+		:rows="products"
+		:loading="loading"
+		empty-text="Пока нет продуктов."
+		selectable
+		:selected-rows="selectedProducts"
+		@update:selected-rows="onUpdateSelected"
+	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toProduct(row).name }}</span>
 		</template>

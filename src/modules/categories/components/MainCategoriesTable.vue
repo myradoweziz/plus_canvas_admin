@@ -9,7 +9,6 @@
 	defineProps<{
 		categories: MainCategory[]
 		loading: boolean
-		selectedCategories?: MainCategory[]
 	}>()
 
 	const toMainCategory = (row: unknown) => row as MainCategory
@@ -18,15 +17,10 @@
 		(e: 'edit', mainCategory: MainCategory): void
 		(e: 'delete', mainCategory: MainCategory): void
 		(e: 'reorder', mainCategories: MainCategory[]): void
-		(e: 'update:selectedCategories', categories: MainCategory[]): void
 	}>()
 
 	const onReorder = (rows: unknown[]) => {
 		emit('reorder', rows as MainCategory[])
-	}
-
-	const onUpdateSelected = (rows: unknown[]) => {
-		emit('update:selectedCategories', rows as MainCategory[])
 	}
 </script>
 
@@ -37,10 +31,7 @@
 		:loading="loading"
 		empty-text="Пока нет категорий."
 		draggable
-		selectable
-		:selected-rows="selectedCategories"
 		order-key="featured_order"
-		@update:selected-rows="onUpdateSelected"
 		@reorder="onReorder"
 	>
 		<template #cell-name="{ row }">

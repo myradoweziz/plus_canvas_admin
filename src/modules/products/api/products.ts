@@ -1,3 +1,4 @@
+import { downloadBlob, downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import { createEmptyCanvasProduct } from '../helpers/product-form'
 import type {
@@ -407,6 +408,52 @@ async function uploadImages(files: File[], onProgress?: (percent: number) => voi
 	return uploaded
 }
 
+async function bulkDeleteCanvasProducts(ids: number[]): Promise<void> {
+	await request({ url: `${CANVAS_PRODUCTS_URL}/bulk-delete`, method: 'POST', data: { ids } })
+}
+
+async function exportCanvasProductsXml(ids?: number[]): Promise<void> {
+	const params = ids && ids.length ? { ids: ids.join(',') } : undefined
+	const response = await request({
+		url: `${CANVAS_PRODUCTS_URL}/export/xml`,
+		method: 'GET',
+		params,
+		headers: { Accept: 'application/xml, text/xml' },
+		responseType: 'text'
+	})
+
+	const xml = typeof response === 'string'
+		? response
+		: typeof (response as any)?.data === 'string'
+			? (response as any).data
+			: ''
+
+	if (!xml.trim()) throw new Error('Пустой ответ XML')
+
+	downloadTextFile(xml, 'products.xml', 'application/xml;charset=utf-8')
+}
+
+async function exportCanvasProductsExcel(ids?: number[]): Promise<void> {
+	const params = ids && ids.length ? { ids: ids.join(',') } : undefined
+	const response = await request({
+		url: `${CANVAS_PRODUCTS_URL}/export/excel`,
+		method: 'GET',
+		params,
+		responseType: 'blob'
+	})
+
+	downloadBlob(response as Blob, 'products.xlsx')
+}
+
+async function importCanvasProductsExcel(file: File): Promise<void> {
+	await request({
+		url: `${CANVAS_PRODUCTS_URL}/import/excel`,
+		method: 'POST',
+		data: { file },
+		isFormData: true
+	})
+}
+
 export const productsApi = {
 	listCanvasProducts,
 	getCanvasProduct,
@@ -416,5 +463,9 @@ export const productsApi = {
 	saveCanvasProductCategory,
 	saveCanvasProductCategories,
 	deleteCanvasProduct,
-	uploadImages
+	uploadImages,
+	bulkDeleteCanvasProducts,
+	exportCanvasProductsXml,
+	exportCanvasProductsExcel,
+	importCanvasProductsExcel
 }
