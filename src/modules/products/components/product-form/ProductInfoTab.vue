@@ -599,9 +599,9 @@
 		/>
 		<SelectField
 			v-model="form.stock_id"
-			label="Скидка"
+			label="Акция"
 			name="stock_id"
-			placeholder="Выберите скидку"
+			placeholder="Выберите акцию"
 			:options="stockOptions"
 			:disabled="loadingDictionaries"
 		/>

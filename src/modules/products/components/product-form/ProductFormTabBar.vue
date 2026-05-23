@@ -5,8 +5,8 @@
 
 	const tabButtonClass = (tab: ProductFormTab) =>
 		activeTab.value === tab
-			? 'border-b-2 border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600'
-			: 'border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900'
+			? 'border-b-2 border-blue-600 px-4 py-2 text-sm font-semibold text-blue-600 cursor-pointer'
+			: 'border-b-2 border-transparent px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 cursor-pointer'
 </script>
 
 <template>
