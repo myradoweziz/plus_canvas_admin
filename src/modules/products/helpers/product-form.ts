@@ -1,13 +1,20 @@
-import type { CanvasProduct, CanvasProductSeo } from '../types/product'
+import type { CanvasProduct, CanvasProductCategoryMapping, CanvasProductSeo } from '../types/product'
 
 export const INNER_IMAGES_MAIN_CATEGORY_SLUG = 'kisiye-ozel-kanvas-tablo'
 
-export type ProductFormTab = 'productInfo' | 'seo'
+export type ProductFormTab = 'productInfo' | 'seo' | 'categoryMappings'
 
 export const PRODUCT_FORM_TABS: Array<{ id: ProductFormTab; label: string }> = [
 	{ id: 'productInfo', label: 'Product Info' },
-	{ id: 'seo', label: 'SEO' }
+	{ id: 'seo', label: 'SEO' },
+	{ id: 'categoryMappings', label: 'Category mappings' }
 ] as const
+
+export const createEmptyCategoryMapping = (): CanvasProductCategoryMapping => ({
+	category_id: 0,
+	is_featured: false,
+	display_order: 0
+})
 
 export const createEmptyCanvasProductSeo = (): CanvasProductSeo => ({
 	meta_title: '',
@@ -69,5 +76,6 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	availability_start: null,
 	availability_end: null,
 	is_published: false,
-	seo: createEmptyCanvasProductSeo()
+	seo: createEmptyCanvasProductSeo(),
+	category_mappings: []
 })

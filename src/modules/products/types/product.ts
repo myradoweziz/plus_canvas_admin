@@ -7,6 +7,12 @@ export interface CanvasProductSeo {
 	slug: string
 }
 
+export interface CanvasProductCategoryMapping {
+	category_id: number
+	is_featured: boolean
+	display_order: number
+}
+
 export type CanvasProduct = {
 	id: number | null
 	name: string
@@ -56,6 +62,10 @@ export type CanvasProduct = {
 	availability_end: string | null
 	is_published: boolean
 	seo: CanvasProductSeo
+	category_mappings: CanvasProductCategoryMapping[]
 }
 
-export type CanvasProductPayload = Omit<CanvasProduct, 'id' | 'main_category_slug' | 'collage_layout' | 'seo'>
+export type CanvasProductPayload = Omit<
+	CanvasProduct,
+	'id' | 'main_category_slug' | 'collage_layout' | 'seo' | 'category_mappings'
+>

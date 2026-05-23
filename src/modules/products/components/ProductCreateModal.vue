@@ -5,6 +5,7 @@
 	import Button from '@/shared/ui/Button.vue'
 	import ProductFormTabBar from './product-form/ProductFormTabBar.vue'
 	import ProductInfoTab from './product-form/ProductInfoTab.vue'
+	import ProductCategoryMappingsTab from './product-form/ProductCategoryMappingsTab.vue'
 	import ProductSeoTab from './product-form/ProductSeoTab.vue'
 
 	import { api } from '../api'
@@ -74,7 +75,18 @@
 					@created="onProductCreated"
 				/>
 
-				<ProductSeoTab v-else v-model:seo="form.seo" :product-id="effectiveProductId" :product-name="form.name" />
+				<ProductSeoTab
+					v-else-if="activeTab === 'seo'"
+					v-model:seo="form.seo"
+					:product-id="effectiveProductId"
+					:product-name="form.name"
+				/>
+
+				<ProductCategoryMappingsTab
+					v-else-if="activeTab === 'categoryMappings'"
+					v-model:category-mappings="form.category_mappings"
+					:product-id="effectiveProductId"
+				/>
 			</div>
 		</div>
 	</div>

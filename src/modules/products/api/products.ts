@@ -1,6 +1,11 @@
 import { getTotal, request } from '@/shared'
 import { createEmptyCanvasProduct } from '../helpers/product-form'
-import type { CanvasProduct, CanvasProductPayload, CanvasProductSeo } from '../types/product'
+import type {
+	CanvasProduct,
+	CanvasProductCategoryMapping,
+	CanvasProductPayload,
+	CanvasProductSeo
+} from '../types/product'
 import { collageLayoutsApi } from './collage-layouts'
 
 const CANVAS_PRODUCTS_URL = '/api/admin/canvas-products'
@@ -79,6 +84,25 @@ const toDatetimeLocalValue = (value: unknown): string | null => {
 const toProductType = (value: unknown): CanvasProduct['product_type'] =>
 	value === 'Grouped Product' ? 'Grouped Product' : 'Simple Product'
 
+const normalizeCanvasProductCategoryMappings = (
+	product: Record<string, unknown>
+): CanvasProductCategoryMapping[] => {
+	const raw = product.category_mappings ?? product.categories
+
+	if (!Array.isArray(raw)) return []
+
+	return raw
+		.map((item) => {
+			const row = item as Record<string, unknown>
+			return {
+				category_id: Number(row.category_id ?? row.id ?? 0),
+				is_featured: !!row.is_featured,
+				display_order: Number(row.display_order ?? 0)
+			}
+		})
+		.filter((item) => item.category_id > 0)
+}
+
 const normalizeCanvasProductSeo = (product: Record<string, unknown>): CanvasProductSeo => {
 	const seo = (product.seo as Record<string, unknown> | undefined) ?? {}
 
@@ -144,7 +168,8 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		availability_start: toDatetimeLocalValue(product.availability_start),
 		availability_end: toDatetimeLocalValue(product.availability_end),
 		is_published: product.is_published !== false,
-		seo: normalizeCanvasProductSeo(product)
+		seo: normalizeCanvasProductSeo(product),
+		category_mappings: normalizeCanvasProductCategoryMappings(product)
 	}
 }
 
@@ -297,6 +322,50 @@ async function updateCanvasProductSeo(productId: number, seo: CanvasProductSeo):
 	return normalizeCanvasProductSeo((response?.data || response) as Record<string, unknown>)
 }
 
+function toCanvasProductCategoryMappingsPayload(
+	mappings: CanvasProductCategoryMapping[]
+): CanvasProductCategoryMapping[] {
+	return mappings.map((mapping) => ({
+		category_id: mapping.category_id,
+		is_featured: !!mapping.is_featured,
+		display_order: Number(mapping.display_order) || 0
+	}))
+}
+
+async function saveCanvasProductCategory(
+	productId: number,
+	mapping: CanvasProductCategoryMapping
+): Promise<CanvasProductCategoryMapping> {
+	const payload = toCanvasProductCategoryMappingsPayload([mapping])[0]
+	const response = await request({
+		url: `${CANVAS_PRODUCTS_URL}/${productId}/categories`,
+		method: 'POST',
+		data: payload
+	})
+
+	const row = (response?.data ?? response) as Record<string, unknown>
+
+	return {
+		category_id: Number(row.category_id ?? payload.category_id),
+		is_featured: row.is_featured !== undefined ? !!row.is_featured : payload.is_featured,
+		display_order: Number(row.display_order ?? payload.display_order)
+	}
+}
+
+async function saveCanvasProductCategories(
+	productId: number,
+	categoryMappings: CanvasProductCategoryMapping[]
+): Promise<CanvasProductCategoryMapping[]> {
+	const payload = toCanvasProductCategoryMappingsPayload(categoryMappings)
+	const saved: CanvasProductCategoryMapping[] = []
+
+	for (const mapping of payload) {
+		saved.push(await saveCanvasProductCategory(productId, mapping))
+	}
+
+	return saved
+}
+
 async function deleteCanvasProduct(id: number): Promise<void> {
 	await request({ url: `${CANVAS_PRODUCTS_URL}/${id}`, method: 'DELETE' })
 }
@@ -344,6 +413,8 @@ export const productsApi = {
 	createCanvasProduct,
 	updateCanvasProduct,
 	updateCanvasProductSeo,
+	saveCanvasProductCategory,
+	saveCanvasProductCategories,
 	deleteCanvasProduct,
 	uploadImages
 }

@@ -1,5 +1,5 @@
 import type { CollageLayout } from '../types/collage-layout'
-import type { CanvasProduct, CanvasProductSeo } from '../types/product'
+import type { CanvasProduct, CanvasProductCategoryMapping, CanvasProductSeo } from '../types/product'
 import { INNER_IMAGES_MAIN_CATEGORY_SLUG } from './product-form'
 
 export const uploadImageCountFromLayout = (layout: CollageLayout | null): number => {
@@ -84,6 +84,31 @@ export const validateProductSeo = (seo: CanvasProductSeo): Record<string, string
 	setRequiredSeoError(errors, seo, 'meta_title', 'Meta title')
 	setRequiredSeoError(errors, seo, 'meta_description', 'Meta description')
 	setRequiredSeoError(errors, seo, 'meta_keywords', 'Meta keywords')
+
+	return errors
+}
+
+export const validateProductCategoryMappings = (
+	mappings: CanvasProductCategoryMapping[]
+): Record<string, string> => {
+	const errors: Record<string, string> = {}
+	const seenCategoryIds = new Set<number>()
+
+	mappings.forEach((mapping, index) => {
+		const prefix = `category_mappings.${index}`
+
+		if (!mapping.category_id || mapping.category_id <= 0) {
+			errors[`${prefix}.category_id`] = 'Выберите категорию'
+		} else if (seenCategoryIds.has(mapping.category_id)) {
+			errors[`${prefix}.category_id`] = 'Эта категория уже добавлена'
+		} else {
+			seenCategoryIds.add(mapping.category_id)
+		}
+
+		if (!Number.isFinite(Number(mapping.display_order)) || Number(mapping.display_order) < 0) {
+			errors[`${prefix}.display_order`] = 'Укажите корректный порядок отображения'
+		}
+	})
 
 	return errors
 }
