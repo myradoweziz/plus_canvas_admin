@@ -165,7 +165,7 @@
 					]
 				},
 				{ icon: StocksIcon, name: 'Акция рекламный баннер', path: '/admin-panel/stocks' },
-				{ icon: BrandsIcon, name: 'Теги', path: '/admin-panel/brands' },
+				{ icon: BrandsIcon, name: 'Теги товаров', path: '/admin-panel/product-tags' },
 				{ icon: ColorsIcon, name: 'Цвета', path: '/admin-panel/colors' },
 				{ icon: CanvasSizesIcon, name: 'Размеры холста', path: '/admin-panel/canvas-sizes' },
 				{ icon: CanvasFormatsIcon, name: 'Форматы холста', path: '/admin-panel/canvas-formats' },

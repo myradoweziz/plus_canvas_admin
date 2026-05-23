@@ -18,7 +18,7 @@ export type ListCanvasProductsParams = {
 	main_category_id?: number
 	category_id?: number
 	sub_category_id?: number
-	brand_id?: number
+	product_tag_id?: number
 	limit: number
 	offset: number
 }
@@ -133,7 +133,7 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		main_category_slug: product.main_category_slug ?? product.main_category?.slug ?? '',
 		category_id: product.category_id ?? product.category?.id ?? null,
 		sub_category_id: product.sub_category_id ?? product.sub_category?.id ?? null,
-		brand_id: product.brand_id ?? product.brand?.id ?? null,
+		product_tags: toIdArray(product.product_tags),
 		banner_id: product.banner_id ?? product.banner?.id ?? null,
 		flag: product.flag ?? '',
 		product_qode: product.product_qode ?? '',
@@ -206,7 +206,7 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		main_category_id: product.main_category_id,
 		category_id: product.category_id,
 		sub_category_id: product.sub_category_id,
-		brand_id: product.brand_id,
+		product_tags: product.product_tags,
 		banner_id: product.banner_id,
 		flag: product.flag,
 		product_qode: product.product_qode,
@@ -267,7 +267,8 @@ function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 		colors: JSON.stringify(payload.colors),
 		canvas_formats: JSON.stringify(payload.canvas_formats),
 		frames: JSON.stringify(payload.frames),
-		effects: JSON.stringify(payload.effects)
+		effects: JSON.stringify(payload.effects),
+		product_tags: JSON.stringify(payload.product_tags)
 	}
 
 	delete data.images

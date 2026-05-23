@@ -11,8 +11,8 @@
 	import TextField from '@/shared/ui/TextField.vue'
 	import ProductsTable from '../components/ProductsTable.vue'
 
-	import { brandsApi } from '@/modules/brands/api/brands'
-	import type { Brand } from '@/modules/brands/types/brand'
+	import { productTagsApi } from '@/modules/product-tags/api/productTags'
+	import type { ProductTag } from '@/modules/product-tags/types/productTag'
 	import { categoriesApi } from '@/modules/categories/api'
 	import type { FeaturedCategory, MainCategory, SubCategory } from '@/modules/categories/types/category'
 	import { BoxCubeIcon } from '@/shared/icons'
@@ -36,7 +36,7 @@
 		main_category_id: null as number | null,
 		category_id: null as number | null,
 		sub_category_id: null as number | null,
-		brand_id: null as number | null
+		product_tag_id: null as number | null
 	})
 
 	const loadingDictionaries = ref(false)
@@ -49,7 +49,7 @@
 	const mainCategories = ref<MainCategory[]>([])
 	const featuredCategories = ref<FeaturedCategory[]>([])
 	const subCategories = ref<SubCategory[]>([])
-	const brands = ref<Brand[]>([])
+	const productTags = ref<ProductTag[]>([])
 
 	const toSelectOptions = <T extends { id: number | null }>(items: T[], getLabel: (item: T) => string) =>
 		items
@@ -62,7 +62,7 @@
 	const mainCategoryOptions = computed(() => toSelectOptions(mainCategories.value, (item) => item.name))
 	const featuredCategoryOptions = computed(() => toSelectOptions(featuredCategories.value, (item) => item.name))
 	const subCategoryOptions = computed(() => toSelectOptions(subCategories.value, (item) => item.name))
-	const brandOptions = computed(() => toSelectOptions(brands.value, (item) => item.name))
+	const productTagOptions = computed(() => toSelectOptions(productTags.value, (item) => item.name))
 
 	const load = async () => {
 		loading.value = true
@@ -73,7 +73,7 @@
 				main_category_id: filters.value.main_category_id ?? undefined,
 				category_id: filters.value.category_id ?? undefined,
 				sub_category_id: filters.value.sub_category_id ?? undefined,
-				brand_id: filters.value.brand_id ?? undefined,
+				product_tag_id: filters.value.product_tag_id ?? undefined,
 				limit: limit.value,
 				offset: offset.value
 			})
@@ -90,14 +90,14 @@
 		loadingDictionaries.value = true
 
 		try {
-			const [mainCategoriesResult, brandsResult] = await Promise.all([
+			const [mainCategoriesResult, productTagsResult] = await Promise.all([
 				categoriesApi.listMainCategories({ limit: 100, offset: 0 }),
-				brandsApi.listBrands({ limit: 100, offset: 0 })
+				productTagsApi.listProductTags({ limit: 100, offset: 0 })
 			])
 
 			if (requestId !== dictionaryRequestId.value) return
 			mainCategories.value = mainCategoriesResult.items || []
-			brands.value = brandsResult.items || []
+			productTags.value = productTagsResult.items || []
 		} finally {
 			if (requestId === dictionaryRequestId.value) {
 				loadingDictionaries.value = false
@@ -216,7 +216,7 @@
 			main_category_id: null,
 			category_id: null,
 			sub_category_id: null,
-			brand_id: null
+			product_tag_id: null
 		}
 		limit.value = 10
 		offset.value = 0
@@ -331,11 +331,11 @@
 				:disabled="loadingDictionaries || loadingSubCategories || !filters.category_id"
 			/>
 			<SelectField
-				v-model="filters.brand_id"
-				label="Бренд"
-				name="brand_id"
-				placeholder="Выберите бренд"
-				:options="brandOptions"
+				v-model="filters.product_tag_id"
+				label="Теги товара"
+				name="product_tag_id"
+				placeholder="Выберите тег"
+				:options="productTagOptions"
 				:disabled="loadingDictionaries"
 			/>
 

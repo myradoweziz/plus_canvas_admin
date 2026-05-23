@@ -1,16 +1,16 @@
 import { Layouts } from '@/layouts/layouts.types'
 
 const Module = () => import('./Module.vue')
-const Brands = () => import('./pages/Brands.vue')
+const ProductTags = () => import('./pages/ProductTags.vue')
 
 const moduleRoute = {
-	path: '/admin-panel/brands',
+	path: '/admin-panel/product-tags',
 	component: Module,
 	children: [
 		{
 			path: '',
-			component: Brands,
-			meta: { title: 'Brands', layout: Layouts.admin }
+			component: ProductTags,
+			meta: { title: 'Теги товаров', layout: Layouts.admin }
 		}
 	]
 }

@@ -26,7 +26,7 @@ export type CanvasProduct = {
 	main_category_slug?: string
 	category_id: number | null
 	sub_category_id: number | null
-	brand_id: number | null
+	product_tags: number[]
 	banner_id: number | null
 	flag: string
 	product_qode: string
