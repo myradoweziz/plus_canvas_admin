@@ -20,6 +20,8 @@
 	const selectedMainCategory = ref<MainCategory | null>(null)
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
+	const selectedCategories = ref<MainCategory[]>([])
+	const fileInput = ref<HTMLInputElement | null>(null)
 	const total = ref(0)
 	const limit = ref(10)
 	const offset = ref(0)
@@ -119,10 +121,57 @@
 
 	const exportXml = async () => {
 		try {
-			await categoriesApi.exportMainCategoriesXml()
+			const ids = selectedCategories.value.length ? selectedCategories.value.map((c) => c.id!) : undefined
+			await categoriesApi.exportMainCategoriesXml(ids)
 			toast.success('XML файл скачан')
 		} catch {
 			toast.error('Не удалось экспортировать XML')
+		}
+	}
+
+	const exportExcel = async () => {
+		try {
+			const ids = selectedCategories.value.length ? selectedCategories.value.map((c) => c.id!) : undefined
+			await categoriesApi.exportMainCategoriesExcel(ids)
+			toast.success('Excel файл скачан')
+		} catch {
+			toast.error('Не удалось экспортировать Excel')
+		}
+	}
+
+	const triggerImportExcel = () => {
+		fileInput.value?.click()
+	}
+
+	const importExcel = async (event: Event) => {
+		const target = event.target as HTMLInputElement
+		if (!target.files?.length) return
+
+		try {
+			await categoriesApi.importMainCategoriesExcel(target.files[0])
+			toast.success('Excel файл успешно импортирован')
+			await load()
+		} catch {
+			toast.error('Не удалось импортировать Excel')
+		} finally {
+			if (fileInput.value) {
+				fileInput.value.value = ''
+			}
+		}
+	}
+
+	const bulkDelete = async () => {
+		if (!selectedCategories.value.length) return
+		if (!confirm(`Вы действительно хотите удалить ${selectedCategories.value.length} выбранных категорий?`)) return
+
+		try {
+			const ids = selectedCategories.value.map((c) => c.id!)
+			await categoriesApi.bulkDeleteMainCategories(ids)
+			toast.success('Выбранные категории удалены')
+			selectedCategories.value = []
+			await load()
+		} catch {
+			toast.error('Не удалось удалить выбранные категории')
 		}
 	}
 </script>
@@ -136,9 +185,13 @@
 			:total="total"
 		>
 			<template #actions>
-				<div class="flex items-center gap-2">
+				<div class="flex items-center gap-2 flex-wrap">
+					<input type="file" ref="fileInput" class="hidden" accept=".xlsx,.xls" @change="importExcel" />
+					<Button v-if="selectedCategories.length" type="button" size="sm" class="bg-red-600 hover:bg-red-700 text-white" :on-click="bulkDelete">Удалить выбранные ({{ selectedCategories.length }})</Button>
+					<Button type="button" size="sm" variant="outline" :on-click="triggerImportExcel">Импорт Excel</Button>
+					<Button type="button" size="sm" variant="outline" :on-click="exportExcel">Экспорт Excel</Button>
 					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>
-					<Button type="button" size="sm" :on-click="openCreate">Добавить главную категорию</Button>
+					<Button type="button" size="sm" :on-click="openCreate">Добавить</Button>
 				</div>
 			</template>
 		</Banner>
@@ -158,6 +211,7 @@
 		<MainCategoriesTable
 			:categories="mainCategories"
 			:loading="loading"
+			v-model:selected-categories="selectedCategories"
 			@edit="editMainCategory"
 			@delete="deleteMainCategory"
 			@reorder="reorderMainCategories"

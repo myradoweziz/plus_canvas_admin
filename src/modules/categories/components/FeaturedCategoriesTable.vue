@@ -9,6 +9,7 @@
 	defineProps<{
 		categories: FeaturedCategory[]
 		loading: boolean
+		selectedCategories?: FeaturedCategory[]
 	}>()
 
 	const toFeaturedCategory = (row: unknown) => row as FeaturedCategory
@@ -17,10 +18,15 @@
 		(e: 'edit', featuredCategory: FeaturedCategory): void
 		(e: 'delete', featuredCategory: FeaturedCategory): void
 		(e: 'reorder', featuredCategories: FeaturedCategory[]): void
+		(e: 'update:selectedCategories', categories: FeaturedCategory[]): void
 	}>()
 
 	const onReorder = (rows: unknown[]) => {
 		emit('reorder', rows as FeaturedCategory[])
+	}
+
+	const onUpdateSelected = (rows: unknown[]) => {
+		emit('update:selectedCategories', rows as FeaturedCategory[])
 	}
 </script>
 
@@ -31,7 +37,10 @@
 		:loading="loading"
 		empty-text="Пока нет категорий."
 		draggable
+		selectable
+		:selected-rows="selectedCategories"
 		order-key="featured_order"
+		@update:selected-rows="onUpdateSelected"
 		@reorder="onReorder"
 	>
 		<template #cell-name="{ row }">

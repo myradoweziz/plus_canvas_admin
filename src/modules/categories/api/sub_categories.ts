@@ -1,4 +1,4 @@
-import { downloadTextFile } from '@/composables'
+import { downloadBlob, downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import type { SubCategory, SubCategoryPayload } from '../types/category'
 
@@ -7,8 +7,11 @@ export const subCategoriesApi = {
 	createSubCategory,
 	updateSubCategory,
 	deleteSubCategory,
+	bulkDeleteSubCategories,
 	reorderSubCategories,
-	exportSubCategoriesXml
+	exportSubCategoriesXml,
+	exportSubCategoriesExcel,
+	importSubCategoriesExcel
 }
 
 const SUB_CATEGORIES_URL = '/api/admin/sub-categories'
@@ -68,6 +71,10 @@ async function deleteSubCategory(id: number): Promise<void> {
 	await request({ url: `${SUB_CATEGORIES_URL}/${id}`, method: 'DELETE' })
 }
 
+async function bulkDeleteSubCategories(ids: number[]): Promise<void> {
+	await request({ url: `${SUB_CATEGORIES_URL}/bulk-delete`, method: 'POST', data: { ids } })
+}
+
 type ReorderSubCategoriesPayload = {
 	items: Array<{
 		id: number
@@ -79,10 +86,12 @@ async function reorderSubCategories(data: ReorderSubCategoriesPayload): Promise<
 	return await request({ url: `${SUB_CATEGORIES_URL}/reorder`, method: 'POST', data })
 }
 
-async function exportSubCategoriesXml(): Promise<void> {
+async function exportSubCategoriesXml(ids?: number[]): Promise<void> {
+	const params = ids && ids.length ? { ids: ids.join(',') } : undefined
 	const response = await request({
 		url: `${SUB_CATEGORIES_URL}/export/xml`,
 		method: 'GET',
+		params,
 		headers: { Accept: 'application/xml, text/xml' },
 		responseType: 'text'
 	})
@@ -99,4 +108,25 @@ async function exportSubCategoriesXml(): Promise<void> {
 	}
 
 	downloadTextFile(xml, 'sub_categories.xml', 'application/xml;charset=utf-8')
+}
+
+async function exportSubCategoriesExcel(ids?: number[]): Promise<void> {
+	const params = ids && ids.length ? { ids: ids.join(',') } : undefined
+	const response = await request({
+		url: `${SUB_CATEGORIES_URL}/export/excel`,
+		method: 'GET',
+		params,
+		responseType: 'blob'
+	})
+
+	downloadBlob(response as Blob, 'sub_categories.xlsx')
+}
+
+async function importSubCategoriesExcel(file: File): Promise<void> {
+	await request({
+		url: `${SUB_CATEGORIES_URL}/import/excel`,
+		method: 'POST',
+		data: { file },
+		isFormData: true
+	})
 }

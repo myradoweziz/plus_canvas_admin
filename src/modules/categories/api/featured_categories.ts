@@ -1,4 +1,4 @@
-import { downloadTextFile } from '@/composables'
+import { downloadBlob, downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import type { FeaturedCategory, FeaturedCategoryPayload } from '../types/category'
 
@@ -7,8 +7,11 @@ export const featuredCategoriesApi = {
 	createFeaturedCategory,
 	updateFeaturedCategory,
 	deleteFeaturedCategory,
+	bulkDeleteFeaturedCategories,
 	reorderFeaturedCategories,
-	exportFeaturedCategoriesXml
+	exportFeaturedCategoriesXml,
+	exportFeaturedCategoriesExcel,
+	importFeaturedCategoriesExcel
 }
 
 const FEATURED_CATEGORIES_URL = '/api/admin/categories'
@@ -74,6 +77,10 @@ async function deleteFeaturedCategory(id: number): Promise<void> {
 	await request({ url: `${FEATURED_CATEGORIES_URL}/${id}`, method: 'DELETE' })
 }
 
+async function bulkDeleteFeaturedCategories(ids: number[]): Promise<void> {
+	await request({ url: `${FEATURED_CATEGORIES_URL}/bulk-delete`, method: 'POST', data: { ids } })
+}
+
 type ReorderFeaturedCategoriesPayload = {
 	items: Array<{
 		id: number
@@ -85,10 +92,12 @@ async function reorderFeaturedCategories(data: ReorderFeaturedCategoriesPayload)
 	return await request({ url: `${FEATURED_CATEGORIES_URL}/reorder`, method: 'POST', data })
 }
 
-async function exportFeaturedCategoriesXml(): Promise<void> {
+async function exportFeaturedCategoriesXml(ids?: number[]): Promise<void> {
+	const params = ids && ids.length ? { ids: ids.join(',') } : undefined
 	const response = await request({
 		url: `${FEATURED_CATEGORIES_URL}/export/xml`,
 		method: 'GET',
+		params,
 		headers: { Accept: 'application/xml, text/xml' },
 		responseType: 'text'
 	})
@@ -105,4 +114,25 @@ async function exportFeaturedCategoriesXml(): Promise<void> {
 	}
 
 	downloadTextFile(xml, 'categories.xml', 'application/xml;charset=utf-8')
+}
+
+async function exportFeaturedCategoriesExcel(ids?: number[]): Promise<void> {
+	const params = ids && ids.length ? { ids: ids.join(',') } : undefined
+	const response = await request({
+		url: `${FEATURED_CATEGORIES_URL}/export/excel`,
+		method: 'GET',
+		params,
+		responseType: 'blob'
+	})
+
+	downloadBlob(response as Blob, 'categories.xlsx')
+}
+
+async function importFeaturedCategoriesExcel(file: File): Promise<void> {
+	await request({
+		url: `${FEATURED_CATEGORIES_URL}/import/excel`,
+		method: 'POST',
+		data: { file },
+		isFormData: true
+	})
 }

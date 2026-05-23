@@ -21,6 +21,8 @@
 			rowClass?: string
 			draggable?: boolean
 			orderKey?: string
+			selectable?: boolean
+			selectedRows?: unknown[]
 		}>(),
 		{
 			loading: false,
@@ -29,23 +31,53 @@
 			rowKey: 'id',
 			rowClass: '',
 			draggable: false,
-			orderKey: ''
+			orderKey: '',
+			selectable: false,
+			selectedRows: () => []
 		}
 	)
 
 	const emit = defineEmits<{
 		(e: 'reorder', rows: unknown[]): void
+		(e: 'update:selectedRows', rows: unknown[]): void
 	}>()
 
 	const dragIndex = ref<number | null>(null)
 
-	const colSpan = computed(() => props.columns.length + (props.draggable ? 1 : 0))
+	const colSpan = computed(() => props.columns.length + (props.draggable ? 1 : 0) + (props.selectable ? 1 : 0))
 
 	const getTableRow = (row: unknown) => row as DataTableRow
 
 	const getCellValue = (row: unknown, key: string) => getTableRow(row)[key] ?? ''
 
 	const getRowKey = (row: unknown, index: number) => getTableRow(row)[props.rowKey] ?? index
+
+	const isSelected = (row: unknown, index: number) => {
+		return props.selectedRows.some((r) => getRowKey(r, index) === getRowKey(row, index))
+	}
+
+	const toggleSelection = (row: unknown, index: number) => {
+		const current = [...props.selectedRows]
+		const idx = current.findIndex((r) => getRowKey(r, index) === getRowKey(row, index))
+		if (idx > -1) {
+			current.splice(idx, 1)
+		} else {
+			current.push(row)
+		}
+		emit('update:selectedRows', current)
+	}
+
+	const isAllSelected = computed(() => {
+		return props.rows.length > 0 && props.rows.length === props.selectedRows.length
+	})
+
+	const toggleAll = () => {
+		if (isAllSelected.value) {
+			emit('update:selectedRows', [])
+		} else {
+			emit('update:selectedRows', [...props.rows])
+		}
+	}
 
 	const onDragStart = (index: number) => {
 		if (!props.draggable) return
@@ -85,6 +117,14 @@
 			<table class="min-w-full text-left text-sm">
 				<thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
 					<tr>
+						<th v-if="selectable" class="w-12 px-4 py-3">
+							<input
+								type="checkbox"
+								class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+								:checked="isAllSelected"
+								@change="toggleAll"
+							/>
+						</th>
 						<th v-if="draggable" class="w-12 px-4 py-3"></th>
 						<th v-for="column in columns" :key="column.key" class="px-4 py-3" :class="column.headerClass">
 							{{ column.label }}
@@ -110,6 +150,14 @@
 						@drop="onDrop(index)"
 						@dragend="onDragEnd"
 					>
+						<td v-if="selectable" class="px-4 py-3">
+							<input
+								type="checkbox"
+								class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+								:checked="isSelected(row, index)"
+								@change="toggleSelection(row, index)"
+							/>
+						</td>
 						<td v-if="draggable" class="px-4 py-3 text-gray-400">
 							<span class="select-none text-lg leading-none" title="Drag to reorder">⋮⋮</span>
 						</td>
