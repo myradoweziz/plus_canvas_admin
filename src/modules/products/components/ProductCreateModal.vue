@@ -63,7 +63,7 @@
 				</Button>
 			</div>
 
-			<div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+			<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
 				<ProductFormTabBar v-model:active-tab="activeTab" />
 
 				<ProductInfoTab

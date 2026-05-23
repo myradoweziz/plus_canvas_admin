@@ -20,12 +20,14 @@
 			disabled?: boolean
 			errorMessage?: string
 			remoteSearch?: boolean
+			required?: boolean
 		}>(),
 		{
 			modelValue: null,
 			placeholder: 'Select option',
 			disabled: false,
-			remoteSearch: false
+			remoteSearch: false,
+			required: false
 		}
 	)
 
@@ -110,7 +112,9 @@
 
 <template>
 	<div ref="dropdownRef">
-		<label class="mb-1.5 block text-sm font-medium text-gray-700">{{ label }}</label>
+		<label class="mb-1.5 block text-sm font-medium text-gray-700">
+			{{ label }} <span v-if="required" class="text-red-500">*</span>
+		</label>
 		<div class="relative">
 			<button
 				type="button"

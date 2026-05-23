@@ -107,7 +107,8 @@
 		<div class="md:col-span-3">
 			<TextField
 				v-model.trim="seo.slug"
-				label="Slug *"
+				label="Slug"
+				required
 				name="seo_slug"
 				placeholder="product-slug"
 				:disabled="!productId"
@@ -119,7 +120,8 @@
 		<div class="md:col-span-3">
 			<TextField
 				v-model.trim="seo.meta_title"
-				label="Meta title *"
+				label="Meta title"
+				required
 				name="meta_title"
 				placeholder="Meta title"
 				:disabled="!productId"
@@ -130,7 +132,8 @@
 		<div class="md:col-span-3">
 			<TextareaField
 				v-model.trim="seo.meta_description"
-				label="Meta description *"
+				label="Meta description"
+				required
 				name="meta_description"
 				placeholder="Meta description"
 				:disabled="!productId"
@@ -141,7 +144,8 @@
 		<div class="md:col-span-3">
 			<TextField
 				v-model.trim="seo.meta_keywords"
-				label="Meta keywords *"
+				label="Meta keywords"
+				required
 				name="meta_keywords"
 				placeholder="keyword1, keyword2"
 				:disabled="!productId"

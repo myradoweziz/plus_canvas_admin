@@ -11,6 +11,7 @@
 			buttonText?: string
 			accept?: string
 			errorMessage?: string
+			required?: boolean
 			maxFileSizeMb?: number
 			uploader?: (files: File[], onProgress: (percent: number) => void) => Promise<Array<{ path: string; url: string }>>
 		}>(),
@@ -129,7 +130,9 @@
 	>
 		<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 			<div class="min-w-0">
-				<p class="text-sm font-semibold text-gray-900">{{ label }}</p>
+				<p class="text-sm font-semibold text-gray-900">
+					{{ label }} <span v-if="required" class="text-red-500">*</span>
+				</p>
 				<p v-if="description" class="mt-0.5 text-xs text-gray-600">{{ description }}</p>
 			</div>
 

@@ -13,6 +13,7 @@
 			name: string
 			placeholder?: string
 			modelValue?: string | number
+			required?: boolean
 			modelModifiers?: {
 				trim?: boolean
 				number?: boolean
@@ -24,7 +25,8 @@
 		}>(),
 		{
 			type: 'text',
-			modelValue: ''
+			modelValue: '',
+			required: false
 		}
 	)
 
@@ -49,7 +51,9 @@
 
 <template>
 	<div>
-		<label v-if="label" class="mb-1.5 block text-sm font-medium text-gray-700"> {{ label }} </label>
+		<label v-if="label" class="mb-1.5 block text-sm font-medium text-gray-700">
+			{{ label }} <span v-if="required" class="text-red-500">*</span>
+		</label>
 		<div class="relative">
 			<component
 				@click="toggleAppendIcon"

@@ -17,10 +17,12 @@
 				trim?: boolean
 			}
 			errorMessage?: string
+			required?: boolean
 		}>(),
 		{
 			modelValue: '',
-			placeholder: ''
+			placeholder: '',
+			required: false
 		}
 	)
 
@@ -36,7 +38,9 @@
 
 <template>
 	<div>
-		<label class="mb-1.5 block text-sm font-medium text-gray-700">{{ label }}</label>
+		<label class="mb-1.5 block text-sm font-medium text-gray-700">
+			{{ label }} <span v-if="required" class="text-red-500">*</span>
+		</label>
 		<textarea
 			:value="modelValue"
 			@input="changeInput"

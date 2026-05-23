@@ -16,12 +16,14 @@
 			description?: string
 			disabled?: boolean
 			errorMessage?: string
+			required?: boolean
 		}>(),
 		{
 			label: 'Импорт SVG layout',
 			description: 'Загрузите SVG — имя возьмётся из файла, layout создастся автоматически.',
 			disabled: false,
-			errorMessage: ''
+			errorMessage: '',
+			required: false
 		}
 	)
 
@@ -140,7 +142,9 @@
 	>
 		<div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 			<div class="min-w-0">
-				<p class="text-sm font-semibold text-gray-900">{{ label }}</p>
+				<p class="text-sm font-semibold text-gray-900">
+					{{ label }} <span v-if="required" class="text-red-500">*</span>
+				</p>
 				<p v-if="description" class="mt-0.5 text-xs text-gray-600">{{ description }}</p>
 			</div>
 
@@ -176,7 +180,7 @@
 		</div>
 
 		<div v-if="draft" class="mt-4 space-y-3">
-			<TextField v-model="draft.name" label="Название layout *" name="collage_layout_name" placeholder="Название" />
+			<TextField v-model="draft.name" label="Название layout" required name="collage_layout_name" placeholder="Название" />
 			<div class="grid grid-cols-2 gap-3 text-sm text-gray-700 md:grid-cols-4">
 				<div class="rounded-lg bg-white px-3 py-2 ring-1 ring-gray-200">
 					<p class="text-xs text-gray-500">Слотов</p>

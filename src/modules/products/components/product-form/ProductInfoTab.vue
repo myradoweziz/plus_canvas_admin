@@ -500,7 +500,8 @@
 	<form class="contents" @submit.prevent="onSubmit">
 		<TextField
 			v-model.trim="form.name"
-			label="Название *"
+			label="Название"
+			required
 			name="name"
 			placeholder="Название"
 			:error-message="validationErrors.name"
@@ -509,6 +510,7 @@
 		<TextField
 			v-model.number="form.price"
 			label="Цена"
+			required
 			name="price"
 			type="number"
 			min="0"
@@ -521,6 +523,7 @@
 		<TextField
 			v-model.trim="form.product_qode"
 			label="Код продукта"
+			required
 			name="product_qode"
 			placeholder="Код продукта"
 			:error-message="validationErrors.product_qode"
@@ -530,6 +533,7 @@
 			<TextareaField
 				v-model.trim="form.description"
 				label="Описание"
+				required
 				name="description"
 				placeholder="Описание"
 				:error-message="validationErrors.description"
@@ -550,6 +554,7 @@
 		<SelectField
 			v-model="form.main_category_id"
 			label="Главная категория"
+			required
 			name="main_category_id"
 			placeholder="Выберите главную категорию"
 			:options="mainCategoryOptions"
@@ -559,6 +564,7 @@
 		<SelectField
 			v-model="form.category_id"
 			label="Категория"
+			required
 			name="category_id"
 			placeholder="Выберите категорию"
 			:options="featuredCategoryOptions"
@@ -603,7 +609,8 @@
 		<div class="md:col-span-3">
 			<MultiImageUpload
 				v-model="form.images"
-				label="Images"
+				label="Изображения"
+				required
 				description="Выберите одну или несколько картинок продукта."
 				:error-message="validationErrors.images"
 				:uploader="(files, onProgress) => api.uploadImages(files, onProgress)"
@@ -613,7 +620,8 @@
 		<div v-if="form.main_category_slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG" class="md:col-span-3 space-y-4">
 			<MultiImageUpload
 				v-model="form.inner_images"
-				label="Inner Images"
+				label="Внутренние изображения"
+				required
 				:description="
 					requiredInnerImagesCount > 0
 						? `Загрузите ровно ${requiredInnerImagesCount} изображений — по числу слотов в SVG layout.`
@@ -628,6 +636,7 @@
 			v-model="form.collage_layout_id"
 			:current-layout="form.collage_layout"
 			:disabled="loadingDictionaries"
+			required
 			:error-message="validationErrors.collage_layout_id ?? ''"
 			@update:current-layout="onCollageLayoutUpdate"
 			class="md:col-span-3"
@@ -637,6 +646,7 @@
 			<SelectField
 				:model-value="selectedColorId"
 				label="Цвета"
+				required
 				name="colors"
 				placeholder="Выберите цвет"
 				:options="colorOptions"
@@ -669,6 +679,7 @@
 			<SelectField
 				:model-value="selectedCanvasFormatId"
 				label="Форматы холста"
+				required
 				name="canvas_formats"
 				placeholder="Выберите формат"
 				:options="canvasFormatOptions"
@@ -699,7 +710,8 @@
 		<div class="md:col-span-3">
 			<SelectField
 				:model-value="selectedCanvasFrameId"
-				label="Рамки *"
+				label="Рамки"
+				required
 				name="frames"
 				placeholder="Выберите рамку"
 				:options="canvasFrameOptions"
