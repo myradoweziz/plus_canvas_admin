@@ -311,14 +311,16 @@
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3" @submit.prevent="onSubmit">
 				<TextField
 					v-model="form.name"
-					label="Имя *"
+					label="Имя"
+					required
 					name="name"
 					placeholder="Имя"
 					:error-message="triedSubmit ? fieldErrors.name : ''"
 				/>
 				<TextField
 					v-model="form.email"
-					label="Email *"
+					label="Email"
+					required
 					type="email"
 					name="email"
 					placeholder="Email"
@@ -326,7 +328,8 @@
 				/>
 				<TextField
 					v-model="form.phone_number"
-					label="Телефон *"
+					label="Телефон"
+					required
 					type="tel"
 					name="phone_number"
 					placeholder="Телефон"
@@ -336,7 +339,8 @@
 				<TextField
 					v-if="!user"
 					v-model="form.password"
-					label="Пароль *"
+					label="Пароль"
+					required
 					name="password"
 					type="password"
 					placeholder="Пароль"
@@ -345,7 +349,8 @@
 				<TextField
 					v-if="!user"
 					v-model="form.password_confirmation"
-					label="Подтверждение пароля *"
+					label="Подтверждение пароля"
+					required
 					name="password_confirmation"
 					type="password"
 					placeholder="Подтверждение пароля"
@@ -415,6 +420,7 @@
 								<TextField
 									:model-value="address.city"
 									label="Город"
+									required
 									name="city"
 									placeholder="Город"
 									:error-message="triedSubmit ? fieldErrors.addressCities[index] : ''"
@@ -433,6 +439,7 @@
 									<TextareaField
 										:model-value="address.address"
 										label="Адрес"
+										required
 										name="address"
 										placeholder="Адрес"
 										:error-message="triedSubmit ? fieldErrors.addressTexts[index] : ''"

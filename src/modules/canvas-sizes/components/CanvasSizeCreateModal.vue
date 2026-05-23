@@ -164,7 +164,8 @@
 				<div class="md:col-span-1">
 					<TextField
 						v-model.number="form.width"
-						label="Ширина *"
+						label="Ширина"
+						required
 						name="width"
 						type="number"
 						min="0"
@@ -175,7 +176,8 @@
 				<div class="md:col-span-1">
 					<TextField
 						v-model.number="form.height"
-						label="Высота *"
+						label="Высота"
+						required
 						name="height"
 						type="number"
 						min="0"
@@ -186,7 +188,8 @@
 				<div class="md:col-span-1">
 					<SelectField
 						v-model="form.unit"
-						label="Единица *"
+						label="Единица"
+						required
 						name="unit"
 						placeholder="Выберите единицу"
 						:options="CANVAS_SIZE_UNIT_OPTIONS"
@@ -198,6 +201,7 @@
 					<TextField
 						v-model.number="form.sort_order"
 						label="Порядок"
+						required
 						name="sort_order"
 						type="number"
 						min="0"
@@ -209,6 +213,7 @@
 					<TextField
 						v-model.number="form.price"
 						label="Цена"
+						required
 						name="price"
 						type="number"
 						min="0"

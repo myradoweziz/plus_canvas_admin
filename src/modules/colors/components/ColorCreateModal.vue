@@ -126,7 +126,8 @@
 				<div class="md:col-span-1">
 					<TextField
 						v-model="form.name"
-						label="Название *"
+						label="Название"
+						required
 						name="name"
 						placeholder="Название"
 						:error-message="fieldErrors.name"
@@ -134,7 +135,13 @@
 				</div>
 
 				<div class="md:col-span-1">
-					<ColorPicker v-model="form.hex_code" label="Цвет *" name="hex_code" :error-message="fieldErrors.hex_code" />
+					<ColorPicker
+						v-model="form.hex_code"
+						label="Цвет"
+						required
+						name="hex_code"
+						:error-message="fieldErrors.hex_code"
+					/>
 				</div>
 
 				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />

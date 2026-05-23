@@ -212,6 +212,7 @@
 				<TextField
 					v-model="form.phone_number"
 					label="Телефон"
+					required
 					name="phone_number"
 					:error-message="fieldErrors.phone_number"
 					type="tel"
@@ -219,6 +220,7 @@
 				<TextField
 					v-model="form.email"
 					label="Email"
+					required
 					name="email"
 					type="email"
 					placeholder="email@example.com"
@@ -229,6 +231,7 @@
 					<TextareaField
 						v-model="form.address"
 						label="Адрес"
+						required
 						name="address"
 						placeholder="Адрес"
 						:error-message="fieldErrors.address"
@@ -239,6 +242,7 @@
 					<TextareaField
 						v-model="form.slogan"
 						label="Слоган"
+						required
 						name="slogan"
 						placeholder="Слоган"
 						:error-message="fieldErrors.slogan"

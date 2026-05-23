@@ -98,7 +98,8 @@
 			<form class="mt-6 grid grid-cols-1 gap-4" @submit.prevent="onSubmit">
 				<TextField
 					v-model="form.name"
-					label="Название *"
+					label="Название"
+					required
 					name="name"
 					placeholder="название права"
 					:error-message="triedSubmit ? fieldErrors.name : ''"

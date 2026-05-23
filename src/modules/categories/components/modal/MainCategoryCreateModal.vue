@@ -226,7 +226,8 @@
 				<div class="md:col-span-1">
 					<TextField
 						v-model="form.name"
-						label="Название *"
+						label="Название"
+						required
 						name="name"
 						placeholder="Название"
 						:error-message="fieldErrors.name"
@@ -237,6 +238,7 @@
 					<TextField
 						v-model="form.slug"
 						label="Slug"
+						required
 						name="slug"
 						placeholder="Slug"
 						:error-message="fieldErrors.slug"
@@ -248,6 +250,7 @@
 					<TextField
 						v-model.number="form.featured_order"
 						label="Порядок"
+						required
 						name="featured_order"
 						type="number"
 						min="0"
@@ -258,7 +261,8 @@
 				<div class="md:col-span-1">
 					<SelectField
 						v-model="form.category_type"
-						label="Тип категории *"
+						label="Тип категории"
+						required
 						name="category_type"
 						placeholder="Выберите тип категории"
 						:options="categoryTypeOptions"
@@ -270,6 +274,7 @@
 					<TextField
 						v-model.number="form.discount"
 						label="Скидка"
+						required
 						name="discount"
 						type="number"
 						min="0"

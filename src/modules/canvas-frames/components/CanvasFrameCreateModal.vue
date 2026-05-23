@@ -158,7 +158,8 @@
 				<div class="md:col-span-1">
 					<TextField
 						v-model="form.name"
-						label="Название *"
+						label="Название"
+						required
 						name="name"
 						placeholder="Название"
 						:error-message="fieldErrors.name"
@@ -168,7 +169,8 @@
 				<div class="md:col-span-1">
 					<ColorPicker
 						v-model="form.color_hex"
-						label="Цвет *"
+						label="Цвет"
+						required
 						name="color_hex"
 						:error-message="fieldErrors.color_hex"
 					/>
@@ -178,6 +180,7 @@
 					<TextField
 						v-model.number="form.price"
 						label="Цена"
+						required
 						name="price"
 						type="number"
 						min="0"
@@ -189,6 +192,7 @@
 					<TextField
 						v-model.number="form.sort_order"
 						label="Порядок"
+						required
 						name="sort_order"
 						type="number"
 						min="0"

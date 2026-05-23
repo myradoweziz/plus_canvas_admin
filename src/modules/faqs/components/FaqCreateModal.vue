@@ -136,7 +136,8 @@
 				<div class="md:col-span-2">
 					<TextField
 						v-model="form.question"
-						label="Вопрос *"
+						label="Вопрос"
+						required
 						name="question"
 						placeholder="Вопрос"
 						:error-message="fieldErrors.question"
@@ -146,7 +147,8 @@
 				<div class="md:col-span-2">
 					<TextareaField
 						v-model="form.answer"
-						label="Ответ *"
+						label="Ответ"
+						required
 						name="answer"
 						placeholder="Ответ"
 						:error-message="fieldErrors.answer"
@@ -157,6 +159,7 @@
 					<TextField
 						v-model.number="form.order"
 						label="Порядок"
+						required
 						name="order"
 						type="number"
 						min="0"

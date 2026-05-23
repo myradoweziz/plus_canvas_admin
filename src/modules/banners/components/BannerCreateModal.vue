@@ -178,6 +178,7 @@
 					<TextField
 						v-model="form.title"
 						label="Заголовок"
+						required
 						name="title"
 						placeholder="Заголовок"
 						:error-message="fieldErrors.title"
@@ -193,12 +194,21 @@
 				</div>
 
 				<div class="md:col-span-2">
-					<TextField v-model="form.url" label="URL" name="url" placeholder="URL" :error-message="fieldErrors.url" />
+					<TextField
+						v-model="form.url"
+						label="URL"
+						required
+						name="url"
+						placeholder="URL"
+						:error-message="fieldErrors.url"
+					/>
 				</div>
 
 				<div class="md:col-span-2">
 					<SingleImageUpload
 						v-model="form.image"
+						label="Изображение"
+						:required="!form.id"
 						:current-url="form.image || ''"
 						:error-message="fieldErrors.image"
 						:uploader="mediaApi.uploadImages"

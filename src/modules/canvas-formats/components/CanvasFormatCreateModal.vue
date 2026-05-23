@@ -273,7 +273,8 @@
 				<div class="md:col-span-1">
 					<TextField
 						v-model="form.name"
-						label="Название *"
+						label="Название"
+						required
 						name="name"
 						placeholder="Название"
 						:error-message="fieldErrors.name"
@@ -284,6 +285,7 @@
 					<TextField
 						v-model="form.slug"
 						label="Slug"
+						required
 						name="slug"
 						placeholder="Slug"
 						:error-message="fieldErrors.slug"
@@ -295,6 +297,7 @@
 					<TextField
 						v-model.number="form.sort_order"
 						label="Порядок"
+						required
 						name="sort_order"
 						type="number"
 						min="0"
@@ -313,6 +316,7 @@
 					<SelectField
 						:model-value="selectedCanvasSizeId"
 						label="Размеры"
+						required
 						name="sizes"
 						placeholder="Выберите размер"
 						:options="canvasSizeOptions"

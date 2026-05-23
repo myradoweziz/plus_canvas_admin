@@ -176,7 +176,8 @@
 				<div class="md:col-span-2">
 					<TextField
 						v-model="form.name"
-						label="Название *"
+						label="Название"
+						required
 						name="name"
 						placeholder="название роли"
 						:error-message="triedSubmit ? fieldErrors.name : ''"
@@ -187,6 +188,7 @@
 					<SelectField
 						:model-value="selectedPermissionName"
 						label="Права"
+						required
 						name="permissions"
 						placeholder="Выберите право"
 						:options="permissionOptions"

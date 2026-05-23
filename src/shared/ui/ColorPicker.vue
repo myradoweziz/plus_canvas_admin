@@ -7,9 +7,11 @@
 			name: string
 			modelValue?: string
 			errorMessage?: string
+			required?: boolean
 		}>(),
 		{
-			modelValue: '#000000'
+			modelValue: '#000000',
+			required: false
 		}
 	)
 
@@ -28,7 +30,9 @@
 
 <template>
 	<div>
-		<label class="mb-1.5 block text-sm font-medium text-gray-700">{{ label }}</label>
+		<label class="mb-1.5 block text-sm font-medium text-gray-700">
+			{{ label }} <span v-if="required" class="text-red-500">*</span>
+		</label>
 		<div class="flex h-12 items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 shadow-sm transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10">
 			<input
 				:value="normalizedValue"

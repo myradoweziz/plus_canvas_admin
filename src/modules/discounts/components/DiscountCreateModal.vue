@@ -156,7 +156,8 @@
 				<div class="md:col-span-1">
 					<TextField
 						v-model="form.title"
-						label="Заголовок *"
+						label="Заголовок"
+						required
 						name="title"
 						placeholder="Заголовок"
 						:error-message="fieldErrors.title"
@@ -167,6 +168,7 @@
 					<TextField
 						v-model.number="form.order"
 						label="Порядок"
+						required
 						name="order"
 						type="number"
 						min="0"
@@ -186,6 +188,8 @@
 				<div class="md:col-span-2">
 					<SingleImageUpload
 						v-model="form.image"
+						label="Изображение"
+						:required="!form.id"
 						:error-message="fieldErrors.image"
 						:uploader="mediaApi.uploadImages"
 					/>

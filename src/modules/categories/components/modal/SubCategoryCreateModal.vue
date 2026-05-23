@@ -268,7 +268,8 @@
 				<div class="md:col-span-1">
 					<SelectField
 						v-model="form.category_id"
-						label="Категория *"
+						label="Категория"
+						required
 						name="category_id"
 						placeholder="Выберите категорию"
 						:options="featuredCategoryOptions"
@@ -282,7 +283,8 @@
 				<div class="md:col-span-1">
 					<TextField
 						v-model="form.name"
-						label="Название *"
+						label="Название"
+						required
 						name="name"
 						placeholder="Название"
 						:error-message="fieldErrors.name"
@@ -293,6 +295,7 @@
 					<TextField
 						v-model="form.slug"
 						label="Slug"
+						required
 						name="slug"
 						placeholder="Slug"
 						:error-message="fieldErrors.slug"
@@ -304,6 +307,7 @@
 					<TextField
 						v-model.number="form.featured_order"
 						label="Порядок"
+						required
 						name="featured_order"
 						type="number"
 						min="0"
@@ -315,6 +319,7 @@
 					<TextField
 						v-model.number="form.discount"
 						label="Скидка"
+						required
 						name="discount"
 						type="number"
 						min="0"
@@ -343,8 +348,9 @@
 				<div class="md:col-span-2">
 					<SingleImageUpload
 						v-model="form.image"
-						label="Изображение *"
-						description="Обязательно. Файл будет загружен сразу, в форму сохранится URL."
+						label="Изображение"
+						required
+						description="Файл будет загружен сразу, в форму сохранится URL."
 						:error-message="fieldErrors.image"
 						:uploader="mediaApi.uploadImages"
 					/>
