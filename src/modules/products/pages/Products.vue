@@ -32,6 +32,7 @@
 	const offset = ref(0)
 	const filters = ref({
 		search: '',
+		sku: '',
 		main_category_id: null as number | null,
 		category_id: null as number | null,
 		sub_category_id: null as number | null,
@@ -68,6 +69,7 @@
 		try {
 			const result = await api.listCanvasProducts({
 				name: filters.value.search,
+				sku: filters.value.sku,
 				main_category_id: filters.value.main_category_id ?? undefined,
 				category_id: filters.value.category_id ?? undefined,
 				sub_category_id: filters.value.sub_category_id ?? undefined,
@@ -210,6 +212,7 @@
 	const resetFilters = async () => {
 		filters.value = {
 			search: '',
+			sku: '',
 			main_category_id: null,
 			category_id: null,
 			sub_category_id: null,
@@ -302,6 +305,7 @@
 			@submit.prevent="applyFilters"
 		>
 			<TextField v-model.trim="filters.search" label="Поиск" name="search" placeholder="Поиск" />
+			<TextField v-model.trim="filters.sku" label="Артикул (SKU)" name="sku" placeholder="Артикул" />
 			<SelectField
 				v-model="filters.main_category_id"
 				label="Главная категория"
