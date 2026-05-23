@@ -1,4 +1,4 @@
-export type Discount = {
+export type Stock = {
 	id: number | null
 	title: string
 	description: string

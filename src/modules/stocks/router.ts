@@ -1,16 +1,16 @@
 import { Layouts } from '@/layouts/layouts.types'
 
 const Module = () => import('./Module.vue')
-const Discounts = () => import('./pages/Discounts.vue')
+const Stocks = () => import('./pages/Stocks.vue')
 
 const moduleRoute = {
-	path: '/admin-panel/discounts',
+	path: '/admin-panel/stocks',
 	component: Module,
 	children: [
 		{
 			path: '',
-			component: Discounts,
-			meta: { title: 'Discounts', layout: Layouts.admin }
+			component: Stocks,
+			meta: { title: 'Stocks', layout: Layouts.admin }
 		}
 	]
 }

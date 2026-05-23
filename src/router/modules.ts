@@ -9,7 +9,7 @@ import canvasSizes from '@/modules/canvas-sizes'
 import categories from '@/modules/categories'
 import colors from '@/modules/colors'
 import contactInfo from '@/modules/contact-info'
-import discounts from '@/modules/discounts'
+import stocks from '@/modules/stocks'
 import faqs from '@/modules/faqs'
 import home from '@/modules/home'
 import login from '@/modules/login'
@@ -21,7 +21,7 @@ registerModules({
 	home: home,
 	login: login,
 	categories: categories,
-	discounts: discounts,
+	stocks: stocks,
 	brands: brands,
 	colors: colors,
 	contactInfo: contactInfo,

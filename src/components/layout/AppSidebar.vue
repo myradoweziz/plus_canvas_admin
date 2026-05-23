@@ -131,7 +131,7 @@
 		ChevronDownIcon,
 		ColorsIcon,
 		ContactInfoIcon,
-		DiscountsIcon,
+		StocksIcon,
 		FeaturedCategoriesIcon,
 		HomeIcon,
 		MainCategoriesIcon,
@@ -164,7 +164,7 @@
 						{ name: 'Подкатегории', path: '/admin-panel/categories/sub-categories', icon: SubCategoriesIcon }
 					]
 				},
-				{ icon: DiscountsIcon, name: 'Скидка рекламный баннер', path: '/admin-panel/discounts' },
+				{ icon: StocksIcon, name: 'Акция рекламный баннер', path: '/admin-panel/stocks' },
 				{ icon: BrandsIcon, name: 'Теги', path: '/admin-panel/brands' },
 				{ icon: ColorsIcon, name: 'Цвета', path: '/admin-panel/colors' },
 				{ icon: CanvasSizesIcon, name: 'Размеры холста', path: '/admin-panel/canvas-sizes' },

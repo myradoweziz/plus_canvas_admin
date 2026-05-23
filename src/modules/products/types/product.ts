@@ -30,7 +30,7 @@ export type CanvasProduct = {
 	banner_id: number | null
 	flag: string
 	product_qode: string
-	discount_id: number | null
+	stock_id: number | null
 	colors: number[]
 	canvas_formats: number[]
 	frames: number[]

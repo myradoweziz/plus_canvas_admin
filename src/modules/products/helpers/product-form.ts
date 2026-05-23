@@ -45,7 +45,7 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	banner_id: null,
 	flag: '',
 	product_qode: '',
-	discount_id: null,
+	stock_id: null,
 	colors: [],
 	canvas_formats: [],
 	frames: [],

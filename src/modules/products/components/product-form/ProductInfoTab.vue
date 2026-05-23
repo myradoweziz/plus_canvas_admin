@@ -25,8 +25,8 @@
 	import type { FeaturedCategory, MainCategory, SubCategory } from '@/modules/categories/types/category'
 	import { colorsApi } from '@/modules/colors/api/colors'
 	import type { Color } from '@/modules/colors/types/color'
-	import { discountsApi } from '@/modules/discounts/api/discounts'
-	import type { Discount } from '@/modules/discounts/types/discount'
+	import { stocksApi } from '@/modules/stocks/api/stocks'
+	import type { Stock } from '@/modules/stocks/types/stock'
 	import { api } from '../../api'
 	import { getErrorMessage, getValidationErrors } from '../../helpers/form-errors'
 	import {
@@ -88,7 +88,7 @@
 	const subCategories = ref<SubCategory[]>([])
 	const brands = ref<Brand[]>([])
 	const banners = ref<Banner[]>([])
-	const discounts = ref<Discount[]>([])
+	const stocks = ref<Stock[]>([])
 	const colors = ref<Color[]>([])
 	const canvasFormats = ref<CanvasFormat[]>([])
 	const canvasFrames = ref<CanvasFrame[]>([])
@@ -180,7 +180,7 @@
 	const subCategoryOptions = computed(() => toSelectOptions(subCategories.value, (item) => item.name))
 	const brandOptions = computed(() => toSelectOptions(brands.value, (item) => item.name))
 	const bannerOptions = computed(() => toSelectOptions(banners.value, (item) => item.title))
-	const discountOptions = computed(() => toSelectOptions(discounts.value, (item) => item.title))
+	const stockOptions = computed(() => toSelectOptions(stocks.value, (item) => item.title))
 	const colorOptions = computed(() =>
 		colors.value
 			.filter((color): color is Color & { id: number } => color.id !== null)
@@ -266,7 +266,7 @@
 				mainCategoriesResult,
 				brandsResult,
 				bannersResult,
-				discountsResult,
+				stocksResult,
 				colorsResult,
 				canvasFormatsResult,
 				canvasFramesResult,
@@ -275,7 +275,7 @@
 				categoriesApi.listMainCategories({ limit: 100, offset: 0 }),
 				brandsApi.listBrands({ limit: 100, offset: 0 }),
 				bannersApi.listBanners(),
-				discountsApi.listDiscounts({ limit: 100, offset: 0 }),
+				stocksApi.listStocks({ limit: 100, offset: 0 }),
 				colorsApi.listColors({ limit: 100, offset: 0 }),
 				canvasFormatsApi.listCanvasFormats({ limit: 100, offset: 0 }),
 				canvasFramesApi.listCanvasFrames({ limit: 100, offset: 0 }),
@@ -287,7 +287,7 @@
 			mainCategories.value = mainCategoriesResult.items || []
 			brands.value = brandsResult.items || []
 			banners.value = bannersResult || []
-			discounts.value = discountsResult.items || []
+			stocks.value = stocksResult.items || []
 			colors.value = colorsResult.items || []
 			canvasFormats.value = canvasFormatsResult.items || []
 			canvasFrames.value = canvasFramesResult.items || []
@@ -517,7 +517,7 @@
 			:error-message="validationErrors.price"
 		/>
 
-		<TextField v-model.number="form.discount" label="Кол-во скидки" name="discount" type="number" min="0" />
+		<TextField v-model.number="form.discount" label="Скидка %" name="discount" type="number" min="0" />
 
 		<TextField v-model.trim="form.flag" label="Флаг" name="flag" placeholder="Флаг" />
 		<TextField
@@ -598,11 +598,11 @@
 			:disabled="loadingDictionaries"
 		/>
 		<SelectField
-			v-model="form.discount_id"
+			v-model="form.stock_id"
 			label="Скидка"
-			name="discount_id"
+			name="stock_id"
 			placeholder="Выберите скидку"
-			:options="discountOptions"
+			:options="stockOptions"
 			:disabled="loadingDictionaries"
 		/>
 

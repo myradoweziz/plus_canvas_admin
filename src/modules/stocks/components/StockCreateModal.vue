@@ -11,12 +11,12 @@
 
 	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { discountsApi } from '../api/discounts'
-	import type { Discount } from '../types/discount'
+	import { stocksApi } from '../api/stocks'
+	import type { Stock } from '../types/stock'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
-	const props = defineProps<{ open: boolean; discount: Discount | null }>()
+	const props = defineProps<{ open: boolean; stock: Stock | null }>()
 
 	const saving = ref(false)
 
@@ -77,21 +77,21 @@
 	}
 
 	watch(
-		() => [props.open, props.discount] as const,
-		([open, discount]) => {
+		() => [props.open, props.stock] as const,
+		([open, stock]) => {
 			if (!open) return
-			if (!discount) {
+			if (!stock) {
 				resetLocalForm()
 				return
 			}
 
 			Object.assign(form, {
-				id: discount.id ?? null,
-				title: discount.title ?? '',
-				description: discount.description ?? '',
-				image: discount.image_url ?? '',
-				is_active: !!discount.is_active,
-				order: discount.order ?? 0
+				id: stock.id ?? null,
+				title: stock.title ?? '',
+				description: stock.description ?? '',
+				image: stock.image_url ?? '',
+				is_active: !!stock.is_active,
+				order: stock.order ?? 0
 			})
 			fieldErrors.title = ''
 			fieldErrors.description = ''
@@ -106,7 +106,7 @@
 
 		saving.value = true
 		try {
-			const payload: Discount = {
+			const payload: Stock = {
 				id: form.id ?? null,
 				title: form.title.trim(),
 				description: form.description?.trim?.() ? form.description.trim() : (form.description ?? ''),
@@ -116,15 +116,15 @@
 			}
 
 			if (payload.id) {
-				await discountsApi.updateDiscount(payload)
+				await stocksApi.updateStock(payload)
 			} else {
-				await discountsApi.createDiscount(payload)
+				await stocksApi.createStock(payload)
 			}
 
 			emit('saved')
 			emit('close')
 
-			if (!props.discount) {
+			if (!props.stock) {
 				resetLocalForm()
 			}
 		} catch (err) {
@@ -143,7 +143,7 @@
 			<div class="flex items-start justify-between gap-4">
 				<div class="min-w-0">
 					<h3 class="text-lg font-semibold text-gray-900">
-						{{ discount ? 'Редактировать скидку' : 'Добавить скидку' }}
+						{{ stock ? 'Редактировать акцию' : 'Добавить акцию' }}
 					</h3>
 					<p class="mt-1 text-sm text-gray-600">Заполните поля и сохраните.</p>
 				</div>

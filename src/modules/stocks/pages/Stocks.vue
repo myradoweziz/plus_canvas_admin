@@ -7,17 +7,17 @@
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	import DiscountCreateModal from '../components/DiscountCreateModal.vue'
-	import DiscountsTable from '../components/DiscountsTable.vue'
+	import StockCreateModal from '../components/StockCreateModal.vue'
+	import StocksTable from '../components/StocksTable.vue'
 
-	import { DiscountsIcon } from '@/shared/icons'
-	import { discountsApi } from '../api/discounts'
-	import type { Discount } from '../types/discount'
+	import { StocksIcon } from '@/shared/icons'
+	import { stocksApi } from '../api/stocks'
+	import type { Stock } from '../types/stock'
 
 	const loading = ref(false)
-	const discounts = ref<Discount[]>([])
-	const showDiscountModal = ref(false)
-	const selectedDiscount = ref<Discount | null>(null)
+	const stocks = ref<Stock[]>([])
+	const showStockModal = ref(false)
+	const selectedStock = ref<Stock | null>(null)
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
 	const total = ref(0)
@@ -30,12 +30,12 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await discountsApi.listDiscounts({
+			const result = await stocksApi.listStocks({
 				title: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
 			})
-			discounts.value = result.items
+			stocks.value = result.items
 			total.value = result.total
 		} finally {
 			loading.value = false
@@ -45,49 +45,49 @@
 	onMounted(load)
 
 	const openCreate = () => {
-		selectedDiscount.value = null
-		showDiscountModal.value = true
+		selectedStock.value = null
+		showStockModal.value = true
 	}
 
-	const closeDiscountModal = () => {
-		showDiscountModal.value = false
-		selectedDiscount.value = null
+	const closeStockModal = () => {
+		showStockModal.value = false
+		selectedStock.value = null
 	}
 
-	const editDiscount = (discount: Discount) => {
-		selectedDiscount.value = discount
-		showDiscountModal.value = true
+	const editStock = (stock: Stock) => {
+		selectedStock.value = stock
+		showStockModal.value = true
 	}
 
-	const deleteDiscount = (discount: Discount) => {
-		selectedDiscount.value = discount
+	const deleteStock = (stock: Stock) => {
+		selectedStock.value = stock
 		showDeleteModal.value = true
 	}
 
 	const confirmDelete = async () => {
-		if (!selectedDiscount.value?.id) return
+		if (!selectedStock.value?.id) return
 
 		loadingDeleteModal.value = true
 		try {
-			await discountsApi.deleteDiscount(selectedDiscount.value.id)
+			await stocksApi.deleteStock(selectedStock.value.id)
 			showDeleteModal.value = false
-			selectedDiscount.value = null
+			selectedStock.value = null
 			await load()
 		} finally {
 			loadingDeleteModal.value = false
 		}
 	}
 
-	const reorderDiscounts = async (orderedDiscounts: Discount[]) => {
+	const reorderStocks = async (orderedStocks: Stock[]) => {
 		toast.info('Порядок изменён. Сохраняю...')
 		try {
-			discounts.value = orderedDiscounts
-			await discountsApi.reorderDiscounts({
-				items: orderedDiscounts
-					.filter((discount): discount is Discount & { id: number } => discount.id !== null)
-					.map((discount) => ({
-						id: discount.id,
-						order: discount.order
+			stocks.value = orderedStocks
+			await stocksApi.reorderStocks({
+				items: orderedStocks
+					.filter((stock): stock is Stock & { id: number } => stock.id !== null)
+					.map((stock) => ({
+						id: stock.id,
+						order: stock.order
 					}))
 			})
 			await load()
@@ -120,9 +120,9 @@
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Скидки" subtitle="Список скидок и управление ими." :icon="DiscountsIcon" :total="total">
+		<Banner title="Акции" subtitle="Список акций и управление ими." :icon="StocksIcon" :total="total">
 			<template #actions>
-				<Button type="button" size="sm" :on-click="openCreate">Добавить скидку</Button>
+				<Button type="button" size="sm" :on-click="openCreate">Добавить акцию</Button>
 			</template>
 		</Banner>
 
@@ -138,27 +138,27 @@
 			</div>
 		</form>
 
-		<DiscountsTable
-			:discounts="discounts"
+		<StocksTable
+			:stocks="stocks"
 			:loading="loading"
-			@edit="editDiscount"
-			@delete="deleteDiscount"
-			@reorder="reorderDiscounts"
+			@edit="editStock"
+			@delete="deleteStock"
+			@reorder="reorderStocks"
 		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<DiscountCreateModal
-			:open="showDiscountModal"
-			:discount="selectedDiscount"
-			@close="closeDiscountModal"
+		<StockCreateModal
+			:open="showStockModal"
+			:stock="selectedStock"
+			@close="closeStockModal"
 			@saved="load"
 		/>
 
 		<DeleteModal
 			:open="showDeleteModal"
-			:title="selectedDiscount?.title"
-			entity-name="скидку"
+			:title="selectedStock?.title"
+			entity-name="акцию"
 			:loading="loadingDeleteModal"
 			@close="showDeleteModal = false"
 			@confirm="confirmDelete"

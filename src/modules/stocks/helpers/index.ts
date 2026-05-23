@@ -1,4 +1,4 @@
-export const DISCOUNTS_TABLE_COLUMNS = [
+export const STOCKS_TABLE_COLUMNS = [
 	{ key: 'title', label: 'Заголовок' },
 	{ key: 'description', label: 'Описание' },
 	{ key: 'image_url', label: 'Изображение' },
