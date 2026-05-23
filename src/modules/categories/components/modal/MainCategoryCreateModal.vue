@@ -38,7 +38,8 @@
 		featured_order: 0 as number | string,
 		category_type: 'Kişiye Özel Kanvas Tablo',
 		meta_title: '',
-		meta_description: ''
+		meta_description: '',
+		discount: 0
 	})
 
 	const fieldErrors = reactive({
@@ -46,7 +47,8 @@
 		slug: '',
 		description: '',
 		featured_order: '',
-		category_type: ''
+		category_type: '',
+		discount: ''
 	})
 
 	const imagesModel = computed<Array<string | File>>({
@@ -67,13 +69,15 @@
 			featured_order: 0,
 			category_type: 'Kişiye Özel Kanvas Tablo',
 			meta_title: '',
-			meta_description: ''
+			meta_description: '',
+			discount: 0
 		})
 		fieldErrors.name = ''
 		fieldErrors.slug = ''
 		fieldErrors.description = ''
 		fieldErrors.featured_order = ''
 		fieldErrors.category_type = ''
+		fieldErrors.discount = ''
 	}
 
 	const validate = () => {
@@ -82,6 +86,7 @@
 		fieldErrors.description = ''
 		fieldErrors.featured_order = ''
 		fieldErrors.category_type = ''
+		fieldErrors.discount = ''
 
 		let ok = true
 		if (!form.name.trim()) {
@@ -99,6 +104,11 @@
 		}
 		if (!String(form.category_type || '').trim()) {
 			fieldErrors.category_type = 'Выберите тип категории'
+			ok = false
+		}
+		const discount = Number(form.discount)
+		if (!Number.isFinite(discount) || discount < 0) {
+			fieldErrors.discount = 'Укажите корректную скидку'
 			ok = false
 		}
 		return ok
@@ -125,7 +135,8 @@
 				featured_order: category.featured_order ?? 0,
 				category_type: String(category.category_type ?? 'Kişiye Özel Kanvas Tablo').trim(),
 				meta_title: category.meta_title ?? '',
-				meta_description: category.meta_description ?? ''
+				meta_description: category.meta_description ?? '',
+				discount: category.discount ?? 0
 			})
 			fieldErrors.name = ''
 			fieldErrors.slug = ''
@@ -172,7 +183,8 @@
 				featured_order: Number(form.featured_order) || 0,
 				category_type: form.category_type as MainCategory['category_type'],
 				meta_title: form.meta_title.trim(),
-				meta_description: form.meta_description.trim()
+				meta_description: form.meta_description.trim(),
+				discount: Number(form.discount) || 0
 			}
 			if (payload.id) {
 				await categoriesApi.updateMainCategory(payload)
@@ -251,6 +263,17 @@
 						placeholder="Выберите тип категории"
 						:options="categoryTypeOptions"
 						:error-message="fieldErrors.category_type"
+					/>
+				</div>
+
+				<div class="md:col-span-1">
+					<TextField
+						v-model.number="form.discount"
+						label="Скидка"
+						name="discount"
+						type="number"
+						min="0"
+						:error-message="fieldErrors.discount"
 					/>
 				</div>
 

@@ -39,10 +39,11 @@
 		image: '',
 		image_url: '',
 		is_active: false,
-		featured_order: 0 as number | string,
+		featured_order: 0,
 		category_type: 'Default',
 		meta_title: '',
-		meta_description: ''
+		meta_description: '',
+		discount: 0
 	})
 
 	const fieldErrors = reactive({
@@ -52,7 +53,8 @@
 		description: '',
 		image: '',
 		featured_order: '',
-		category_type: ''
+		category_type: '',
+		discount: ''
 	})
 
 	const resetLocalForm = () => {
@@ -67,7 +69,8 @@
 			featured_order: 0,
 			category_type: 'Default',
 			meta_title: '',
-			meta_description: ''
+			meta_description: '',
+			discount: 0
 		})
 		fieldErrors.main_category_id = ''
 		fieldErrors.name = ''
@@ -76,6 +79,7 @@
 		fieldErrors.image = ''
 		fieldErrors.featured_order = ''
 		fieldErrors.category_type = ''
+		fieldErrors.discount = ''
 		slugManuallyEdited.value = false
 		lastGeneratedSlug.value = ''
 	}
@@ -88,6 +92,7 @@
 		fieldErrors.image = ''
 		fieldErrors.featured_order = ''
 		fieldErrors.category_type = ''
+		fieldErrors.discount = ''
 
 		let ok = true
 		if (form.main_category_id === null) {
@@ -115,6 +120,11 @@
 			fieldErrors.image = 'Загрузите изображение'
 			ok = false
 		}
+		const discount = Number(form.discount)
+		if (!Number.isFinite(discount) || discount < 0) {
+			fieldErrors.discount = 'Укажите корректную скидку'
+			ok = false
+		}
 		return ok
 	}
 
@@ -138,7 +148,8 @@
 				featured_order: category.featured_order ?? 0,
 				category_type: category.category_type ?? 'Default',
 				meta_title: category.meta_title ?? '',
-				meta_description: category.meta_description ?? ''
+				meta_description: category.meta_description ?? '',
+				discount: category.discount ?? 0
 			})
 			fieldErrors.main_category_id = ''
 			fieldErrors.name = ''
@@ -243,7 +254,8 @@
 				featured_order: Number(form.featured_order) || 0,
 				category_type: form.category_type as FeaturedCategory['category_type'],
 				meta_title: form.meta_title.trim(),
-				meta_description: form.meta_description.trim()
+				meta_description: form.meta_description.trim(),
+				discount: Number(form.discount) || 0
 			}
 			if (payload.id) {
 				await categoriesApi.updateFeaturedCategory(payload)
@@ -332,6 +344,17 @@
 						placeholder="Выберите тип категории"
 						:options="categoryTypeOptions"
 						:error-message="fieldErrors.category_type"
+					/>
+				</div>
+
+				<div class="md:col-span-1">
+					<TextField
+						v-model.number="form.discount"
+						label="Скидка"
+						name="discount"
+						type="number"
+						min="0"
+						:error-message="fieldErrors.discount"
 					/>
 				</div>
 

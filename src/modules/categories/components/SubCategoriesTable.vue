@@ -51,7 +51,7 @@
 				v-if="toSubCategory(row).image_url"
 				:src="toSubCategory(row).image_url"
 				:alt="toSubCategory(row).name"
-				class="h-10 w-10 rounded-md object-cover ring-1 ring-gray-200"
+				class="h-16 w-24 rounded-lg object-cover ring-1 ring-gray-200"
 			/>
 		</template>
 
@@ -66,6 +66,10 @@
 
 		<template #cell-featured_order="{ row }">
 			<span class="text-gray-700">{{ toSubCategory(row).featured_order }}</span>
+		</template>
+
+		<template #cell-discount="{ row }">
+			<span class="text-gray-700">{{ toSubCategory(row).discount ?? 0 }}</span>
 		</template>
 
 		<template #cell-actions="{ row }">

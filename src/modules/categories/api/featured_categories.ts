@@ -49,7 +49,8 @@ function toFeaturedCategoryPayload(category: FeaturedCategory): FeaturedCategory
 		featured_order: category.featured_order,
 		category_type: category.category_type,
 		meta_title: category.meta_title ?? '',
-		meta_description: category.meta_description ?? ''
+		meta_description: category.meta_description ?? '',
+		discount: Number(category.discount ?? 0)
 	}
 }
 

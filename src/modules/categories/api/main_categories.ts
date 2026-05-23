@@ -38,7 +38,8 @@ const normalizeMainCategory = (item: any): MainCategory => ({
 	description: item?.description ?? '',
 	images: toImageUrls(item?.images),
 	meta_title: item?.meta_title ?? '',
-	meta_description: item?.meta_description ?? ''
+	meta_description: item?.meta_description ?? '',
+	discount: Number(item?.discount ?? 0)
 })
 
 async function listMainCategories(params: ListMainCategoriesParams): Promise<ListMainCategoriesResult> {
@@ -65,7 +66,8 @@ function toMainCategoryPayload(category: MainCategory): MainCategoryPayload {
 		featured_order: category.featured_order,
 		category_type: category.category_type,
 		meta_title: category.meta_title ?? '',
-		meta_description: category.meta_description ?? ''
+		meta_description: category.meta_description ?? '',
+		discount: Number(category.discount ?? 0)
 	}
 }
 

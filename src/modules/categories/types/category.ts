@@ -12,6 +12,7 @@ export type MainCategory = {
 	category_type: CategoryType
 	meta_title: string
 	meta_description: string
+	discount: number
 }
 
 export type MainCategoryPayload = Omit<MainCategory, 'id'>
@@ -30,6 +31,7 @@ export type FeaturedCategory = {
 	category_type: FeaturedCategoryType
 	meta_title: string
 	meta_description: string
+	discount: number
 }
 
 export type FeaturedCategoryPayload = Omit<FeaturedCategory, 'id'>
@@ -46,6 +48,7 @@ export type SubCategory = {
 	image_url?: string
 	meta_title: string
 	meta_description: string
+	discount: number
 }
 
 export type SubCategoryPayload = Omit<SubCategory, 'id'>

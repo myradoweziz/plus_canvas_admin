@@ -71,6 +71,10 @@
 			<span class="text-gray-700">{{ toFeaturedCategory(row).featured_order }}</span>
 		</template>
 
+		<template #cell-discount="{ row }">
+			<span class="text-gray-700">{{ toFeaturedCategory(row).discount ?? 0 }}</span>
+		</template>
+
 		<template #cell-actions="{ row }">
 			<div class="flex items-center justify-end gap-2">
 				<Button

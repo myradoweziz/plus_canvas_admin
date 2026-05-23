@@ -33,9 +33,10 @@
 		image: '',
 		image_url: '',
 		is_active: false,
-		featured_order: 0 as number | string,
+		featured_order: 0,
 		meta_title: '',
-		meta_description: ''
+		meta_description: '',
+		discount: 0
 	})
 
 	const fieldErrors = reactive({
@@ -43,7 +44,8 @@
 		name: '',
 		slug: '',
 		image: '',
-		featured_order: ''
+		featured_order: '',
+		discount: ''
 	})
 
 	const resetLocalForm = () => {
@@ -57,13 +59,15 @@
 			is_active: false,
 			featured_order: 0,
 			meta_title: '',
-			meta_description: ''
+			meta_description: '',
+			discount: 0
 		})
 		fieldErrors.category_id = ''
 		fieldErrors.name = ''
 		fieldErrors.slug = ''
 		fieldErrors.image = ''
 		fieldErrors.featured_order = ''
+		fieldErrors.discount = ''
 		slugManuallyEdited.value = false
 		lastGeneratedSlug.value = ''
 	}
@@ -74,6 +78,7 @@
 		fieldErrors.slug = ''
 		fieldErrors.image = ''
 		fieldErrors.featured_order = ''
+		fieldErrors.discount = ''
 
 		let ok = true
 		if (form.category_id === null) {
@@ -95,6 +100,11 @@
 		}
 		if (!String(form.image || form.image_url || '').trim()) {
 			fieldErrors.image = 'Загрузите изображение'
+			ok = false
+		}
+		const discount = Number(form.discount)
+		if (!Number.isFinite(discount) || discount < 0) {
+			fieldErrors.discount = 'Укажите корректную скидку'
 			ok = false
 		}
 		return ok
@@ -119,7 +129,8 @@
 				is_active: !!category.is_active,
 				featured_order: category.featured_order ?? 0,
 				meta_title: category.meta_title ?? '',
-				meta_description: category.meta_description ?? ''
+				meta_description: category.meta_description ?? '',
+				discount: category.discount ?? 0
 			})
 			fieldErrors.category_id = ''
 			fieldErrors.name = ''
@@ -220,7 +231,8 @@
 				is_active: !!form.is_active,
 				featured_order: Number(form.featured_order) || 0,
 				meta_title: form.meta_title.trim(),
-				meta_description: form.meta_description.trim()
+				meta_description: form.meta_description.trim(),
+				discount: Number(form.discount) || 0
 			}
 			if (payload.id) {
 				await categoriesApi.updateSubCategory(payload)
@@ -296,6 +308,17 @@
 						type="number"
 						min="0"
 						:error-message="fieldErrors.featured_order"
+					/>
+				</div>
+
+				<div class="md:col-span-1">
+					<TextField
+						v-model.number="form.discount"
+						label="Скидка"
+						name="discount"
+						type="number"
+						min="0"
+						:error-message="fieldErrors.discount"
 					/>
 				</div>
 

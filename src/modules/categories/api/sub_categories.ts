@@ -47,7 +47,8 @@ function toSubCategoryPayload(category: SubCategory): SubCategoryPayload {
 		is_active: category.is_active,
 		featured_order: category.featured_order,
 		meta_title: category.meta_title ?? '',
-		meta_description: category.meta_description ?? ''
+		meta_description: category.meta_description ?? '',
+		discount: Number(category.discount ?? 0)
 	}
 }
 
