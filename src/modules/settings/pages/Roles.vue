@@ -1,17 +1,17 @@
 <script setup lang="ts">
-	import { computed, onMounted, ref } from 'vue'
+	import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
+	import RolesTable from '../components/RolesTable.vue'
+	const RoleCreateModal = defineAsyncComponent(() => import('../components/RoleCreateModal.vue'))
 
 	import { UsersIcon } from '@/shared/icons'
-	import { rolesApi } from '../api/roles'
-	import RoleCreateModal from '../components/RoleCreateModal.vue'
-	import RolesTable from '../components/RolesTable.vue'
-	import type { Role } from '../types/role'
+	import { api as rolesApi } from '../api'
+	import type { Role } from '../types'
 
 	const loading = ref(false)
 	const roles = ref<Role[]>([])
@@ -121,7 +121,13 @@
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<RoleCreateModal :open="showRoleModal" :role="modalRole" @close="closeRoleModal" @saved="load" />
+		<RoleCreateModal
+			v-if="showRoleModal"
+			:open="showRoleModal"
+			:role="modalRole"
+			@close="closeRoleModal"
+			@saved="load"
+		/>
 
 		<DeleteModal
 			:open="showDeleteModal"

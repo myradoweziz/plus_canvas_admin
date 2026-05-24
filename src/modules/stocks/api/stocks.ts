@@ -1,5 +1,6 @@
-import { getTotal, request } from '@/shared'
-import type { Stock } from '../types/stock'
+import { request } from '@/shared'
+import { createListApi } from '@/shared/api/createListApi'
+import type { Stock } from '../types'
 
 const STOCKS_URL = '/api/admin/stocks'
 
@@ -14,18 +15,7 @@ export type ListStocksResult = {
 	total: number
 }
 
-async function listStocks(params: ListStocksParams): Promise<ListStocksResult> {
-	const filteredParams = Object.fromEntries(
-		Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
-	)
-	const response = await request({ url: STOCKS_URL, method: 'GET', params: filteredParams })
-	const items = Array.isArray(response) ? response : response?.data || []
-
-	return {
-		items,
-		total: getTotal(response, items.length)
-	}
-}
+const listStocks = createListApi<Stock, ListStocksParams>({ url: STOCKS_URL })
 
 async function createStock(data: Stock): Promise<Stock> {
 	return await request({ url: STOCKS_URL, method: 'POST', data })

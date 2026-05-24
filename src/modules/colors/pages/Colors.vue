@@ -1,17 +1,17 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	import ColorCreateModal from '../components/ColorCreateModal.vue'
 	import ColorsTable from '../components/ColorsTable.vue'
+	const ColorCreateModal = defineAsyncComponent(() => import('../components/ColorCreateModal.vue'))
 
 	import { ColorsIcon } from '@/shared/icons'
-	import { colorsApi } from '../api/colors'
-	import type { Color } from '../types/color'
+	import { api } from '../api'
+	import type { Color } from '../types'
 
 	const loading = ref(false)
 	const colors = ref<Color[]>([])
@@ -29,7 +29,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await colorsApi.listColors({
+			const result = await api.listColors({
 				name: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
@@ -68,7 +68,7 @@
 
 		loadingDeleteModal.value = true
 		try {
-			await colorsApi.deleteColor(selectedColor.value.id)
+			await api.deleteColor(selectedColor.value.id)
 			showDeleteModal.value = false
 			selectedColor.value = null
 			await load()
@@ -121,7 +121,13 @@
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<ColorCreateModal :open="showColorModal" :color="selectedColor" @close="closeColorModal" @saved="load" />
+		<ColorCreateModal
+			v-if="showColorModal"
+			:open="showColorModal"
+			:color="selectedColor"
+			@close="closeColorModal"
+			@saved="load"
+		/>
 
 		<DeleteModal
 			:open="showDeleteModal"

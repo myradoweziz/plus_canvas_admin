@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
@@ -8,11 +8,11 @@
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 	import MainCategoriesTable from '../components/MainCategoriesTable.vue'
-	import MainCategoryCreateModal from '../components/modal/MainCategoryCreateModal.vue'
+	const MainCategoryCreateModal = defineAsyncComponent(() => import('../components/modal/MainCategoryCreateModal.vue'))
 
 	import { CategoriesIcon } from '@/shared/icons'
-	import { categoriesApi } from '../api'
-	import type { MainCategory } from '../types/category'
+	import { api } from '../api'
+	import type { MainCategory } from '../types'
 
 	const loading = ref(false)
 	const mainCategories = ref<MainCategory[]>([])
@@ -30,7 +30,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await categoriesApi.listMainCategories({
+			const result = await api.listMainCategories({
 				name: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
@@ -69,7 +69,7 @@
 
 		loadingDeleteModal.value = true
 		try {
-			await categoriesApi.deleteMainCategory(selectedMainCategory.value.id)
+			await api.deleteMainCategory(selectedMainCategory.value.id)
 			showDeleteModal.value = false
 			selectedMainCategory.value = null
 			await load()
@@ -82,7 +82,7 @@
 		toast.info('Порядок изменён. Сохраняю...')
 		try {
 			mainCategories.value = orderedCategories
-			await categoriesApi.reorderMainCategories({
+			await api.reorderMainCategories({
 				items: orderedCategories
 					.filter((category): category is MainCategory & { id: number } => category.id !== null)
 					.map((category) => ({
@@ -119,7 +119,7 @@
 
 	const exportXml = async () => {
 		try {
-			await categoriesApi.exportMainCategoriesXml()
+			await api.exportMainCategoriesXml()
 			toast.success('XML файл скачан')
 		} catch {
 			toast.error('Не удалось экспортировать XML')
@@ -166,6 +166,7 @@
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
 		<MainCategoryCreateModal
+			v-if="showMainCategoryModal"
 			:open="showMainCategoryModal"
 			:category="selectedMainCategory"
 			@close="closeMainCategoryModal"

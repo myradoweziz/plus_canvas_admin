@@ -9,8 +9,8 @@
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { faqsApi } from '../api/faqs'
-	import type { Faq } from '../types/faq'
+	import { api } from '../api'
+	import type { Faq } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
@@ -98,9 +98,9 @@
 			}
 
 			if (payload.id) {
-				await faqsApi.updateFaq(payload)
+				await api.updateFaq(payload)
 			} else {
-				await faqsApi.createFaq(payload)
+				await api.createFaq(payload)
 			}
 
 			emit('saved')
@@ -168,11 +168,7 @@
 				</div>
 
 				<div class="md:col-span-1 flex items-end">
-					<CheckboxField
-						v-model="form.is_active"
-						label="Активно"
-						name="is_active"
-					/>
+					<CheckboxField v-model="form.is_active" label="Активно" name="is_active" />
 				</div>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">
@@ -185,4 +181,3 @@
 		</div>
 	</Modal>
 </template>
-

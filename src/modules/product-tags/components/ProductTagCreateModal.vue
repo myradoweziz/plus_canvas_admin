@@ -8,8 +8,8 @@
 
 	import { slugify } from '@/shared'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { productTagsApi } from '../api/productTags'
-	import type { ProductTag } from '../types/productTag'
+	import { api } from '../api'
+	import type { ProductTag } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
@@ -107,9 +107,9 @@
 			}
 
 			if (payload.id) {
-				await productTagsApi.updateProductTag(payload)
+				await api.updateProductTag(payload)
 			} else {
-				await productTagsApi.createProductTag(payload)
+				await api.createProductTag(payload)
 			}
 
 			emit('saved')

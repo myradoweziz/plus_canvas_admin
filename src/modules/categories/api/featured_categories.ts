@@ -1,6 +1,6 @@
 import { downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
-import type { FeaturedCategory, FeaturedCategoryPayload } from '../types/category'
+import type { FeaturedCategory, FeaturedCategoryPayload } from '../types'
 
 export const featuredCategoriesApi = {
 	listFeaturedCategories,

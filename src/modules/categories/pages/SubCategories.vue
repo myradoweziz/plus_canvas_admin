@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+	import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
@@ -9,12 +9,12 @@
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 	import SubCategoriesTable from '../components/SubCategoriesTable.vue'
-	import SubCategoryCreateModal from '../components/modal/SubCategoryCreateModal.vue'
+	const SubCategoryCreateModal = defineAsyncComponent(() => import('../components/modal/SubCategoryCreateModal.vue'))
 
 	import { debounce } from '@/shared'
 	import { SubCategoriesIcon } from '@/shared/icons'
-	import { categoriesApi } from '../api'
-	import type { FeaturedCategory, SubCategory } from '../types/category'
+	import { api } from '../api'
+	import type { FeaturedCategory, SubCategory } from '../types'
 
 	const loading = ref(false)
 	const subCategories = ref<SubCategory[]>([])
@@ -36,7 +36,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await categoriesApi.listSubCategories({
+			const result = await api.listSubCategories({
 				name: filters.value.search,
 				category_id: filters.value.category_id ?? undefined,
 				limit: limit.value,
@@ -63,7 +63,7 @@
 		featuredCategoriesRequestId.value = requestId
 		loadingFeaturedCategories.value = true
 		try {
-			const result = await categoriesApi.listFeaturedCategories({
+			const result = await api.listFeaturedCategories({
 				name: name || undefined,
 				limit: 100,
 				offset: 0
@@ -114,7 +114,7 @@
 
 		loadingDeleteModal.value = true
 		try {
-			await categoriesApi.deleteSubCategory(selectedSubCategory.value.id)
+			await api.deleteSubCategory(selectedSubCategory.value.id)
 			showDeleteModal.value = false
 			selectedSubCategory.value = null
 			await load()
@@ -127,7 +127,7 @@
 		toast.info('Порядок изменён. Сохраняю...')
 		try {
 			subCategories.value = orderedSubCategories
-			await categoriesApi.reorderSubCategories({
+			await api.reorderSubCategories({
 				items: orderedSubCategories
 					.filter((subCategory): subCategory is SubCategory & { id: number } => subCategory.id !== null)
 					.map((subCategory) => ({
@@ -165,7 +165,7 @@
 
 	const exportXml = async () => {
 		try {
-			await categoriesApi.exportSubCategoriesXml()
+			await api.exportSubCategoriesXml()
 			toast.success('XML файл скачан')
 		} catch {
 			toast.error('Не удалось экспортировать XML')
@@ -222,6 +222,7 @@
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
 		<SubCategoryCreateModal
+			v-if="showSubCategoryModal"
 			:open="showSubCategoryModal"
 			:category="selectedSubCategory"
 			@close="closeSubCategoryModal"

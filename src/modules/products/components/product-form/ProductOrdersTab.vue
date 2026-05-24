@@ -1,20 +1,21 @@
 <script setup lang="ts">
-	import { onMounted, ref, watch } from 'vue'
-	import { toast } from 'vue3-toastify'
-
 	import DataTable from '@/shared/ui/DataTable.vue'
+	import ProductRequiresSaveNotice from './ProductRequiresSaveNotice.vue'
 
 	import { api } from '../../api'
-	import { getErrorMessage } from '../../helpers/form-errors'
+	import { useProductTabResource } from '../../composables'
 	import { PRODUCT_ORDERS_TABLE_COLUMNS } from '../../helpers'
-	import type { CanvasProductOrder } from '../../types/product-order'
+	import type { CanvasProductOrder } from '../../types'
 
 	const props = defineProps<{
 		productId: number | null
 	}>()
 
-	const orders = ref<CanvasProductOrder[]>([])
-	const loading = ref(false)
+	const { items: orders, loading } = useProductTabResource(
+		() => props.productId,
+		(id) => api.listCanvasProductOrders(id),
+		'Не удалось загрузить заказы'
+	)
 
 	const dateFormatter = new Intl.DateTimeFormat('ru-RU', {
 		day: '2-digit',
@@ -54,44 +55,11 @@
 	}
 
 	const toOrder = (row: unknown) => row as CanvasProductOrder
-
-	const loadOrders = async () => {
-		if (!props.productId) {
-			orders.value = []
-			return
-		}
-
-		loading.value = true
-
-		try {
-			orders.value = await api.listCanvasProductOrders(props.productId)
-		} catch (error) {
-			toast.error(getErrorMessage(error, 'Не удалось загрузить заказы'))
-		} finally {
-			loading.value = false
-		}
-	}
-
-	watch(
-		() => props.productId,
-		() => {
-			loadOrders()
-		}
-	)
-
-	onMounted(() => {
-		loadOrders()
-	})
 </script>
 
 <template>
 	<div class="contents">
-		<div
-			v-if="!productId"
-			class="md:col-span-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
-		>
-			Сначала сохраните продукт на вкладке <strong>Product Info</strong>, затем откройте список заказов.
-		</div>
+		<ProductRequiresSaveNotice v-if="!productId" suffix=", затем откройте список заказов" />
 
 		<div v-else class="md:col-span-3">
 			<p class="mb-3 text-sm text-gray-600">Заказы, связанные с этим продуктом (только просмотр).</p>

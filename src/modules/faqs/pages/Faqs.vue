@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
@@ -7,12 +7,12 @@
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
+	import FaqsTable from '../components/FaqsTable.vue'
+	const FaqCreateModal = defineAsyncComponent(() => import('../components/FaqCreateModal.vue'))
 
 	import { ChatIcon } from '@/shared/icons'
-	import { faqsApi } from '../api/faqs'
-	import FaqCreateModal from '../components/FaqCreateModal.vue'
-	import FaqsTable from '../components/FaqsTable.vue'
-	import type { Faq } from '../types/faq'
+	import { api } from '../api'
+	import type { Faq } from '../types'
 
 	const loading = ref(false)
 	const faqs = ref<Faq[]>([])
@@ -31,7 +31,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await faqsApi.listFaqs({
+			const result = await api.listFaqs({
 				question: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
@@ -70,7 +70,7 @@
 
 		loadingDeleteModal.value = true
 		try {
-			await faqsApi.deleteFaq(selectedFaq.value.id)
+			await api.deleteFaq(selectedFaq.value.id)
 			showDeleteModal.value = false
 			selectedFaq.value = null
 			await load()
@@ -106,7 +106,7 @@
 
 			for (const row of rows) {
 				if (!row.id) continue
-				await faqsApi.updateFaq(row)
+				await api.updateFaq(row)
 			}
 			toast.success('Порядок сохранён')
 		} catch (e) {
@@ -148,7 +148,7 @@
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<FaqCreateModal :open="showFaqModal" :faq="selectedFaq" @close="closeFaqModal" @saved="load" />
+		<FaqCreateModal v-if="showFaqModal" :open="showFaqModal" :faq="selectedFaq" @close="closeFaqModal" @saved="load" />
 
 		<DeleteModal
 			:open="showDeleteModal"

@@ -1,6 +1,6 @@
 import { downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
-import type { SubCategory, SubCategoryPayload } from '../types/category'
+import type { SubCategory, SubCategoryPayload } from '../types'
 
 export const subCategoriesApi = {
 	listSubCategories,

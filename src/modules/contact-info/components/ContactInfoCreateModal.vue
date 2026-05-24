@@ -10,8 +10,8 @@
 
 	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { contactInfoApi } from '../api/contact-info'
-	import type { ContactInfo } from '../types/contact-info'
+	import { api } from '../api'
+	import type { ContactInfo } from '../types'
 
 	type SocialFormRow = {
 		platform: string
@@ -170,7 +170,7 @@
 
 		saving.value = true
 		try {
-			await contactInfoApi.saveContactInfo({
+			await api.saveContactInfo({
 				id: props.contactInfo?.id ?? null,
 				phone_number: form.phone_number.trim(),
 				address: form.address.trim(),

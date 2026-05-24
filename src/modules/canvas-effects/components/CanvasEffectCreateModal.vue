@@ -10,8 +10,8 @@
 
 	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { canvasEffectsApi } from '../api/canvas-effects'
-	import type { CanvasEffect } from '../types/canvas-effect'
+	import { api } from '../api'
+	import type { CanvasEffect } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 	const props = defineProps<{ open: boolean; effect: CanvasEffect | null }>()
@@ -99,8 +99,8 @@
 				is_active: !!form.is_active
 			}
 
-			if (payload.id) await canvasEffectsApi.updateCanvasEffect(payload)
-			else await canvasEffectsApi.createCanvasEffect(payload)
+			if (payload.id) await api.updateCanvasEffect(payload)
+			else await api.createCanvasEffect(payload)
 
 			emit('saved')
 			emit('close')

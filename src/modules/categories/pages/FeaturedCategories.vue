@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+	import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
@@ -9,12 +9,14 @@
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 	import FeaturedCategoriesTable from '../components/FeaturedCategoriesTable.vue'
-	import FeaturedCategoryCreateModal from '../components/modal/FeaturedCategoryCreateModal.vue'
+	const FeaturedCategoryCreateModal = defineAsyncComponent(
+		() => import('../components/modal/FeaturedCategoryCreateModal.vue')
+	)
 
 	import { debounce } from '@/shared'
 	import { FeaturedCategoriesIcon } from '@/shared/icons'
-	import { categoriesApi } from '../api'
-	import type { FeaturedCategory, MainCategory } from '../types/category'
+	import { api } from '../api'
+	import type { FeaturedCategory, MainCategory } from '../types'
 
 	const loading = ref(false)
 	const featuredCategories = ref<FeaturedCategory[]>([])
@@ -36,7 +38,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await categoriesApi.listFeaturedCategories({
+			const result = await api.listFeaturedCategories({
 				name: filters.value.search,
 				main_category_id: filters.value.main_category_id ?? undefined,
 				limit: limit.value,
@@ -63,7 +65,7 @@
 		mainCategoriesRequestId.value = requestId
 		loadingMainCategories.value = true
 		try {
-			const result = await categoriesApi.listMainCategories({
+			const result = await api.listMainCategories({
 				name: name || undefined,
 				limit: 100,
 				offset: 0
@@ -114,7 +116,7 @@
 
 		loadingDeleteModal.value = true
 		try {
-			await categoriesApi.deleteFeaturedCategory(selectedFeaturedCategory.value.id)
+			await api.deleteFeaturedCategory(selectedFeaturedCategory.value.id)
 			showDeleteModal.value = false
 			selectedFeaturedCategory.value = null
 			await load()
@@ -127,7 +129,7 @@
 		toast.info('Порядок изменён. Сохраняю...')
 		try {
 			featuredCategories.value = orderedCategories
-			await categoriesApi.reorderFeaturedCategories({
+			await api.reorderFeaturedCategories({
 				items: orderedCategories
 					.filter((category): category is FeaturedCategory & { id: number } => category.id !== null)
 					.map((category) => ({
@@ -165,7 +167,7 @@
 
 	const exportXml = async () => {
 		try {
-			await categoriesApi.exportFeaturedCategoriesXml()
+			await api.exportFeaturedCategoriesXml()
 			toast.success('XML файл скачан')
 		} catch {
 			toast.error('Не удалось экспортировать XML')
@@ -222,6 +224,7 @@
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
 		<FeaturedCategoryCreateModal
+			v-if="showFeaturedCategoryModal"
 			:open="showFeaturedCategoryModal"
 			:category="selectedFeaturedCategory"
 			@close="closeFeaturedCategoryModal"

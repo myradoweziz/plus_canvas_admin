@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { FEATURED_CATEGORIES_TABLE_COLUMNS } from '../helpers'
-	import type { FeaturedCategory } from '../types/category'
+	import type { FeaturedCategory } from '../types'
 
 	defineProps<{
 		categories: FeaturedCategory[]

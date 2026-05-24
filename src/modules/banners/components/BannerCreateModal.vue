@@ -11,8 +11,8 @@
 
 	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { bannersApi } from '../api/banners'
-	import type { Banner } from '../types/banner'
+	import { api } from '../api'
+	import type { Banner } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'created'): void }>()
 
@@ -137,9 +137,9 @@
 			}
 
 			if (props.banner?.id) {
-				await bannersApi.updateBanner(payload)
+				await api.updateBanner(payload)
 			} else {
-				await bannersApi.createBanner(payload)
+				await api.createBanner(payload)
 			}
 
 			emit('created')

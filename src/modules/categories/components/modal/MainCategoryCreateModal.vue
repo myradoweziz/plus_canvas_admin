@@ -13,8 +13,9 @@
 	import { slugify } from '@/shared'
 	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { categoriesApi } from '../../api'
-	import type { MainCategory } from '../../types/category'
+	import { api } from '../../api'
+	import { CATEGORY_TYPE_OPTIONS } from '../../helpers'
+	import type { MainCategory } from '../../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
@@ -23,10 +24,6 @@
 	const saving = ref(false)
 	const slugManuallyEdited = ref(false)
 	const lastGeneratedSlug = ref('')
-	const categoryTypeOptions = [
-		{ label: 'Kişiye Özel Kanvas Tablo', value: 'Kişiye Özel Kanvas Tablo' },
-		{ label: 'Tablo Kanvas Tablo Galerisi', value: 'Tablo  Kanvas Tablo Galerisi' }
-	]
 
 	const form = reactive({
 		id: null as number | null,
@@ -175,9 +172,9 @@
 				meta_description: form.meta_description.trim()
 			}
 			if (payload.id) {
-				await categoriesApi.updateMainCategory(payload)
+				await api.updateMainCategory(payload)
 			} else {
-				await categoriesApi.createMainCategory(payload)
+				await api.createMainCategory(payload)
 			}
 
 			emit('saved')
@@ -253,12 +250,10 @@
 						required
 						name="category_type"
 						placeholder="Выберите тип категории"
-						:options="categoryTypeOptions"
+						:options="CATEGORY_TYPE_OPTIONS"
 						:error-message="fieldErrors.category_type"
 					/>
 				</div>
-
-
 
 				<div class="md:col-span-2">
 					<TextareaField

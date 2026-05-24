@@ -1,9 +1,7 @@
-import { request } from '@/shared'
+import { createSubresourceApi } from '@/shared/api/createSubresourceApi'
 import type { CanvasProductOrder } from '../types/product-order'
 
 const CANVAS_PRODUCTS_URL = '/api/admin/canvas-products'
-
-const ordersUrl = (productId: number) => `${CANVAS_PRODUCTS_URL}/${productId}/orders`
 
 const normalizeCanvasProductOrder = (row: Record<string, unknown>): CanvasProductOrder => ({
 	id: Number(row.id ?? 0),
@@ -14,13 +12,12 @@ const normalizeCanvasProductOrder = (row: Record<string, unknown>): CanvasProduc
 	created_at: String(row.created_at ?? '')
 })
 
-async function listCanvasProductOrders(productId: number): Promise<CanvasProductOrder[]> {
-	const response = await request({ url: ordersUrl(productId), method: 'GET' })
-	const raw = Array.isArray(response) ? response : response?.data || []
-
-	return raw.map((item: Record<string, unknown>) => normalizeCanvasProductOrder(item))
-}
+const ordersApi = createSubresourceApi<CanvasProductOrder & { id: number | null }>({
+	baseUrl: CANVAS_PRODUCTS_URL,
+	resourcePath: 'orders',
+	normalize: normalizeCanvasProductOrder
+})
 
 export const productOrdersApi = {
-	listCanvasProductOrders
+	listCanvasProductOrders: ordersApi.list
 }

@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { PRODUCTS_TABLE_COLUMNS } from '../helpers'
-	import type { CanvasProduct } from '../types/product'
+	import type { CanvasProduct } from '../types'
 
 	defineProps<{
 		products: CanvasProduct[]

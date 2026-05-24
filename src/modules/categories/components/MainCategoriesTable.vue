@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { MAIN_CATEGORIES_TABLE_COLUMNS } from '../helpers'
-	import type { MainCategory } from '../types/category'
+	import type { MainCategory } from '../types'
 
 	defineProps<{
 		categories: MainCategory[]

@@ -1,18 +1,17 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-
-	import CanvasEffectCreateModal from '../components/CanvasEffectCreateModal.vue'
 	import CanvasEffectsTable from '../components/CanvasEffectsTable.vue'
+	const CanvasEffectCreateModal = defineAsyncComponent(() => import('../components/CanvasEffectCreateModal.vue'))
 
 	import { CanvasFormatsIcon } from '@/shared/icons'
-	import { canvasEffectsApi } from '../api/canvas-effects'
-	import type { CanvasEffect } from '../types/canvas-effect'
+	import { api } from '../api'
+	import type { CanvasEffect } from '../types'
 
 	const loading = ref(false)
 	const effects = ref<CanvasEffect[]>([])
@@ -28,7 +27,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await canvasEffectsApi.listCanvasEffects({
+			const result = await api.listCanvasEffects({
 				name: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
@@ -66,7 +65,7 @@
 		if (!selectedEffect.value?.id) return
 		loadingDeleteModal.value = true
 		try {
-			await canvasEffectsApi.deleteCanvasEffect(selectedEffect.value.id)
+			await api.deleteCanvasEffect(selectedEffect.value.id)
 			showDeleteModal.value = false
 			selectedEffect.value = null
 			await load()
@@ -101,7 +100,10 @@
 			</template>
 		</Banner>
 
-		<form class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-4" @submit.prevent="applyFilters">
+		<form
+			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-4"
+			@submit.prevent="applyFilters"
+		>
 			<TextField v-model.trim="filters.search" label="Поиск" name="search" placeholder="Поиск" />
 			<div class="flex items-end gap-2">
 				<Button type="submit" size="sm">Фильтр</Button>
@@ -112,7 +114,13 @@
 		<CanvasEffectsTable :effects="effects" :loading="loading" @edit="editEffect" @delete="deleteEffect" />
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<CanvasEffectCreateModal :open="showModal" :effect="selectedEffect" @close="closeModal" @saved="load" />
+		<CanvasEffectCreateModal
+			v-if="showModal"
+			:open="showModal"
+			:effect="selectedEffect"
+			@close="closeModal"
+			@saved="load"
+		/>
 
 		<DeleteModal
 			:open="showDeleteModal"

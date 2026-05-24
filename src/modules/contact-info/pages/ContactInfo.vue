@@ -1,14 +1,13 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
-
-	import { contactInfoApi } from '@/modules/contact-info/api/contact-info'
-	import type { ContactInfo } from '@/modules/contact-info/types/contact-info'
-
-	import ContactInfoCreateModal from '../components/ContactInfoCreateModal.vue'
 	import ContactInfoTable from '../components/ContactInfoTable.vue'
+	const ContactInfoCreateModal = defineAsyncComponent(() => import('../components/ContactInfoCreateModal.vue'))
+
+	import { api } from '../api'
+	import type { ContactInfo } from '../types'
 
 	const loading = ref(false)
 	const error = ref(false)
@@ -21,7 +20,7 @@
 		loading.value = true
 		error.value = false
 		try {
-			const item = await contactInfoApi.getContactInfo()
+			const item = await api.getContactInfo()
 			rows.value = item ? [item] : []
 		} catch (e) {
 			error.value = true
@@ -72,6 +71,12 @@
 
 		<p v-if="error" class="text-sm text-red-600">Не удалось загрузить данные.</p>
 
-		<ContactInfoCreateModal :open="showModal" :contact-info="selected" @close="closeModal" @saved="load" />
+		<ContactInfoCreateModal
+			v-if="showModal"
+			:open="showModal"
+			:contact-info="selected"
+			@close="closeModal"
+			@saved="load"
+		/>
 	</div>
 </template>

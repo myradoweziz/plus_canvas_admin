@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
 	import { CanvasSizesIcon } from '@/shared/icons'
@@ -7,11 +7,11 @@
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
-
-	import { canvasSizesApi } from '../api/canvas-sizes'
-	import CanvasSizeCreateModal from '../components/CanvasSizeCreateModal.vue'
 	import CanvasSizesTable from '../components/CanvasSizesTable.vue'
-	import type { CanvasSize } from '../types/canvas-size'
+	const CanvasSizeCreateModal = defineAsyncComponent(() => import('../components/CanvasSizeCreateModal.vue'))
+
+	import { api } from '../api'
+	import type { CanvasSize } from '../types'
 
 	const loading = ref(false)
 	const canvasSizes = ref<CanvasSize[]>([])
@@ -26,7 +26,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await canvasSizesApi.listCanvasSizes({
+			const result = await api.listCanvasSizes({
 				limit: limit.value,
 				offset: offset.value
 			})
@@ -64,7 +64,7 @@
 
 		loadingDeleteModal.value = true
 		try {
-			await canvasSizesApi.deleteCanvasSize(selectedCanvasSize.value.id)
+			await api.deleteCanvasSize(selectedCanvasSize.value.id)
 			showDeleteModal.value = false
 			selectedCanvasSize.value = null
 			await load()
@@ -77,7 +77,7 @@
 		toast.info('Порядок изменён. Сохраняю...')
 		try {
 			canvasSizes.value = orderedCanvasSizes
-			await canvasSizesApi.reorderCanvasSizes({
+			await api.reorderCanvasSizes({
 				items: orderedCanvasSizes
 					.filter((canvasSize): canvasSize is CanvasSize & { id: number } => canvasSize.id !== null)
 					.map((canvasSize) => ({
@@ -129,6 +129,7 @@
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
 		<CanvasSizeCreateModal
+			v-if="showCanvasSizeModal"
 			:open="showCanvasSizeModal"
 			:canvas-size="selectedCanvasSize"
 			@close="closeCanvasSizeModal"

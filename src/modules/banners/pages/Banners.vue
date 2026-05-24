@@ -1,16 +1,16 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
-	import BannerCreateModal from '../components/BannerCreateModal.vue'
 	import BannersTable from '../components/BannersTable.vue'
+	const BannerCreateModal = defineAsyncComponent(() => import('../components/BannerCreateModal.vue'))
 
 	import { BannerIcon } from '@/shared/icons'
-	import { bannersApi } from '../api/banners'
-	import type { Banner as BannerT } from '../types/banner'
+	import { api } from '../api'
+	import type { Banner as BannerT } from '../types'
 
 	const loading = ref(false)
 	const banners = ref<BannerT[]>([])
@@ -22,7 +22,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			banners.value = await bannersApi.listBanners()
+			banners.value = await api.listBanners()
 		} finally {
 			loading.value = false
 		}
@@ -53,7 +53,7 @@
 		if (!selectedBanner.value) return
 		loadingDeleteModal.value = true
 		try {
-			await bannersApi.deleteBanner(selectedBanner.value?.id ?? 0)
+			await api.deleteBanner(selectedBanner.value?.id ?? 0)
 			showDeleteModal.value = false
 			selectedBanner.value = null
 			await load()
@@ -66,7 +66,7 @@
 		toast.info('Порядок изменён. Сохраняю...')
 		try {
 			banners.value = orderedBanners
-			await bannersApi.reorderBanners({
+			await api.reorderBanners({
 				orders: orderedBanners
 					.filter((banner): banner is BannerT & { id: number } => banner.id !== null)
 					.map((banner) => ({
@@ -100,7 +100,13 @@
 			@reorder="reorderBanners"
 		/>
 
-		<BannerCreateModal :open="showBannerModal" :banner="selectedBanner" @close="closeBannerModal" @created="load" />
+		<BannerCreateModal
+			v-if="showBannerModal"
+			:open="showBannerModal"
+			:banner="selectedBanner"
+			@close="closeBannerModal"
+			@created="load"
+		/>
 
 		<DeleteModal
 			:open="showDeleteModal"

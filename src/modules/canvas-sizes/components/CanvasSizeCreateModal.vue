@@ -9,9 +9,9 @@
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { canvasSizesApi } from '../api/canvas-sizes'
+	import { api } from '../api'
 	import { CANVAS_SIZE_UNIT_OPTIONS } from '../helpers'
-	import type { CanvasSize } from '../types/canvas-size'
+	import type { CanvasSize } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
@@ -124,9 +124,9 @@
 			}
 
 			if (payload.id) {
-				await canvasSizesApi.updateCanvasSize(payload)
+				await api.updateCanvasSize(payload)
 			} else {
-				await canvasSizesApi.createCanvasSize(payload)
+				await api.createCanvasSize(payload)
 			}
 
 			emit('saved')

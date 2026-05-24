@@ -11,8 +11,9 @@
 
 	import { debounce, slugify } from '@/shared'
 	import { mediaApi } from '@/shared/api/media'
-	import { categoriesApi } from '../../api'
-	import type { FeaturedCategory, MainCategory } from '../../types/category'
+	import { api } from '../../api'
+	import { FEATURED_CATEGORY_TYPE_OPTIONS } from '../../helpers'
+	import type { FeaturedCategory, MainCategory } from '../../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
@@ -24,11 +25,6 @@
 	const mainCategoriesRequestId = ref(0)
 	const slugManuallyEdited = ref(false)
 	const lastGeneratedSlug = ref('')
-	const categoryTypeOptions = [
-		{ label: 'Default', value: 'Default' },
-		{ label: 'Öne Çıkan Kategoriler', value: 'Öne Çıkan Kategoriler' },
-		{ label: 'En Çok Aranan Kategoriler', value: 'En Çok Aranan Kategoriler' }
-	]
 
 	const form = reactive({
 		id: null as number | null,
@@ -199,7 +195,7 @@
 		mainCategoriesRequestId.value = requestId
 		loadingMainCategories.value = true
 		try {
-			const result = await categoriesApi.listMainCategories({
+			const result = await api.listMainCategories({
 				name: name || undefined,
 				limit: 100,
 				offset: 0
@@ -258,9 +254,9 @@
 				discount: Number(form.discount) || 0
 			}
 			if (payload.id) {
-				await categoriesApi.updateFeaturedCategory(payload)
+				await api.updateFeaturedCategory(payload)
 			} else {
-				await categoriesApi.createFeaturedCategory(payload)
+				await api.createFeaturedCategory(payload)
 			}
 
 			emit('saved')
@@ -347,7 +343,7 @@
 						required
 						name="category_type"
 						placeholder="Выберите тип категории"
-						:options="categoryTypeOptions"
+						:options="FEATURED_CATEGORY_TYPE_OPTIONS"
 						:error-message="fieldErrors.category_type"
 					/>
 				</div>

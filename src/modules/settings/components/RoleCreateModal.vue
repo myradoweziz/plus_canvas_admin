@@ -8,10 +8,8 @@
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { permissionsApi } from '../api/permissions'
-	import { rolesApi } from '../api/roles'
-	import type { Permission } from '../types/permission'
-	import type { Role } from '../types/role'
+	import { api } from '../api'
+	import type { Permission, Role } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 	const props = defineProps<{ open: boolean; role?: Role | null }>()
@@ -109,7 +107,7 @@
 		permissionsRequestId.value = requestId
 		loadingPermissions.value = true
 		try {
-			const result = await permissionsApi.listPermissions({ limit: 1000, offset: 0 })
+			const result = await api.listPermissions({ limit: 1000, offset: 0 })
 			if (requestId !== permissionsRequestId.value) return
 			allPermissions.value = result.items || []
 		} finally {
@@ -140,9 +138,9 @@
 				permissions: form.permissions || []
 			}
 			if (payload.id) {
-				await rolesApi.updateRole(payload)
+				await api.updateRole(payload)
 			} else {
-				await rolesApi.createRole(payload)
+				await api.createRole(payload)
 			}
 			emit('saved')
 			emit('close')
@@ -227,4 +225,3 @@
 		</div>
 	</Modal>
 </template>
-

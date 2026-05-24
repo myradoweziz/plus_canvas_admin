@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { PRODUCT_FORM_TABS, type ProductFormTab } from '../../helpers/product-form'
+	import { PRODUCT_FORM_TABS, type ProductFormTab } from '../../helpers'
 
 	const activeTab = defineModel<ProductFormTab>('activeTab', { required: true })
 

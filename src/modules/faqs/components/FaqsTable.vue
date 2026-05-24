@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { FAQS_TABLE_COLUMNS } from '../helpers'
-	import type { Faq } from '../types/faq'
+	import type { Faq } from '../types'
 
 	defineProps<{
 		faqs: Faq[]
@@ -73,4 +73,3 @@
 		</template>
 	</DataTable>
 </template>
-

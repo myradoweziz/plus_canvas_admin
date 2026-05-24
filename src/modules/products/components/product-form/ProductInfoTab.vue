@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+	import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 	import { useRouter } from 'vue-router'
 	import { toast } from 'vue3-toastify'
 
@@ -8,34 +8,26 @@
 	import CollageLayoutSvgImport from '@/shared/ui/CollageLayoutSvgImport.vue'
 	import MultiImageUpload from '@/shared/ui/MultiImageUpload.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
-	import RichTextEditor from '@/shared/ui/RichTextEditor.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
+	const RichTextEditor = defineAsyncComponent(() => import('@/shared/ui/RichTextEditor.vue'))
 
-	import { bannersApi } from '@/modules/banners/api/banners'
-	import type { Banner } from '@/modules/banners/types/banner'
-	import { canvasEffectsApi } from '@/modules/canvas-effects/api/canvas-effects'
-	import type { CanvasEffect } from '@/modules/canvas-effects/types/canvas-effect'
-	import { canvasFormatsApi } from '@/modules/canvas-formats/api/canvas-formats'
-	import type { CanvasFormat } from '@/modules/canvas-formats/types/canvas-format'
-	import { canvasFramesApi } from '@/modules/canvas-frames/api/canvas-frames'
-	import type { CanvasFrame } from '@/modules/canvas-frames/types/canvas-frame'
-	import { categoriesApi } from '@/modules/categories/api'
-	import type { FeaturedCategory, MainCategory, SubCategory } from '@/modules/categories/types/category'
-	import { colorsApi } from '@/modules/colors/api/colors'
-	import type { Color } from '@/modules/colors/types/color'
-	import { stocksApi } from '@/modules/stocks/api/stocks'
-	import type { Stock } from '@/modules/stocks/types/stock'
+	import { api as categoriesApi } from '@/modules/categories/api'
+	import type { FeaturedCategory, SubCategory } from '@/modules/categories/types'
+	import type { Color } from '@/modules/colors/types'
 	import { api } from '../../api'
-	import { getErrorMessage, getValidationErrors } from '../../helpers/form-errors'
+	import { useFieldErrors, useProductFormDictionaries } from '../../composables'
 	import {
-		createEmptyCanvasProduct,
+		getErrorMessage,
+		getValidationErrors,
 		INNER_IMAGES_MAIN_CATEGORY_SLUG,
-		PRODUCT_TYPE_OPTIONS
-	} from '../../helpers/product-form'
-	import { uploadImageCountFromLayout, validateProductInfo } from '../../helpers/product-form-validation'
-	import type { CollageLayout } from '../../types/collage-layout'
-	import type { CanvasProduct } from '../../types/product'
+		PRODUCT_TYPE_OPTIONS,
+		uploadImageCountFromLayout,
+		validateProductInfo
+	} from '../../helpers'
+	import type { CanvasProduct, CollageLayout } from '../../types'
+
+	defineOptions({ name: 'ProductInfoTab' })
 
 	const PRODUCT_FIELD_ALIASES: Record<string, string> = {
 		collage_layout: 'collage_layout_id',
@@ -69,11 +61,20 @@
 
 	const router = useRouter()
 	const saving = ref(false)
-	const loadingDictionaries = ref(false)
 	const loadingFeaturedCategories = ref(false)
 	const loadingSubCategories = ref(false)
-	const validationErrors = ref<Record<string, string>>({})
-	const dictionaryRequestId = ref(0)
+	const { validationErrors, clearFieldError } = useFieldErrors()
+	const {
+		loading: loadingDictionaries,
+		mainCategories,
+		banners,
+		stocks,
+		colors,
+		canvasFormats,
+		canvasFrames,
+		canvasEffects,
+		load: loadDictionaries
+	} = useProductFormDictionaries()
 	const featuredCategoriesRequestId = ref(0)
 	const subCategoriesRequestId = ref(0)
 	const isApplyingProduct = ref(false)
@@ -82,28 +83,14 @@
 	const selectedCanvasFrameId = ref<number | null>(null)
 	const selectedCanvasEffectId = ref<number | null>(null)
 
-	const mainCategories = ref<MainCategory[]>([])
 	const featuredCategories = ref<FeaturedCategory[]>([])
 	const subCategories = ref<SubCategory[]>([])
-	const banners = ref<Banner[]>([])
-	const stocks = ref<Stock[]>([])
-	const colors = ref<Color[]>([])
-	const canvasFormats = ref<CanvasFormat[]>([])
-	const canvasFrames = ref<CanvasFrame[]>([])
-	const canvasEffects = ref<CanvasEffect[]>([])
 	const isEditMode = computed(() => props.productId != null)
-
-	const clearValidationError = (field: string) => {
-		if (!validationErrors.value[field]) return
-		const next = { ...validationErrors.value }
-		delete next[field]
-		validationErrors.value = next
-	}
 
 	const clearValidationErrorOnChange = <K extends keyof CanvasProduct>(field: K) => {
 		watch(
 			() => form.value[field],
-			() => clearValidationError(field as string),
+			() => clearFieldError(field as string),
 			{ deep: Array.isArray(form.value[field]) }
 		)
 	}
@@ -138,9 +125,9 @@
 		const slots = uploadImageCountFromLayout(layout)
 		form.value.upload_image_count = slots > 0 ? slots : 1
 		if (layout?.id != null) {
-			clearValidationError('collage_layout_id')
+			clearFieldError('collage_layout_id')
 		}
-		clearValidationError('inner_images')
+		clearFieldError('inner_images')
 	}
 
 	const syncMainCategorySlug = (mainCategoryId: number | null) => {
@@ -234,75 +221,23 @@
 			label: canvasEffects.value.find((effect) => effect.id === id)?.name ?? `#${id}`
 		}))
 	)
-	const applyLoadedProduct = (product: CanvasProduct) => {
+	const syncCategoryCascade = async () => {
 		isApplyingProduct.value = true
-		form.value = {
-			...createEmptyCanvasProduct(),
-			...product,
-			main_category_slug:
-				product.main_category_slug ?? (product as { main_category?: { slug?: string } }).main_category?.slug ?? '',
-			collage_layout_id: product.collage_layout_id ?? product.collage_layout?.id ?? null,
-			collage_layout: product.collage_layout ?? null
+		syncMainCategorySlug(form.value.main_category_id)
+
+		if (form.value.main_category_id) {
+			await loadFeaturedCategories(form.value.main_category_id)
 		}
-		if (form.value.collage_layout) {
-			form.value.upload_image_count = uploadImageCountFromLayout(form.value.collage_layout)
+
+		if (form.value.category_id) {
+			await loadSubCategories(form.value.category_id)
 		}
-		nextTick(() => {
-			syncMainCategorySlug(form.value.main_category_id)
-			isApplyingProduct.value = false
-		})
+
+		await nextTick()
+		isApplyingProduct.value = false
 	}
 
-	defineExpose({ applyLoadedProduct })
-
-	const loadDictionaries = async () => {
-		const requestId = dictionaryRequestId.value + 1
-		dictionaryRequestId.value = requestId
-		loadingDictionaries.value = true
-
-		try {
-			const [
-				mainCategoriesResult,
-				bannersResult,
-				stocksResult,
-				colorsResult,
-				canvasFormatsResult,
-				canvasFramesResult,
-				canvasEffectsResult
-			] = await Promise.all([
-				categoriesApi.listMainCategories({ limit: 100, offset: 0 }),
-				bannersApi.listBanners(),
-				stocksApi.listStocks({ limit: 100, offset: 0 }),
-				colorsApi.listColors({ limit: 100, offset: 0 }),
-				canvasFormatsApi.listCanvasFormats({ limit: 100, offset: 0 }),
-				canvasFramesApi.listCanvasFrames({ limit: 100, offset: 0 }),
-				canvasEffectsApi.listCanvasEffects({ limit: 100, offset: 0 })
-			])
-
-			if (requestId !== dictionaryRequestId.value) return
-
-			mainCategories.value = mainCategoriesResult.items || []
-			banners.value = bannersResult || []
-			stocks.value = stocksResult.items || []
-			colors.value = colorsResult.items || []
-			canvasFormats.value = canvasFormatsResult.items || []
-			canvasFrames.value = canvasFramesResult.items || []
-			canvasEffects.value = canvasEffectsResult.items || []
-
-			if (form.value.main_category_id) {
-				syncMainCategorySlug(form.value.main_category_id)
-				await loadFeaturedCategories(form.value.main_category_id)
-			}
-
-			if (form.value.category_id) {
-				await loadSubCategories(form.value.category_id)
-			}
-		} finally {
-			if (requestId === dictionaryRequestId.value) {
-				loadingDictionaries.value = false
-			}
-		}
-	}
+	defineExpose({ syncCategoryCascade })
 
 	const loadFeaturedCategories = async (mainCategoryId: number) => {
 		const requestId = featuredCategoriesRequestId.value + 1
@@ -397,10 +332,13 @@
 
 	onMounted(async () => {
 		await loadDictionaries()
+
+		if (form.value.main_category_id || form.value.category_id) {
+			await syncCategoryCascade()
+		}
 	})
 
 	onBeforeUnmount(() => {
-		dictionaryRequestId.value += 1
 		featuredCategoriesRequestId.value += 1
 		subCategoriesRequestId.value += 1
 	})

@@ -1,16 +1,15 @@
 <script setup lang="ts">
 	import { computed, onMounted, ref } from 'vue'
+	import { toast } from 'vue3-toastify'
 
 	import Button from '@/shared/ui/Button.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 
-	import { toast } from 'vue3-toastify'
-
 	import { productTagsApi } from '@/modules/product-tags/api/productTags'
-	import type { ProductTag } from '@/modules/product-tags/types/productTag'
+	import type { ProductTag } from '@/modules/product-tags/types'
 	import { api } from '../../api'
-	import { getErrorMessage, getValidationErrors } from '../../helpers/form-errors'
-	import type { CanvasProduct } from '../../types/product'
+	import { getErrorMessage, getValidationErrors } from '../../helpers'
+	import type { CanvasProduct } from '../../types'
 
 	const form = defineModel<CanvasProduct>('form', { required: true })
 
@@ -94,39 +93,39 @@
 		</div>
 
 		<div class="col-span-full md:col-span-3">
-		<SelectField
-			:model-value="selectedProductTagId"
-			label="Теги товара"
-			name="product_tags"
-			placeholder="Выберите тег"
-			:options="productTagOptions"
-			:disabled="loading"
-			@update:model-value="addProductTag"
-		/>
-		<div v-if="selectedProductTags.length" class="mt-3 flex flex-wrap gap-2">
-			<span
-				v-for="tag in selectedProductTags"
-				:key="tag.id"
-				class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
-			>
-				{{ tag.label }}
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="h-5 w-5 text-blue-500 hover:text-red-600"
-					:on-click="() => removeProductTag(tag.id)"
+			<SelectField
+				:model-value="selectedProductTagId"
+				label="Теги товара"
+				name="product_tags"
+				placeholder="Выберите тег"
+				:options="productTagOptions"
+				:disabled="loading"
+				@update:model-value="addProductTag"
+			/>
+			<div v-if="selectedProductTags.length" class="mt-3 flex flex-wrap gap-2">
+				<span
+					v-for="tag in selectedProductTags"
+					:key="tag.id"
+					class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
 				>
-					✕
-				</Button>
-			</span>
-		</div>
+					{{ tag.label }}
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						class-name="h-5 w-5 text-blue-500 hover:text-red-600"
+						:on-click="() => removeProductTag(tag.id)"
+					>
+						✕
+					</Button>
+				</span>
+			</div>
 
-		<div class="mt-4 flex items-center justify-end gap-3 md:col-span-3">
-			<Button type="button" size="sm" :disabled="!form.id || saving" :loading="saving" :on-click="onSave">
-				{{ saving ? 'Сохранение...' : 'Сохранить теги' }}
-			</Button>
-		</div>
+			<div class="mt-4 flex items-center justify-end gap-3 md:col-span-3">
+				<Button type="button" size="sm" :disabled="!form.id || saving" :loading="saving" :on-click="onSave">
+					{{ saving ? 'Сохранение...' : 'Сохранить теги' }}
+				</Button>
+			</div>
 		</div>
 	</div>
 </template>

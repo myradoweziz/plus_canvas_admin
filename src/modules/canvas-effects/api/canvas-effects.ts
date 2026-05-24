@@ -41,7 +41,11 @@ async function createCanvasEffect(effect: CanvasEffect): Promise<CanvasEffect> {
 }
 
 async function updateCanvasEffect(effect: CanvasEffect): Promise<CanvasEffect> {
-	return await request({ url: `${CANVAS_EFFECTS_URL}/${effect.id}`, method: 'PUT', data: toCanvasEffectPayload(effect) })
+	return await request({
+		url: `${CANVAS_EFFECTS_URL}/${effect.id}`,
+		method: 'PUT',
+		data: toCanvasEffectPayload(effect)
+	})
 }
 
 async function deleteCanvasEffect(id: number): Promise<void> {

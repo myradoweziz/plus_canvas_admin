@@ -1,16 +1,16 @@
 <script setup lang="ts">
 	import { ref, watch } from 'vue'
-	import { toast } from 'vue3-toastify'
 
 	import Button from '@/shared/ui/Button.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
+	import ProductRequiresSaveNotice from './ProductRequiresSaveNotice.vue'
 
 	import { slugify } from '@/shared'
 	import { api } from '../../api'
-	import { getErrorMessage, getValidationErrors } from '../../helpers/form-errors'
-	import { validateProductSeo } from '../../helpers/product-form-validation'
-	import type { CanvasProductSeo } from '../../types/product'
+	import { useProductSubResourceSave } from '../../composables'
+	import { validateProductSeo } from '../../helpers'
+	import type { CanvasProductSeo } from '../../types'
 
 	const props = defineProps<{
 		productId: number | null
@@ -23,21 +23,32 @@
 		saved: [seo: CanvasProductSeo]
 	}>()
 
-	const saving = ref(false)
-	const validationErrors = ref<Record<string, string>>({})
 	const slugManuallyEdited = ref(false)
 
-	const clearValidationError = (field: string) => {
-		if (!validationErrors.value[field]) return
-		const next = { ...validationErrors.value }
-		delete next[field]
-		validationErrors.value = next
+	const syncSlugManuallyEdited = () => {
+		slugManuallyEdited.value = Boolean(seo.value.slug && seo.value.slug !== slugify(props.productName ?? ''))
 	}
+
+	const { saving, validationErrors, clearFieldError, runSave } = useProductSubResourceSave({
+		validate: () => validateProductSeo(seo.value),
+		save: () => api.updateCanvasProductSeo(props.productId!, seo.value),
+		onSuccess: (savedSeo) => {
+			seo.value = savedSeo
+			syncSlugManuallyEdited()
+			emit('saved', savedSeo)
+		},
+		messages: {
+			noProduct: 'Сначала сохраните продукт на вкладке Product Info',
+			validation: 'Заполните обязательные поля SEO',
+			success: 'SEO успешно сохранено',
+			error: 'Не удалось сохранить SEO'
+		}
+	})
 
 	;(['slug', 'meta_title', 'meta_description', 'meta_keywords'] as const).forEach((field) => {
 		watch(
 			() => seo.value[field],
-			() => clearValidationError(field)
+			() => clearFieldError(field)
 		)
 	})
 
@@ -56,53 +67,18 @@
 		slugManuallyEdited.value = seo.value.slug !== slugify(props.productName ?? '')
 	}
 
-	const syncSlugManuallyEdited = () => {
-		slugManuallyEdited.value = Boolean(seo.value.slug && seo.value.slug !== slugify(props.productName ?? ''))
-	}
-
 	watch(
 		() => props.productId,
 		() => syncSlugManuallyEdited(),
 		{ immediate: true }
 	)
 
-	const onSaveSeo = async () => {
-		if (!props.productId) {
-			toast.error('Сначала сохраните продукт на вкладке Product Info')
-			return
-		}
-
-		validationErrors.value = validateProductSeo(seo.value)
-		if (Object.keys(validationErrors.value).length > 0) {
-			toast.error(Object.values(validationErrors.value)[0] || 'Заполните обязательные поля SEO')
-			return
-		}
-
-		saving.value = true
-
-		try {
-			const savedSeo = await api.updateCanvasProductSeo(props.productId, seo.value)
-			seo.value = savedSeo
-			syncSlugManuallyEdited()
-			emit('saved', savedSeo)
-			toast.success('SEO успешно сохранено')
-		} catch (error) {
-			validationErrors.value = getValidationErrors(error)
-			toast.error(getErrorMessage(error, 'Не удалось сохранить SEO'))
-		} finally {
-			saving.value = false
-		}
-	}
+	const onSaveSeo = () => runSave(props.productId)
 </script>
 
 <template>
 	<div class="contents">
-		<div
-			v-if="!productId"
-			class="md:col-span-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
-		>
-			Сначала сохраните продукт на вкладке <strong>Product Info</strong>, затем заполните и сохраните SEO.
-		</div>
+		<ProductRequiresSaveNotice v-if="!productId" suffix=", затем заполните и сохраните SEO" />
 
 		<div class="md:col-span-3">
 			<TextField

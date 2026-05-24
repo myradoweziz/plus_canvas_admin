@@ -1,17 +1,17 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	import ProductTagCreateModal from '../components/ProductTagCreateModal.vue'
+	const ProductTagCreateModal = defineAsyncComponent(() => import('../components/ProductTagCreateModal.vue'))
 	import ProductTagsTable from '../components/ProductTagsTable.vue'
 
 	import { BrandsIcon } from '@/shared/icons'
-	import { productTagsApi } from '../api/productTags'
-	import type { ProductTag } from '../types/productTag'
+	import { api } from '../api'
+	import type { ProductTag } from '../types'
 
 	const loading = ref(false)
 	const tags = ref<ProductTag[]>([])
@@ -29,7 +29,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await productTagsApi.listProductTags({
+			const result = await api.listProductTags({
 				name: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
@@ -68,7 +68,7 @@
 
 		loadingDeleteModal.value = true
 		try {
-			await productTagsApi.deleteProductTag(selectedTag.value.id)
+			await api.deleteProductTag(selectedTag.value.id)
 			showDeleteModal.value = false
 			selectedTag.value = null
 			await load()
@@ -121,7 +121,13 @@
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<ProductTagCreateModal :open="showTagModal" :tag="selectedTag" @close="closeTagModal" @saved="load" />
+		<ProductTagCreateModal
+			v-if="showTagModal"
+			:open="showTagModal"
+			:tag="selectedTag"
+			@close="closeTagModal"
+			@saved="load"
+		/>
 
 		<DeleteModal
 			:open="showDeleteModal"

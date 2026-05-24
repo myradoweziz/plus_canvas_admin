@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { CANVAS_SIZES_TABLE_COLUMNS } from '../helpers'
-	import type { CanvasSize } from '../types/canvas-size'
+	import type { CanvasSize } from '../types'
 
 	defineProps<{
 		canvasSizes: CanvasSize[]

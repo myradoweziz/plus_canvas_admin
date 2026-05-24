@@ -10,10 +10,8 @@
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { rolesApi } from '../api/roles'
-	import { usersApi } from '../api/users'
-	import type { Role } from '../types/role'
-	import type { User, UserAddress } from '../types/user'
+	import { api } from '../api'
+	import type { Role, User, UserAddress } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 	const props = defineProps<{ open: boolean; user?: User | null }>()
@@ -147,7 +145,7 @@
 	const loadRoles = async () => {
 		loadingRoles.value = true
 		try {
-			const result = await rolesApi.listRoles({ limit: 1000, offset: 0 })
+			const result = await api.listRoles({ limit: 1000, offset: 0 })
 			allRoles.value = result.items || []
 		} finally {
 			loadingRoles.value = false
@@ -274,9 +272,9 @@
 				addresses: form.addresses || []
 			}
 			if (payload.id) {
-				await usersApi.updateUser(payload)
+				await api.updateUser(payload)
 			} else {
-				await usersApi.createUser(payload)
+				await api.createUser(payload)
 			}
 			emit('saved')
 			emit('close')
@@ -444,15 +442,16 @@
 										placeholder="Адрес"
 										:error-message="triedSubmit ? fieldErrors.addressTexts[index] : ''"
 										@update:model-value="
-											(v) =>
-												(form.addresses[index] = { ...form.addresses[index], address: String(v ?? '') })
+											(v) => (form.addresses[index] = { ...form.addresses[index], address: String(v ?? '') })
 										"
 									/>
 								</div>
 							</div>
 						</div>
 					</div>
-					<p v-if="triedSubmit && fieldErrors.addresses" class="mt-2 text-sm text-red-600">{{ fieldErrors.addresses }}</p>
+					<p v-if="triedSubmit && fieldErrors.addresses" class="mt-2 text-sm text-red-600">
+						{{ fieldErrors.addresses }}
+					</p>
 				</div>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-3">

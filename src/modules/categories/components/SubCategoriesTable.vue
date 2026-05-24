@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { SUB_CATEGORIES_TABLE_COLUMNS } from '../helpers'
-	import type { SubCategory } from '../types/category'
+	import type { SubCategory } from '../types'
 
 	defineProps<{
 		categories: SubCategory[]

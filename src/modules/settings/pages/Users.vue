@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { computed, onMounted, ref } from 'vue'
+	import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -7,14 +7,12 @@
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	import UserCreateModal from '../components/UserCreateModal.vue'
 	import UsersTable from '../components/UsersTable.vue'
+	const UserCreateModal = defineAsyncComponent(() => import('../components/UserCreateModal.vue'))
 
 	import { UsersIcon } from '@/shared/icons'
-	import { rolesApi } from '../api/roles'
-	import { usersApi } from '../api/users'
-	import type { Role } from '../types/role'
-	import type { User } from '../types/user'
+	import { api as rolesApi, api as usersApi } from '../api'
+	import type { Role, User } from '../types'
 
 	const loading = ref(false)
 	const users = ref<User[]>([])
@@ -159,7 +157,13 @@
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<UserCreateModal :open="showUserModal" :user="modalUser" @close="closeUserModal" @saved="load" />
+		<UserCreateModal
+			v-if="showUserModal"
+			:open="showUserModal"
+			:user="modalUser"
+			@close="closeUserModal"
+			@saved="load"
+		/>
 
 		<DeleteModal
 			:open="showDeleteModal"

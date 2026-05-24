@@ -7,8 +7,8 @@
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { permissionsApi } from '../api/permissions'
-	import type { Permission } from '../types/permission'
+	import { api } from '../api'
+	import type { Permission } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 	const props = defineProps<{ open: boolean; permission?: Permission | null }>()
@@ -62,10 +62,10 @@
 		saving.value = true
 		try {
 			if (form.id) {
-				await permissionsApi.updatePermission({ id: form.id, name: form.name.trim() })
+				await api.updatePermission({ id: form.id, name: form.name.trim() })
 			} else {
 				const payload: Permission = { id: null, name: form.name.trim() }
-				await permissionsApi.createPermission(payload)
+				await api.createPermission(payload)
 			}
 			emit('saved')
 			emit('close')

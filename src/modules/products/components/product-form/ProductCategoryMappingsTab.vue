@@ -2,19 +2,23 @@
 	import { computed, onMounted, ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
+	import IconTrash from '@/shared/icons/TrashIcon.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
+	import ProductRequiresSaveNotice from './ProductRequiresSaveNotice.vue'
 
-	import { categoriesApi } from '@/modules/categories/api'
-	import type { FeaturedCategory } from '@/modules/categories/types/category'
-	import IconTrash from '@/shared/icons/TrashIcon.vue'
+	import { api as categoriesApi } from '@/modules/categories/api'
+	import type { FeaturedCategory } from '@/modules/categories/types'
 	import { api } from '../../api'
-	import { getErrorMessage, getValidationErrors } from '../../helpers/form-errors'
-	import { createEmptyCategoryMapping } from '../../helpers/product-form'
-	import { validateProductCategoryMappings } from '../../helpers/product-form-validation'
-	import type { CanvasProductCategoryMapping } from '../../types/product'
+	import {
+		createEmptyCategoryMapping,
+		getErrorMessage,
+		getValidationErrors,
+		validateProductCategoryMappings
+	} from '../../helpers'
+	import type { CanvasProductCategoryMapping } from '../../types'
 
 	const props = defineProps<{
 		productId: number | null
@@ -113,12 +117,7 @@
 
 <template>
 	<div class="contents">
-		<div
-			v-if="!productId"
-			class="md:col-span-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
-		>
-			Сначала сохраните продукт на вкладке <strong>Product Info</strong>, затем настройте привязки категорий.
-		</div>
+		<ProductRequiresSaveNotice v-if="!productId" suffix=", затем настройте привязки категорий" />
 
 		<div class="md:col-span-3 flex items-center justify-between gap-3">
 			<p class="text-sm text-gray-600">Связь продукта с категориями (categories).</p>

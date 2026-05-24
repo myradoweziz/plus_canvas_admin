@@ -11,8 +11,8 @@
 
 	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { canvasFramesApi } from '../api/canvas-frames'
-	import type { CanvasFrame } from '../types/canvas-frame'
+	import { api } from '../api'
+	import type { CanvasFrame } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 	const props = defineProps<{ open: boolean; frame: CanvasFrame | null }>()
@@ -125,8 +125,8 @@
 				is_active: !!form.is_active
 			}
 
-			if (payload.id) await canvasFramesApi.updateCanvasFrame(payload)
-			else await canvasFramesApi.createCanvasFrame(payload)
+			if (payload.id) await api.updateCanvasFrame(payload)
+			else await api.createCanvasFrame(payload)
 
 			emit('saved')
 			emit('close')

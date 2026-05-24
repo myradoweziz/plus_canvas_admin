@@ -1,4 +1,5 @@
-import { getTotal, request } from '@/shared'
+import { request } from '@/shared'
+import { createListApi } from '@/shared/api/createListApi'
 import type { Faq, FaqPayload } from '../types/faq'
 
 const FAQS_URL = '/api/admin/faqs'
@@ -14,18 +15,7 @@ export type ListFaqsResult = {
 	total: number
 }
 
-async function listFaqs(params: ListFaqsParams): Promise<ListFaqsResult> {
-	const filteredParams = Object.fromEntries(
-		Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
-	)
-	const response = await request({ url: FAQS_URL, method: 'GET', params: filteredParams })
-	const items = Array.isArray(response) ? response : response?.data || []
-
-	return {
-		items,
-		total: getTotal(response, items.length)
-	}
-}
+const listFaqs = createListApi<Faq, ListFaqsParams>({ url: FAQS_URL })
 
 function toFaqPayload(faq: Faq): FaqPayload {
 	return {
@@ -58,4 +48,3 @@ export const faqsApi = {
 	updateFaq,
 	deleteFaq
 }
-

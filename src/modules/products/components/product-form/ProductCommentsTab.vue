@@ -1,29 +1,42 @@
 <script setup lang="ts">
-	import { onMounted, ref, watch } from 'vue'
+	import { ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
+	import IconTrash from '@/shared/icons/TrashIcon.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	import IconTrash from '@/shared/icons/TrashIcon.vue'
+	import ProductRequiresSaveNotice from './ProductRequiresSaveNotice.vue'
 
 	import { api } from '../../api'
-	import { getErrorMessage, getValidationErrors } from '../../helpers/form-errors'
-	import { createEmptyCanvasProductComment } from '../../helpers/product-form'
-	import { validateProductComment } from '../../helpers/product-form-validation'
-	import type { CanvasProductComment } from '../../types/product-comment'
+	import { useFieldErrors, useProductTabResource } from '../../composables'
+	import {
+		createEmptyCanvasProductComment,
+		getErrorMessage,
+		getValidationErrors,
+		validateProductComment
+	} from '../../helpers'
+	import type { CanvasProductComment } from '../../types'
 
 	const props = defineProps<{
 		productId: number | null
 	}>()
 
-	const comments = ref<CanvasProductComment[]>([])
-	const loading = ref(false)
+	const {
+		items: comments,
+		loading,
+		load: loadComments
+	} = useProductTabResource(
+		() => props.productId,
+		(id) => api.listCanvasProductComments(id),
+		'Не удалось загрузить комментарии'
+	)
+
 	const savingId = ref<number | 'new' | null>(null)
-	const validationErrors = ref<Record<string, string>>({})
+	const { validationErrors, clearFieldError, setValidationErrors } = useFieldErrors()
 	const deleteTarget = ref<CanvasProductComment | null>(null)
 	const deleting = ref(false)
 
@@ -36,30 +49,6 @@
 	]
 
 	const rowKey = (comment: CanvasProductComment, index: number) => comment.id ?? `new-${index}`
-
-	const clearFieldError = (field: string) => {
-		if (!validationErrors.value[field]) return
-		const next = { ...validationErrors.value }
-		delete next[field]
-		validationErrors.value = next
-	}
-
-	const loadComments = async () => {
-		if (!props.productId) {
-			comments.value = []
-			return
-		}
-
-		loading.value = true
-
-		try {
-			comments.value = await api.listCanvasProductComments(props.productId)
-		} catch (error) {
-			toast.error(getErrorMessage(error, 'Не удалось загрузить комментарии'))
-		} finally {
-			loading.value = false
-		}
-	}
 
 	const addComment = () => {
 		comments.value = [createEmptyCanvasProductComment(), ...comments.value]
@@ -75,9 +64,10 @@
 			return
 		}
 
-		validationErrors.value = validateProductComment(comment)
-		if (Object.keys(validationErrors.value).length > 0) {
-			toast.error(Object.values(validationErrors.value)[0] || 'Исправьте ошибки в комментарии')
+		const errors = validateProductComment(comment)
+		setValidationErrors(errors)
+		if (Object.keys(errors).length > 0) {
+			toast.error(Object.values(errors)[0] || 'Исправьте ошибки в комментарии')
 			return
 		}
 
@@ -90,8 +80,9 @@
 
 			comments.value[index] = saved
 			toast.success(comment.id ? 'Комментарий обновлён' : 'Комментарий создан')
+			await loadComments(true)
 		} catch (error) {
-			validationErrors.value = getValidationErrors(error)
+			setValidationErrors(getValidationErrors(error))
 			toast.error(getErrorMessage(error, 'Не удалось сохранить комментарий'))
 		} finally {
 			savingId.value = null
@@ -114,36 +105,20 @@
 
 		try {
 			await api.deleteCanvasProductComment(props.productId, deleteTarget.value.id)
-			comments.value = comments.value.filter((item) => item.id !== deleteTarget.value?.id)
 			toast.success('Комментарий удалён')
 			deleteTarget.value = null
+			await loadComments(true)
 		} catch (error) {
 			toast.error(getErrorMessage(error, 'Не удалось удалить комментарий'))
 		} finally {
 			deleting.value = false
 		}
 	}
-
-	watch(
-		() => props.productId,
-		() => {
-			loadComments()
-		}
-	)
-
-	onMounted(() => {
-		loadComments()
-	})
 </script>
 
 <template>
 	<div class="contents">
-		<div
-			v-if="!productId"
-			class="md:col-span-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
-		>
-			Сначала сохраните продукт на вкладке <strong>Product Info</strong>, затем управляйте комментариями.
-		</div>
+		<ProductRequiresSaveNotice v-if="!productId" suffix=", затем управляйте комментариями" />
 
 		<div class="md:col-span-3 flex items-center justify-between gap-3">
 			<p class="text-sm text-gray-600">Отзывы и комментарии к продукту.</p>

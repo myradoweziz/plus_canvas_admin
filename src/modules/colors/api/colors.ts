@@ -1,4 +1,5 @@
-import { getTotal, request } from '@/shared'
+import { request } from '@/shared'
+import { createListApi } from '@/shared/api/createListApi'
 import type { Color, ColorPayload } from '../types/color'
 
 const COLORS_URL = '/api/admin/colors'
@@ -14,18 +15,7 @@ export type ListColorsResult = {
 	total: number
 }
 
-async function listColors(params: ListColorsParams): Promise<ListColorsResult> {
-	const filteredParams = Object.fromEntries(
-		Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
-	)
-	const response = await request({ url: COLORS_URL, method: 'GET', params: filteredParams })
-	const items = Array.isArray(response) ? response : response?.data || []
-
-	return {
-		items,
-		total: getTotal(response, items.length)
-	}
-}
+const listColors = createListApi<Color, ListColorsParams>({ url: COLORS_URL })
 
 function toColorPayload(color: Color): ColorPayload {
 	return {

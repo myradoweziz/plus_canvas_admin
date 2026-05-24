@@ -11,8 +11,8 @@
 
 	import { debounce, slugify } from '@/shared'
 	import { mediaApi } from '@/shared/api/media'
-	import { categoriesApi } from '../../api'
-	import type { FeaturedCategory, SubCategory } from '../../types/category'
+	import { api } from '../../api'
+	import type { FeaturedCategory, SubCategory } from '../../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
@@ -178,7 +178,7 @@
 		featuredCategoriesRequestId.value = requestId
 		loadingFeaturedCategories.value = true
 		try {
-			const result = await categoriesApi.listFeaturedCategories({
+			const result = await api.listFeaturedCategories({
 				name: name || undefined,
 				limit: 100,
 				offset: 0
@@ -235,9 +235,9 @@
 				discount: Number(form.discount) || 0
 			}
 			if (payload.id) {
-				await categoriesApi.updateSubCategory(payload)
+				await api.updateSubCategory(payload)
 			} else {
-				await categoriesApi.createSubCategory(payload)
+				await api.createSubCategory(payload)
 			}
 
 			emit('saved')

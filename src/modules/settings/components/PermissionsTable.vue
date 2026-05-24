@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { PERMISSIONS_TABLE_COLUMNS } from '../helpers'
-	import type { Permission } from '../types/permission'
+	import type { Permission } from '../types'
 
 	defineProps<{
 		permissions: Permission[]
@@ -56,4 +56,3 @@
 		</template>
 	</DataTable>
 </template>
-

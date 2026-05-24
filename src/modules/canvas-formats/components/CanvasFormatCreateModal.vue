@@ -12,9 +12,8 @@
 	import type { CanvasSize } from '@/modules/canvas-sizes/types/canvas-size'
 	import { slugify } from '@/shared'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { canvasFormatsApi } from '../api/canvas-formats'
-	import type { CanvasFormat, CanvasFormatSize } from '../types/canvas-format'
-	import { getCanvasFormatSizeLabel } from '../types/canvas-format'
+	import { api } from '../api'
+	import { type CanvasFormat, type CanvasFormatSize, getCanvasFormatSizeLabel } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
@@ -233,9 +232,9 @@
 				}))
 			}
 			if (payload.id) {
-				await canvasFormatsApi.updateCanvasFormat(payload)
+				await api.updateCanvasFormat(payload)
 			} else {
-				await canvasFormatsApi.createCanvasFormat(payload)
+				await api.createCanvasFormat(payload)
 			}
 
 			emit('saved')
@@ -305,12 +304,7 @@
 					/>
 				</div>
 
-				<CheckboxField
-					v-model="form.is_active"
-					label="Активно"
-					name="is_active"
-					class="md:col-span-2"
-				/>
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
 
 				<div class="md:col-span-2">
 					<SelectField

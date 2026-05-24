@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { STOCKS_TABLE_COLUMNS } from '../helpers'
-	import type { Stock } from '../types/stock'
+	import type { Stock } from '../types'
 
 	defineProps<{
 		stocks: Stock[]

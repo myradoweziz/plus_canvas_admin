@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
 	import { CanvasFormatsIcon } from '@/shared/icons'
@@ -8,11 +8,11 @@
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-
-	import { canvasFormatsApi } from '../api/canvas-formats'
-	import CanvasFormatCreateModal from '../components/CanvasFormatCreateModal.vue'
 	import CanvasFormatsTable from '../components/CanvasFormatsTable.vue'
-	import type { CanvasFormat } from '../types/canvas-format'
+	const CanvasFormatCreateModal = defineAsyncComponent(() => import('../components/CanvasFormatCreateModal.vue'))
+
+	import { api } from '../api'
+	import type { CanvasFormat } from '../types'
 
 	const loading = ref(false)
 	const canvasFormats = ref<CanvasFormat[]>([])
@@ -30,7 +30,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await canvasFormatsApi.listCanvasFormats({
+			const result = await api.listCanvasFormats({
 				name: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
@@ -69,7 +69,7 @@
 
 		loadingDeleteModal.value = true
 		try {
-			await canvasFormatsApi.deleteCanvasFormat(selectedCanvasFormat.value.id)
+			await api.deleteCanvasFormat(selectedCanvasFormat.value.id)
 			showDeleteModal.value = false
 			selectedCanvasFormat.value = null
 			await load()
@@ -82,7 +82,7 @@
 		toast.info('Порядок изменён. Сохраняю...')
 		try {
 			canvasFormats.value = orderedCanvasFormats
-			await canvasFormatsApi.reorderCanvasFormats({
+			await api.reorderCanvasFormats({
 				items: orderedCanvasFormats
 					.filter((canvasFormat): canvasFormat is CanvasFormat & { id: number } => canvasFormat.id !== null)
 					.map((canvasFormat) => ({
@@ -154,6 +154,7 @@
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
 		<CanvasFormatCreateModal
+			v-if="showCanvasFormatModal"
 			:open="showCanvasFormatModal"
 			:canvas-format="selectedCanvasFormat"
 			@close="closeCanvasFormatModal"

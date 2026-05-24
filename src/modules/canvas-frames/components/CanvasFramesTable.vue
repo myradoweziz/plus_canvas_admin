@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { CANVAS_FRAMES_TABLE_COLUMNS } from '../helpers'
-	import type { CanvasFrame } from '../types/canvas-frame'
+	import type { CanvasFrame } from '../types'
 
 	defineProps<{
 		frames: CanvasFrame[]

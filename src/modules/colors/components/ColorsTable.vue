@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { COLORS_TABLE_COLUMNS } from '../helpers'
-	import type { Color } from '../types/color'
+	import type { Color } from '../types'
 
 	defineProps<{
 		colors: Color[]

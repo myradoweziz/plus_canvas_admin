@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { PRODUCT_TAGS_TABLE_COLUMNS } from '../helpers'
-	import type { ProductTag } from '../types/productTag'
+	import type { ProductTag } from '../types'
 
 	defineProps<{
 		tags: ProductTag[]
@@ -20,12 +20,7 @@
 </script>
 
 <template>
-	<DataTable
-		:columns="PRODUCT_TAGS_TABLE_COLUMNS"
-		:rows="tags"
-		:loading="loading"
-		empty-text="Пока нет тегов."
-	>
+	<DataTable :columns="PRODUCT_TAGS_TABLE_COLUMNS" :rows="tags" :loading="loading" empty-text="Пока нет тегов.">
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toTag(row).name }}</span>
 		</template>

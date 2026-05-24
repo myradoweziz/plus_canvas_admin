@@ -11,13 +11,13 @@
 	import TextField from '@/shared/ui/TextField.vue'
 	import ProductsTable from '../components/ProductsTable.vue'
 
-	import { productTagsApi } from '@/modules/product-tags/api/productTags'
-	import type { ProductTag } from '@/modules/product-tags/types/productTag'
-	import { categoriesApi } from '@/modules/categories/api'
-	import type { FeaturedCategory, MainCategory, SubCategory } from '@/modules/categories/types/category'
+	import { api as categoriesApi } from '@/modules/categories/api'
+	import type { FeaturedCategory, MainCategory, SubCategory } from '@/modules/categories/types'
+	import { api as productTagsApi } from '@/modules/product-tags/api'
+	import type { ProductTag } from '@/modules/product-tags/types'
 	import { BoxCubeIcon } from '@/shared/icons'
 	import { api } from '../api'
-	import type { CanvasProduct } from '../types/product'
+	import type { CanvasProduct } from '../types'
 
 	const router = useRouter()
 	const loading = ref(false)
@@ -291,7 +291,14 @@
 			<template #actions>
 				<div class="flex items-center gap-2 flex-wrap">
 					<input type="file" ref="fileInput" class="hidden" accept=".xlsx,.xls" @change="importExcel" />
-					<Button v-if="selectedProducts.length" type="button" size="sm" class="bg-red-600 hover:bg-red-700 text-white" :on-click="bulkDelete">Удалить выбранные ({{ selectedProducts.length }})</Button>
+					<Button
+						v-if="selectedProducts.length"
+						type="button"
+						size="sm"
+						class="bg-red-600 hover:bg-red-700 text-white"
+						:on-click="bulkDelete"
+						>Удалить выбранные ({{ selectedProducts.length }})</Button
+					>
 					<Button type="button" size="sm" variant="outline" :on-click="triggerImportExcel">Импорт Excel</Button>
 					<Button type="button" size="sm" variant="outline" :on-click="exportExcel">Экспорт Excel</Button>
 					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>

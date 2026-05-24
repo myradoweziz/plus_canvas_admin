@@ -4,7 +4,7 @@
 
 	import { EditIcon } from '@/shared/icons'
 	import { CONTACT_INFO_TABLE_COLUMNS } from '../helpers'
-	import type { ContactInfo } from '../types/contact-info'
+	import type { ContactInfo } from '../types'
 
 	defineProps<{
 		rows: ContactInfo[]

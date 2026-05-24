@@ -1,17 +1,17 @@
 <script setup lang="ts">
-	import { computed, onMounted, ref } from 'vue'
+	import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
+	import PermissionsTable from '../components/PermissionsTable.vue'
+	const PermissionCreateModal = defineAsyncComponent(() => import('../components/PermissionCreateModal.vue'))
 
 	import { PermissionsIcon } from '@/shared/icons'
-	import { permissionsApi } from '../api/permissions'
-	import PermissionCreateModal from '../components/PermissionCreateModal.vue'
-	import PermissionsTable from '../components/PermissionsTable.vue'
-	import type { Permission } from '../types/permission'
+	import { api as permissionsApi } from '../api'
+	import type { Permission } from '../types'
 
 	const loading = ref(false)
 	const permissions = ref<Permission[]>([])
@@ -120,7 +120,13 @@
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<PermissionCreateModal :open="showPermissionModal" :permission="modalPermission" @close="closeEdit" @saved="load" />
+		<PermissionCreateModal
+			v-if="showPermissionModal"
+			:open="showPermissionModal"
+			:permission="modalPermission"
+			@close="closeEdit"
+			@saved="load"
+		/>
 
 		<DeleteModal
 			:open="showDeleteModal"

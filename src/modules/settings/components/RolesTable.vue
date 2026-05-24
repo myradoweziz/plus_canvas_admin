@@ -3,8 +3,8 @@
 	import DataTable from '@/shared/ui/DataTable.vue'
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import { ROLES_TABLE_COLUMNS } from '../helpers/roles'
-	import type { Role } from '../types/role'
+	import { ROLES_TABLE_COLUMNS } from '../helpers'
+	import type { Role } from '../types'
 
 	defineProps<{
 		roles: Role[]

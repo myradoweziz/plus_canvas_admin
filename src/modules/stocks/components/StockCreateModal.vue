@@ -11,8 +11,8 @@
 
 	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { stocksApi } from '../api/stocks'
-	import type { Stock } from '../types/stock'
+	import { api as stocksApi } from '../api'
+	import type { Stock } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 

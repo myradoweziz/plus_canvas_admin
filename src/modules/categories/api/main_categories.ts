@@ -1,6 +1,6 @@
 import { downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
-import type { MainCategory, MainCategoryPayload } from '../types/category'
+import type { MainCategory, MainCategoryPayload } from '../types'
 
 export const mainCategoriesApi = {
 	listMainCategories,

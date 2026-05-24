@@ -4,8 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { CANVAS_FORMATS_TABLE_COLUMNS } from '../helpers'
-	import type { CanvasFormat } from '../types/canvas-format'
-	import { getCanvasFormatSizeLabel } from '../types/canvas-format'
+	import { type CanvasFormat, getCanvasFormatSizeLabel } from '../types'
 
 	defineProps<{
 		canvasFormats: CanvasFormat[]

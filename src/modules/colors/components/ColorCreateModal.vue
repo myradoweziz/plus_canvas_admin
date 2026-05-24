@@ -9,8 +9,8 @@
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { colorsApi } from '../api/colors'
-	import type { Color } from '../types/color'
+	import { api } from '../api'
+	import type { Color } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 
@@ -86,9 +86,9 @@
 			}
 
 			if (payload.id) {
-				await colorsApi.updateColor(payload)
+				await api.updateColor(payload)
 			} else {
-				await colorsApi.createColor(payload)
+				await api.createColor(payload)
 			}
 
 			emit('saved')

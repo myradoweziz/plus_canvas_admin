@@ -1,18 +1,17 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-
-	import CanvasFrameCreateModal from '../components/CanvasFrameCreateModal.vue'
 	import CanvasFramesTable from '../components/CanvasFramesTable.vue'
+	const CanvasFrameCreateModal = defineAsyncComponent(() => import('../components/CanvasFrameCreateModal.vue'))
 
 	import { CanvasFormatsIcon } from '@/shared/icons'
-	import { canvasFramesApi } from '../api/canvas-frames'
-	import type { CanvasFrame } from '../types/canvas-frame'
+	import { api } from '../api'
+	import type { CanvasFrame } from '../types'
 
 	const loading = ref(false)
 	const frames = ref<CanvasFrame[]>([])
@@ -28,7 +27,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await canvasFramesApi.listCanvasFrames({
+			const result = await api.listCanvasFrames({
 				name: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
@@ -66,7 +65,7 @@
 		if (!selectedFrame.value?.id) return
 		loadingDeleteModal.value = true
 		try {
-			await canvasFramesApi.deleteCanvasFrame(selectedFrame.value.id)
+			await api.deleteCanvasFrame(selectedFrame.value.id)
 			showDeleteModal.value = false
 			selectedFrame.value = null
 			await load()
@@ -101,7 +100,10 @@
 			</template>
 		</Banner>
 
-		<form class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-4" @submit.prevent="applyFilters">
+		<form
+			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-4"
+			@submit.prevent="applyFilters"
+		>
 			<TextField v-model.trim="filters.search" label="Поиск" name="search" placeholder="Поиск" />
 			<div class="flex items-end gap-2">
 				<Button type="submit" size="sm">Фильтр</Button>
@@ -112,7 +114,13 @@
 		<CanvasFramesTable :frames="frames" :loading="loading" @edit="editFrame" @delete="deleteFrame" />
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
-		<CanvasFrameCreateModal :open="showModal" :frame="selectedFrame" @close="closeModal" @saved="load" />
+		<CanvasFrameCreateModal
+			v-if="showModal"
+			:open="showModal"
+			:frame="selectedFrame"
+			@close="closeModal"
+			@saved="load"
+		/>
 
 		<DeleteModal
 			:open="showDeleteModal"
@@ -124,4 +132,3 @@
 		/>
 	</div>
 </template>
-

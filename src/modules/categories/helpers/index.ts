@@ -1,3 +1,14 @@
+export const CATEGORY_TYPE_OPTIONS = [
+	{ label: 'Kişiye Özel Kanvas Tablo', value: 'Kişiye Özel Kanvas Tablo' },
+	{ label: 'Tablo Kanvas Tablo Galerisi', value: 'Tablo  Kanvas Tablo Galerisi' }
+]
+
+export const FEATURED_CATEGORY_TYPE_OPTIONS = [
+	{ label: 'Default', value: 'Default' },
+	{ label: 'Öne Çıkan Kategoriler', value: 'Öne Çıkan Kategoriler' },
+	{ label: 'En Çok Aranan Kategoriler', value: 'En Çok Aranan Kategoriler' }
+]
+
 export const FEATURED_CATEGORIES_TABLE_COLUMNS = [
 	{ key: 'name', label: 'Название' },
 	{ key: 'main_category', label: 'Главная категория' },

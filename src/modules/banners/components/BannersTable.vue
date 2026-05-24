@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { BANNERS_TABLE_COLUMNS } from '../helpers'
-	import type { Banner } from '../types/banner'
+	import type { Banner } from '../types'
 
 	const props = defineProps<{
 		banners: Banner[]

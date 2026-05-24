@@ -4,7 +4,7 @@
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { CANVAS_EFFECTS_TABLE_COLUMNS } from '../helpers'
-	import type { CanvasEffect } from '../types/canvas-effect'
+	import type { CanvasEffect } from '../types'
 
 	defineProps<{
 		effects: CanvasEffect[]

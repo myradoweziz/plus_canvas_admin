@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { onMounted, ref } from 'vue'
+	import { defineAsyncComponent, onMounted, ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
@@ -7,12 +7,12 @@
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	import StockCreateModal from '../components/StockCreateModal.vue'
 	import StocksTable from '../components/StocksTable.vue'
+	const StockCreateModal = defineAsyncComponent(() => import('../components/StockCreateModal.vue'))
 
 	import { StocksIcon } from '@/shared/icons'
-	import { stocksApi } from '../api/stocks'
-	import type { Stock } from '../types/stock'
+	import { api } from '../api'
+	import type { Stock } from '../types'
 
 	const loading = ref(false)
 	const stocks = ref<Stock[]>([])
@@ -30,7 +30,7 @@
 	const load = async () => {
 		loading.value = true
 		try {
-			const result = await stocksApi.listStocks({
+			const result = await api.listStocks({
 				title: filters.value.search,
 				limit: limit.value,
 				offset: offset.value
@@ -69,7 +69,7 @@
 
 		loadingDeleteModal.value = true
 		try {
-			await stocksApi.deleteStock(selectedStock.value.id)
+			await api.deleteStock(selectedStock.value.id)
 			showDeleteModal.value = false
 			selectedStock.value = null
 			await load()
@@ -82,7 +82,7 @@
 		toast.info('Порядок изменён. Сохраняю...')
 		try {
 			stocks.value = orderedStocks
-			await stocksApi.reorderStocks({
+			await api.reorderStocks({
 				items: orderedStocks
 					.filter((stock): stock is Stock & { id: number } => stock.id !== null)
 					.map((stock) => ({
@@ -138,17 +138,12 @@
 			</div>
 		</form>
 
-		<StocksTable
-			:stocks="stocks"
-			:loading="loading"
-			@edit="editStock"
-			@delete="deleteStock"
-			@reorder="reorderStocks"
-		/>
+		<StocksTable :stocks="stocks" :loading="loading" @edit="editStock" @delete="deleteStock" @reorder="reorderStocks" />
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
 		<StockCreateModal
+			v-if="showStockModal"
 			:open="showStockModal"
 			:stock="selectedStock"
 			@close="closeStockModal"
