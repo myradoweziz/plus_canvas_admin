@@ -15,6 +15,7 @@ export type ProductFormTab =
 	| 'categoryMappings'
 	| 'productTags'
 	| 'productComments'
+	| 'productOrders'
 
 export const PRODUCT_FORM_TABS: Array<{ id: ProductFormTab; label: string }> = [
 	{ id: 'productInfo', label: 'Product Info' },
@@ -22,7 +23,8 @@ export const PRODUCT_FORM_TABS: Array<{ id: ProductFormTab; label: string }> = [
 	{ id: 'seo', label: 'SEO' },
 	{ id: 'categoryMappings', label: 'Category mappings' },
 	{ id: 'productTags', label: 'Теги товаров' },
-	{ id: 'productComments', label: 'Product Comments' }
+	{ id: 'productComments', label: 'Product Comments' },
+	{ id: 'productOrders', label: 'Product Orders' }
 ] as const
 
 export const createEmptyCanvasProductComment = (): CanvasProductComment => ({

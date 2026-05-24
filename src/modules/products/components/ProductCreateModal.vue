@@ -8,6 +8,7 @@
 	import ProductDiscountTab from './product-form/ProductDiscountTab.vue'
 	import ProductFormTabBar from './product-form/ProductFormTabBar.vue'
 	import ProductInfoTab from './product-form/ProductInfoTab.vue'
+	import ProductOrdersTab from './product-form/ProductOrdersTab.vue'
 	import ProductSeoTab from './product-form/ProductSeoTab.vue'
 	import ProductTagsTab from './product-form/ProductTagsTab.vue'
 
@@ -100,6 +101,8 @@
 				<ProductTagsTab v-else-if="activeTab === 'productTags'" v-model:form="form" />
 
 				<ProductCommentsTab v-else-if="activeTab === 'productComments'" :product-id="effectiveProductId" />
+
+				<ProductOrdersTab v-else-if="activeTab === 'productOrders'" :product-id="effectiveProductId" />
 			</div>
 		</div>
 	</div>
