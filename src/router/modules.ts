@@ -13,6 +13,7 @@ import stocks from '@/modules/stocks'
 import faqs from '@/modules/faqs'
 import home from '@/modules/home'
 import login from '@/modules/login'
+import orders from '@/modules/orders'
 import products from '@/modules/products'
 import profile from '@/modules/profile'
 import settings from '@/modules/settings'
@@ -31,6 +32,7 @@ registerModules({
 	canvasEffects: canvasEffects,
 	banners: banners,
 	products: products,
+	orders: orders,
 	faqs: faqs,
 	profile: profile,
 	settings: settings

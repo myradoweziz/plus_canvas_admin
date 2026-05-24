@@ -1,6 +1,7 @@
 <script setup lang="ts">
 	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
+	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { MAIN_CATEGORIES_TABLE_COLUMNS } from '../helpers'
@@ -47,12 +48,9 @@
 		</template>
 
 		<template #cell-is_active="{ row }">
-			<span
-				class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
-				:class="toMainCategory(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
-			>
+			<StatusBadge :tone-class="toMainCategory(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'">
 				{{ toMainCategory(row).is_active ? 'Активно' : 'Не активно' }}
-			</span>
+			</StatusBadge>
 		</template>
 
 		<template #cell-featured_order="{ row }">

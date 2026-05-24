@@ -138,6 +138,7 @@
 		PermissionsIcon,
 		ProductsIcon,
 		RolesIcon,
+		TableIcon,
 		SubCategoriesIcon,
 		UserCircleIcon,
 		UsersIcon
@@ -154,6 +155,7 @@
 				{ icon: HomeIcon, name: 'Панель', path: '/admin-panel' },
 				{ icon: BannerIcon, name: 'Баннеры', path: '/admin-panel/banners' },
 				{ icon: ProductsIcon, name: 'Продукты', path: '/admin-panel/products' },
+				{ icon: TableIcon, name: 'Заказы', path: '/admin-panel/orders' },
 				{
 					icon: CategoriesIcon,
 					name: 'Категории',

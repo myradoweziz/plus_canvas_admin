@@ -19,6 +19,7 @@
 			emptyText?: string
 			rowKey?: string
 			rowClass?: string
+			clickable?: boolean
 			draggable?: boolean
 			orderKey?: string
 			selectable?: boolean
@@ -30,6 +31,7 @@
 			emptyText: 'Пока нет данных.',
 			rowKey: 'id',
 			rowClass: '',
+			clickable: false,
 			draggable: false,
 			orderKey: '',
 			selectable: false,
@@ -40,6 +42,7 @@
 	const emit = defineEmits<{
 		(e: 'reorder', rows: unknown[]): void
 		(e: 'update:selectedRows', rows: unknown[]): void
+		(e: 'rowClick', row: unknown): void
 	}>()
 
 	const dragIndex = ref<number | null>(null)
@@ -109,6 +112,11 @@
 	const onDragEnd = () => {
 		dragIndex.value = null
 	}
+
+	const onRowClick = (row: unknown) => {
+		if (!props.clickable) return
+		emit('rowClick', row)
+	}
 </script>
 
 <template>
@@ -144,7 +152,15 @@
 						:key="getRowKey(row, index)"
 						:draggable="draggable"
 						class="hover:bg-gray-50"
-						:class="[rowClass, { 'cursor-grab': draggable, 'opacity-50': dragIndex === index }]"
+						:class="[
+							rowClass,
+							{
+								'cursor-grab': draggable,
+								'cursor-pointer': clickable && !draggable,
+								'opacity-50': dragIndex === index
+							}
+						]"
+						@click="onRowClick(row)"
 						@dragstart="onDragStart(index)"
 						@dragover.prevent
 						@drop="onDrop(index)"
