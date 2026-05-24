@@ -43,7 +43,8 @@ export interface OrderItem {
 	discount_amount?: string | null
 	created_at?: string
 	updated_at?: string
-	canvas_product: OrderCanvasProduct
+	canvas_product?: OrderCanvasProduct
+	canvas_products?: OrderCanvasProduct[]
 }
 
 export interface OrderShipment {
