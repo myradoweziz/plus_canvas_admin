@@ -1,4 +1,5 @@
 import type { CollageLayout } from '../types/collage-layout'
+import type { CanvasProductComment } from '../types/product-comment'
 import type {
 	CanvasProduct,
 	CanvasProductCategoryMapping,
@@ -115,6 +116,25 @@ export const validateProductDiscount = (discount: CanvasProductDiscount): Record
 
 	if (!String(discount.special_price_end || '').trim()) {
 		errors.special_price_end = 'Укажите дату окончания'
+	}
+
+	return errors
+}
+
+export const validateProductComment = (comment: CanvasProductComment): Record<string, string> => {
+	const errors: Record<string, string> = {}
+
+	if (!String(comment.author_name || '').trim()) {
+		errors.author_name = 'Укажите имя автора'
+	}
+
+	if (!String(comment.comment || '').trim()) {
+		errors.comment = 'Укажите текст комментария'
+	}
+
+	const rating = Number(comment.rating)
+	if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+		errors.rating = 'Рейтинг должен быть от 1 до 5'
 	}
 
 	return errors

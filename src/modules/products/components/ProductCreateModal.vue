@@ -3,10 +3,11 @@
 	import { useRoute, useRouter } from 'vue-router'
 
 	import Button from '@/shared/ui/Button.vue'
+	import ProductCategoryMappingsTab from './product-form/ProductCategoryMappingsTab.vue'
+	import ProductCommentsTab from './product-form/ProductCommentsTab.vue'
+	import ProductDiscountTab from './product-form/ProductDiscountTab.vue'
 	import ProductFormTabBar from './product-form/ProductFormTabBar.vue'
 	import ProductInfoTab from './product-form/ProductInfoTab.vue'
-	import ProductCategoryMappingsTab from './product-form/ProductCategoryMappingsTab.vue'
-	import ProductDiscountTab from './product-form/ProductDiscountTab.vue'
 	import ProductSeoTab from './product-form/ProductSeoTab.vue'
 	import ProductTagsTab from './product-form/ProductTagsTab.vue'
 
@@ -96,10 +97,9 @@
 					:product-id="effectiveProductId"
 				/>
 
-				<ProductTagsTab
-					v-else-if="activeTab === 'productTags'"
-					v-model:form="form"
-				/>
+				<ProductTagsTab v-else-if="activeTab === 'productTags'" v-model:form="form" />
+
+				<ProductCommentsTab v-else-if="activeTab === 'productComments'" :product-id="effectiveProductId" />
 			</div>
 		</div>
 	</div>

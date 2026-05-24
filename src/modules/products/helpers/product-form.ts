@@ -1,3 +1,4 @@
+import type { CanvasProductComment } from '../types/product-comment'
 import type {
 	CanvasProduct,
 	CanvasProductCategoryMapping,
@@ -7,15 +8,30 @@ import type {
 
 export const INNER_IMAGES_MAIN_CATEGORY_SLUG = 'kisiye-ozel-kanvas-tablo'
 
-export type ProductFormTab = 'productInfo' | 'discount' | 'seo' | 'categoryMappings' | 'productTags'
+export type ProductFormTab =
+	| 'productInfo'
+	| 'discount'
+	| 'seo'
+	| 'categoryMappings'
+	| 'productTags'
+	| 'productComments'
 
 export const PRODUCT_FORM_TABS: Array<{ id: ProductFormTab; label: string }> = [
 	{ id: 'productInfo', label: 'Product Info' },
 	{ id: 'discount', label: 'Discount' },
 	{ id: 'seo', label: 'SEO' },
 	{ id: 'categoryMappings', label: 'Category mappings' },
-	{ id: 'productTags', label: 'Теги товаров' }
+	{ id: 'productTags', label: 'Теги товаров' },
+	{ id: 'productComments', label: 'Product Comments' }
 ] as const
+
+export const createEmptyCanvasProductComment = (): CanvasProductComment => ({
+	id: null,
+	author_name: '',
+	comment: '',
+	rating: 5,
+	is_active: true
+})
 
 export const createEmptyCanvasProductDiscount = (): CanvasProductDiscount => ({
 	discount: 0,
