@@ -13,6 +13,13 @@ export interface CanvasProductCategoryMapping {
 	display_order: number
 }
 
+export interface CanvasProductDiscount {
+	discount: number
+	special_price: number
+	special_price_start: string
+	special_price_end: string
+}
+
 export type CanvasProduct = {
 	id: number | null
 	name: string
@@ -40,6 +47,7 @@ export type CanvasProduct = {
 	product_type: 'simple' | 'grouped'
 	short_description: string
 	admin_comment: string
+	sku: string
 	show_on_homepage: boolean
 	allow_customer_reviews: boolean
 	old_price: number | null
@@ -63,9 +71,19 @@ export type CanvasProduct = {
 	is_published: boolean
 	seo: CanvasProductSeo
 	category_mappings: CanvasProductCategoryMapping[]
+	product_discount: CanvasProductDiscount
 }
 
 export type CanvasProductPayload = Omit<
 	CanvasProduct,
-	'id' | 'main_category_slug' | 'collage_layout' | 'seo' | 'category_mappings'
+	| 'id'
+	| 'main_category_slug'
+	| 'collage_layout'
+	| 'seo'
+	| 'category_mappings'
+	| 'product_discount'
+	| 'discount'
+	| 'special_price'
+	| 'special_price_start'
+	| 'special_price_end'
 >

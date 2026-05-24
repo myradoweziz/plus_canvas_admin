@@ -6,6 +6,7 @@
 	import ProductFormTabBar from './product-form/ProductFormTabBar.vue'
 	import ProductInfoTab from './product-form/ProductInfoTab.vue'
 	import ProductCategoryMappingsTab from './product-form/ProductCategoryMappingsTab.vue'
+	import ProductDiscountTab from './product-form/ProductDiscountTab.vue'
 	import ProductSeoTab from './product-form/ProductSeoTab.vue'
 	import ProductTagsTab from './product-form/ProductTagsTab.vue'
 
@@ -74,6 +75,12 @@
 					v-model:form="form"
 					:product-id="effectiveProductId"
 					@created="onProductCreated"
+				/>
+
+				<ProductDiscountTab
+					v-else-if="activeTab === 'discount'"
+					v-model:product-discount="form.product_discount"
+					:product-id="effectiveProductId"
 				/>
 
 				<ProductSeoTab

@@ -4,6 +4,7 @@ import { createEmptyCanvasProduct } from '../helpers/product-form'
 import type {
 	CanvasProduct,
 	CanvasProductCategoryMapping,
+	CanvasProductDiscount,
 	CanvasProductPayload,
 	CanvasProductSeo
 } from '../types/product'
@@ -83,6 +84,16 @@ const toDatetimeLocalValue = (value: unknown): string | null => {
 	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
+const toDateOnlyValue = (value: unknown): string => {
+	if (value == null || value === '') return ''
+	const str = String(value).trim()
+	if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0, 10)
+	const date = new Date(str)
+	if (Number.isNaN(date.getTime())) return ''
+	const pad = (n: number) => String(n).padStart(2, '0')
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
 const toProductType = (value: unknown): CanvasProduct['product_type'] =>
 	value === 'grouped' || value === 'Grouped Product' ? 'grouped' : 'simple'
 
@@ -116,8 +127,27 @@ const normalizeCanvasProductSeo = (product: Record<string, unknown>): CanvasProd
 	}
 }
 
+const normalizeCanvasProductDiscount = (product: Record<string, unknown>): CanvasProductDiscount => {
+	const nested = product.product_discount as Record<string, unknown> | undefined
+	const discountRaw = product.discount
+	const discountPercent =
+		typeof discountRaw === 'number'
+			? discountRaw
+			: typeof nested?.discount === 'number'
+				? nested.discount
+				: Number(product.discount_percent ?? 0)
+
+	return {
+		discount: Number.isFinite(discountPercent) ? discountPercent : 0,
+		special_price: Number(nested?.special_price ?? product.special_price ?? 0) || 0,
+		special_price_start: toDateOnlyValue(nested?.special_price_start ?? product.special_price_start),
+		special_price_end: toDateOnlyValue(nested?.special_price_end ?? product.special_price_end)
+	}
+}
+
 function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 	const defaults = createEmptyCanvasProduct()
+	const productDiscount = normalizeCanvasProductDiscount(product)
 
 	return {
 		...defaults,
@@ -125,7 +155,7 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		name: product.name ?? '',
 		description: product.description ?? '',
 		price: Number(product.price ?? 0),
-		discount: Number(product.discount ?? 0),
+		discount: productDiscount.discount,
 		images: toImageArray(product.images),
 		inner_images: toImageArray(product.inner_images),
 		upload_image_count: Number(product.upload_image_count ?? 0),
@@ -149,13 +179,15 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		product_type: toProductType(product.product_type),
 		short_description: product.short_description ?? '',
 		admin_comment: product.admin_comment ?? '',
+		sku: product.sku ?? '',
 		show_on_homepage: !!product.show_on_homepage,
 		allow_customer_reviews: product.allow_customer_reviews !== false,
 		old_price: toNullableNumber(product.old_price),
 		cost_price: toNullableNumber(product.cost_price),
-		special_price: toNullableNumber(product.special_price),
-		special_price_start: toDatetimeLocalValue(product.special_price_start),
-		special_price_end: toDatetimeLocalValue(product.special_price_end),
+		special_price: productDiscount.special_price,
+		special_price_start: productDiscount.special_price_start || null,
+		special_price_end: productDiscount.special_price_end || null,
+		product_discount: productDiscount,
 		disable_buy_button: !!product.disable_buy_button,
 		available_for_preorder: !!product.available_for_preorder,
 		call_for_price: !!product.call_for_price,
@@ -199,7 +231,6 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		name: product.name,
 		description: product.description,
 		price: product.price,
-		discount: product.discount,
 		images: product.images,
 		inner_images: product.inner_images,
 		upload_image_count: product.upload_image_count,
@@ -219,13 +250,11 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		product_type: product.product_type,
 		short_description: product.short_description,
 		admin_comment: product.admin_comment,
+		sku: product.sku,
 		show_on_homepage: product.show_on_homepage,
 		allow_customer_reviews: product.allow_customer_reviews,
 		old_price: product.old_price,
 		cost_price: product.cost_price,
-		special_price: product.special_price,
-		special_price_start: product.special_price_start,
-		special_price_end: product.special_price_end,
 		disable_buy_button: product.disable_buy_button,
 		available_for_preorder: product.available_for_preorder,
 		call_for_price: product.call_for_price,
@@ -336,6 +365,28 @@ async function updateCanvasProductSeo(productId: number, seo: CanvasProductSeo):
 	})
 
 	return normalizeCanvasProductSeo((response?.data || response) as Record<string, unknown>)
+}
+
+function toCanvasProductDiscountPayload(discount: CanvasProductDiscount): CanvasProductDiscount {
+	return {
+		discount: Number(discount.discount) || 0,
+		special_price: Number(discount.special_price) || 0,
+		special_price_start: toDateOnlyValue(discount.special_price_start),
+		special_price_end: toDateOnlyValue(discount.special_price_end)
+	}
+}
+
+async function updateCanvasProductDiscount(
+	productId: number,
+	discount: CanvasProductDiscount
+): Promise<CanvasProductDiscount> {
+	const response = await request({
+		url: `${CANVAS_PRODUCTS_URL}/${productId}/discount`,
+		method: 'PUT',
+		data: toCanvasProductDiscountPayload(discount)
+	})
+
+	return normalizeCanvasProductDiscount((response?.data || response) as Record<string, unknown>)
 }
 
 function toCanvasProductCategoryMappingsPayload(
@@ -475,6 +526,7 @@ export const productsApi = {
 	createCanvasProduct,
 	updateCanvasProduct,
 	updateCanvasProductSeo,
+	updateCanvasProductDiscount,
 	saveCanvasProductCategory,
 	saveCanvasProductCategories,
 	deleteCanvasProduct,

@@ -1,5 +1,10 @@
 import type { CollageLayout } from '../types/collage-layout'
-import type { CanvasProduct, CanvasProductCategoryMapping, CanvasProductSeo } from '../types/product'
+import type {
+	CanvasProduct,
+	CanvasProductCategoryMapping,
+	CanvasProductDiscount,
+	CanvasProductSeo
+} from '../types/product'
 import { INNER_IMAGES_MAIN_CATEGORY_SLUG } from './product-form'
 
 export const uploadImageCountFromLayout = (layout: CollageLayout | null): number => {
@@ -40,6 +45,7 @@ export const validateProductInfo = (form: CanvasProduct): Record<string, string>
 	setRequiredProductError(errors, form, 'description', 'Description')
 	setRequiredProductError(errors, form, 'price', 'Price')
 	setRequiredProductError(errors, form, 'product_qode', 'Product Qode')
+	setRequiredProductError(errors, form, 'sku', 'SKU')
 	setRequiredProductError(errors, form, 'main_category_id', 'Main Category')
 	setRequiredProductError(errors, form, 'category_id', 'Category')
 
@@ -84,6 +90,28 @@ export const validateProductSeo = (seo: CanvasProductSeo): Record<string, string
 	setRequiredSeoError(errors, seo, 'meta_title', 'Meta title')
 	setRequiredSeoError(errors, seo, 'meta_description', 'Meta description')
 	setRequiredSeoError(errors, seo, 'meta_keywords', 'Meta keywords')
+
+	return errors
+}
+
+export const validateProductDiscount = (discount: CanvasProductDiscount): Record<string, string> => {
+	const errors: Record<string, string> = {}
+
+	if (!Number.isFinite(Number(discount.discount)) || Number(discount.discount) < 0) {
+		errors.discount = 'Укажите корректную скидку'
+	}
+
+	if (!Number.isFinite(Number(discount.special_price)) || Number(discount.special_price) < 0) {
+		errors.special_price = 'Укажите корректную спец. цену'
+	}
+
+	if (!String(discount.special_price_start || '').trim()) {
+		errors.special_price_start = 'Укажите дату начала'
+	}
+
+	if (!String(discount.special_price_end || '').trim()) {
+		errors.special_price_end = 'Укажите дату окончания'
+	}
 
 	return errors
 }

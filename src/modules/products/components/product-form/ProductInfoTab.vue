@@ -55,7 +55,7 @@
 	const productTypeOptions = [...PRODUCT_TYPE_OPTIONS]
 
 	const setNullableNumber = (
-		field: 'old_price' | 'cost_price' | 'special_price' | 'max_cart_qty' | 'additional_shipping_charge' | 'weight',
+		field: 'old_price' | 'cost_price' | 'max_cart_qty' | 'additional_shipping_charge' | 'weight',
 		value: string | number | null
 	) => {
 		if (value === '' || value === null) {
@@ -113,6 +113,7 @@
 			'description',
 			'price',
 			'product_qode',
+			'sku',
 			'main_category_id',
 			'category_id',
 			'images',
@@ -511,8 +512,6 @@
 			:error-message="validationErrors.price"
 		/>
 
-		<TextField v-model.number="form.discount" label="Акция %" name="discount" type="number" min="0" />
-
 		<TextField v-model.trim="form.flag" label="Флаг" name="flag" placeholder="Флаг" />
 		<TextField
 			v-model.trim="form.product_qode"
@@ -521,6 +520,15 @@
 			name="product_qode"
 			placeholder="Код продукта"
 			:error-message="validationErrors.product_qode"
+		/>
+
+		<TextField
+			v-model.trim="form.sku"
+			label="SKU"
+			required
+			name="sku"
+			placeholder="Артикул (SKU)"
+			:error-message="validationErrors.sku"
 		/>
 
 		<div class="md:col-span-3">
@@ -756,7 +764,7 @@
 		</div>
 
 		<div class="md:col-span-3 border-t border-gray-200 pt-4">
-			<p class="text-sm font-semibold text-gray-900">Цены и спецпредложение</p>
+			<p class="text-sm font-semibold text-gray-900">Цены</p>
 		</div>
 
 		<TextField
@@ -774,28 +782,6 @@
 			type="number"
 			min="0"
 			@update:model-value="(v) => setNullableNumber('cost_price', v)"
-		/>
-		<TextField
-			:model-value="form.special_price ?? ''"
-			label="Спец. цена"
-			name="special_price"
-			type="number"
-			min="0"
-			@update:model-value="(v) => setNullableNumber('special_price', v)"
-		/>
-		<TextField
-			:model-value="form.special_price_start ?? ''"
-			label="Спец. цена с"
-			name="special_price_start"
-			type="datetime-local"
-			@update:model-value="(v) => (form.special_price_start = v ? String(v) : null)"
-		/>
-		<TextField
-			:model-value="form.special_price_end ?? ''"
-			label="Спец. цена до"
-			name="special_price_end"
-			type="datetime-local"
-			@update:model-value="(v) => (form.special_price_end = v ? String(v) : null)"
 		/>
 
 		<div class="md:col-span-3 border-t border-gray-200 pt-4">

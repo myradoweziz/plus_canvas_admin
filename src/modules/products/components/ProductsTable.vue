@@ -38,24 +38,21 @@
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toProduct(row).name }}</span>
 		</template>
-
-		<template #cell-slug="{ row }">
-			<span class="text-gray-700">{{ toProduct(row).seo.slug }}</span>
+		<template #cell-sku="{ row }">
+			<span class="text-gray-700">{{ toProduct(row).sku }}</span>
 		</template>
 
 		<template #cell-price="{ row }">
 			<span class="text-gray-700">{{ toProduct(row).price }}</span>
 		</template>
-		<template #cell-discount="{ row }">
-			<span class="text-gray-700">{{ toProduct(row).discount }}</span>
-		</template>
 
-		<template #cell-product_qode="{ row }">
-			<span class="text-gray-700">{{ toProduct(row).product_qode }}</span>
-		</template>
-
-		<template #cell-flag="{ row }">
-			<span class="text-gray-700">{{ toProduct(row).flag }}</span>
+		<template #cell-is_published="{ row }">
+			<span
+				class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
+				:class="toProduct(row).is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
+			>
+				{{ toProduct(row).is_published ? 'Активно' : 'Не активно' }}
+			</span>
 		</template>
 
 		<template #cell-actions="{ row }">
