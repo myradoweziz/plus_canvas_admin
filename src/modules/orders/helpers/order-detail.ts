@@ -1,8 +1,13 @@
-export type OrderDetailTab = 'orderInfo' | 'products'
+import type { OrderCanvasProduct, OrderItem } from '../types'
+
+export type OrderDetailTab = 'orderInfo' | 'billing' | 'shipping' | 'products' | 'notes'
 
 export const ORDER_DETAIL_TABS: Array<{ id: OrderDetailTab; label: string }> = [
 	{ id: 'orderInfo', label: 'Информация' },
-	{ id: 'products', label: 'Products' }
+	{ id: 'billing', label: 'Billing Info' },
+	{ id: 'shipping', label: 'Shipping Address' },
+	{ id: 'products', label: 'Products' },
+	{ id: 'notes', label: 'Order Notes' }
 ] as const
 
 export const displayValue = (value: unknown) => {
@@ -19,8 +24,6 @@ export const ORDER_ITEMS_TABLE_COLUMNS = [
 	{ key: 'total', label: 'Сумма' },
 	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
 ]
-
-import type { OrderCanvasProduct, OrderItem } from '../types'
 
 export const getOrderItemProduct = (item: OrderItem): OrderCanvasProduct | undefined =>
 	item.canvas_product ?? item.canvas_products?.[0]

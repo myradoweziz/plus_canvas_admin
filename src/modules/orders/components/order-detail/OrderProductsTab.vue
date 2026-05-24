@@ -2,8 +2,10 @@
 	import { ref, watch } from 'vue'
 	import { toast } from 'vue3-toastify'
 
+	import { TrashIcon } from '@/shared/icons'
 	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
+	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { useFieldErrors } from '@/modules/products/composables'
@@ -25,10 +27,13 @@
 	}>()
 
 	const emit = defineEmits<{
-		(e: 'itemUpdated', item: OrderItem): void
+		(e: 'refresh'): void
 	}>()
 
 	const savingItemId = ref<number | null>(null)
+	const deletingItemId = ref<number | null>(null)
+	const showDeleteModal = ref(false)
+	const selectedItem = ref<OrderItem | null>(null)
 	const drafts = ref<Record<number, ItemDraft>>({})
 	const { validationErrors, clearFieldError, setValidationErrors, clearAllValidationErrors } = useFieldErrors()
 
@@ -73,8 +78,8 @@
 		clearAllValidationErrors()
 
 		try {
-			const updated = await api.updateOrderItem(props.orderId, item.id, draft)
-			emit('itemUpdated', updated)
+			await api.updateOrderItem(props.orderId, item.id, draft)
+			emit('refresh')
 			toast.success('Позиция обновлена')
 		} catch (error) {
 			setValidationErrors(getValidationErrors(error))
@@ -85,9 +90,37 @@
 	}
 
 	const productImage = (item: OrderItem) => getOrderItemProduct(item)?.images?.[0]?.url
+
+	const openDeleteModal = (item: OrderItem) => {
+		selectedItem.value = item
+		showDeleteModal.value = true
+	}
+
+	const closeDeleteModal = () => {
+		showDeleteModal.value = false
+		selectedItem.value = null
+	}
+
+	const confirmDelete = async () => {
+		if (!selectedItem.value) return
+
+		deletingItemId.value = selectedItem.value.id
+
+		try {
+			await api.deleteOrderItem(props.orderId, selectedItem.value.id)
+			emit('refresh')
+			toast.success('Позиция удалена')
+			closeDeleteModal()
+		} catch (error) {
+			toast.error(getErrorMessage(error, 'Не удалось удалить позицию'))
+		} finally {
+			deletingItemId.value = null
+		}
+	}
 </script>
 
 <template>
+	<div class="space-y-4">
 	<DataTable :columns="ORDER_ITEMS_TABLE_COLUMNS" :rows="items" empty-text="Позиций в заказе нет.">
 		<template #cell-product="{ row }">
 			<div class="flex min-w-[200px] items-center gap-3">
@@ -161,16 +194,37 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex justify-end">
+			<div class="flex justify-end gap-2">
 				<Button
 					type="button"
 					size="sm"
-					:disabled="savingItemId === toItem(row).id"
+					:disabled="savingItemId === toItem(row).id || deletingItemId === toItem(row).id"
 					:on-click="() => saveItem(toItem(row))"
 				>
 					{{ savingItemId === toItem(row).id ? 'Сохранение...' : 'Сохранить' }}
 				</Button>
+				<Button
+					type="button"
+					variant="ghost"
+					size="icon"
+					class-name="hover:text-red-700"
+					aria-label="Удалить"
+					:disabled="savingItemId === toItem(row).id || deletingItemId === toItem(row).id"
+					:on-click="() => openDeleteModal(toItem(row))"
+				>
+					<TrashIcon />
+				</Button>
 			</div>
 		</template>
 	</DataTable>
+
+	<DeleteModal
+		:open="showDeleteModal"
+		:title="selectedItem ? getOrderItemProduct(selectedItem)?.name : undefined"
+		entity-name="позицию"
+		:loading="deletingItemId !== null"
+		@close="closeDeleteModal"
+		@confirm="confirmDelete"
+	/>
+	</div>
 </template>

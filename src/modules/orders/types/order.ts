@@ -115,6 +115,7 @@ export interface Order {
 	billing_country?: string
 	billing_tax_number?: string | null
 	billing_tax_office?: string | null
+	google_maps_url?: string
 	user?: OrderUser
 	items: OrderItem[]
 	shipments?: OrderShipment[]

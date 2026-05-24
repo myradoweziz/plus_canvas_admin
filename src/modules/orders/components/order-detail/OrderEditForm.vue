@@ -31,17 +31,28 @@
 		order_status: '',
 		payment_status: '',
 		delivery_status: '',
-		transaction_id: '',
-		discount_name: ''
+		subtotal: 0,
+		tax: 0,
+		shipping_cost: 0,
+		discount_amount: 0,
+		total: 0
 	})
+
+	const toNumber = (value: string | number | null | undefined) => {
+		const parsed = Number(value)
+		return Number.isFinite(parsed) ? parsed : 0
+	}
 
 	const syncForm = (order: Order) => {
 		form.value = {
 			order_status: order.order_status ?? '',
 			payment_status: order.payment_status ?? '',
 			delivery_status: order.delivery_status ?? '',
-			transaction_id: order.transaction_id ?? '',
-			discount_name: order.discount_name ?? ''
+			subtotal: toNumber(order.subtotal),
+			tax: toNumber(order.tax),
+			shipping_cost: toNumber(order.shipping_cost),
+			discount_amount: toNumber(order.discount_amount),
+			total: toNumber(order.total)
 		}
 	}
 
@@ -58,13 +69,7 @@
 		clearAllValidationErrors()
 
 		try {
-			const updated = await api.updateOrder(props.order.id, {
-				order_status: form.value.order_status,
-				payment_status: form.value.payment_status,
-				delivery_status: form.value.delivery_status,
-				transaction_id: form.value.transaction_id,
-				discount_name: form.value.discount_name
-			})
+			const updated = await api.updateOrder(props.order.id, { ...form.value })
 			emit('saved', updated)
 			toast.success('Заказ обновлён')
 		} catch (error) {
@@ -109,20 +114,54 @@
 				@update:model-value="clearFieldError('delivery_status')"
 			/>
 			<TextField
-				v-model.trim="form.transaction_id"
-				label="Transaction ID"
-				name="transaction_id"
-				placeholder="cbdf89d0-..."
-				:error-message="validationErrors.transaction_id"
-				@update:model-value="clearFieldError('transaction_id')"
+				v-model.number="form.subtotal"
+				label="Подытог"
+				name="subtotal"
+				type="number"
+				min="0"
+				step="0.01"
+				:error-message="validationErrors.subtotal"
+				@update:model-value="clearFieldError('subtotal')"
 			/>
 			<TextField
-				v-model.trim="form.discount_name"
-				label="Название скидки"
-				name="discount_name"
-				placeholder="Название скидки"
-				:error-message="validationErrors.discount_name"
-				@update:model-value="clearFieldError('discount_name')"
+				v-model.number="form.tax"
+				label="Налог"
+				name="tax"
+				type="number"
+				min="0"
+				step="0.01"
+				:error-message="validationErrors.tax"
+				@update:model-value="clearFieldError('tax')"
+			/>
+			<TextField
+				v-model.number="form.shipping_cost"
+				label="Доставка"
+				name="shipping_cost"
+				type="number"
+				min="0"
+				step="0.01"
+				:error-message="validationErrors.shipping_cost"
+				@update:model-value="clearFieldError('shipping_cost')"
+			/>
+			<TextField
+				v-model.number="form.discount_amount"
+				label="Скидка"
+				name="discount_amount"
+				type="number"
+				min="0"
+				step="0.01"
+				:error-message="validationErrors.discount_amount"
+				@update:model-value="clearFieldError('discount_amount')"
+			/>
+			<TextField
+				v-model.number="form.total"
+				label="Итого"
+				name="total"
+				type="number"
+				min="0"
+				step="0.01"
+				:error-message="validationErrors.total"
+				@update:model-value="clearFieldError('total')"
 			/>
 		</div>
 

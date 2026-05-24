@@ -3,14 +3,12 @@ export * from './order-display'
 export * from './order-statuses'
 
 export const ORDERS_TABLE_COLUMNS = [
-	{ key: 'order_number', label: 'Номер' },
-	{ key: 'customer', label: 'Клиент' },
-	{ key: 'email', label: 'Email' },
-	{ key: 'phone', label: 'Телефон' },
+	{ key: 'id', label: 'ID' },
+	{ key: 'order_status', label: 'Статус заказа' },
+	{ key: 'payment_status', label: 'Статус оплаты' },
+	{ key: 'delivery_status', label: 'Статус доставки' },
+	{ key: 'customer', label: 'Покупатель' },
+	{ key: 'created_at', label: 'Дата' },
 	{ key: 'total', label: 'Сумма' },
-	{ key: 'order_status', label: 'Заказ' },
-	{ key: 'payment_status', label: 'Оплата' },
-	{ key: 'delivery_status', label: 'Доставка' },
-	{ key: 'items_count', label: 'Позиций' },
-	{ key: 'created_at', label: 'Создан' }
+	{ key: 'actions', label: 'Редактировать', headerClass: 'text-right' }
 ]

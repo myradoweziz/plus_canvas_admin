@@ -1,7 +1,9 @@
 <script setup lang="ts">
+	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
+	import { EditIcon } from '@/shared/icons'
 	import { formatMoney, formatOrderDate, ORDERS_TABLE_COLUMNS, statusBadgeClass } from '../helpers'
 	import type { Order } from '../types'
 
@@ -23,32 +25,9 @@
 </script>
 
 <template>
-	<DataTable
-		:columns="ORDERS_TABLE_COLUMNS"
-		:rows="orders"
-		:loading="loading"
-		empty-text="Заказов не найдено."
-		clickable
-		@row-click="(row) => emit('open', toOrder(row))"
-	>
-		<template #cell-order_number="{ row }">
-			<span class="font-medium text-gray-800">{{ toOrder(row).order_number || '—' }}</span>
-		</template>
-
-		<template #cell-customer="{ row }">
-			<span class="text-gray-700">{{ customerName(toOrder(row)) }}</span>
-		</template>
-
-		<template #cell-email="{ row }">
-			<span class="text-gray-700">{{ toOrder(row).email || '—' }}</span>
-		</template>
-
-		<template #cell-phone="{ row }">
-			<span class="text-gray-700">{{ toOrder(row).phone || '—' }}</span>
-		</template>
-
-		<template #cell-total="{ row }">
-			<span class="font-medium text-gray-800">{{ formatMoney(toOrder(row).total) }}</span>
+	<DataTable :columns="ORDERS_TABLE_COLUMNS" :rows="orders" :loading="loading" empty-text="Заказов не найдено.">
+		<template #cell-id="{ row }">
+			<span class="font-medium text-gray-800">#{{ toOrder(row).id }}</span>
 		</template>
 
 		<template #cell-order_status="{ row }">
@@ -69,12 +48,34 @@
 			</StatusBadge>
 		</template>
 
-		<template #cell-items_count="{ row }">
-			<span class="text-gray-700">{{ toOrder(row).items?.length ?? 0 }}</span>
+		<template #cell-customer="{ row }">
+			<div class="min-w-[140px]">
+				<p class="font-medium text-gray-800">{{ customerName(toOrder(row)) }}</p>
+				<p v-if="toOrder(row).email" class="text-xs text-gray-500">{{ toOrder(row).email }}</p>
+			</div>
 		</template>
 
 		<template #cell-created_at="{ row }">
 			<span class="text-gray-700">{{ formatOrderDate(toOrder(row).created_at) }}</span>
+		</template>
+
+		<template #cell-total="{ row }">
+			<span class="font-medium text-gray-800">{{ formatMoney(toOrder(row).total) }}</span>
+		</template>
+
+		<template #cell-actions="{ row }">
+			<div class="flex justify-end">
+				<Button
+					type="button"
+					variant="ghost"
+					size="icon"
+					class-name="hover:bg-green-100"
+					aria-label="Редактировать"
+					:on-click="() => emit('open', toOrder(row))"
+				>
+					<EditIcon />
+				</Button>
+			</div>
 		</template>
 	</DataTable>
 </template>

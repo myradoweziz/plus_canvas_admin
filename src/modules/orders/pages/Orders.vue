@@ -1,6 +1,7 @@
 <script setup lang="ts">
 	import { onMounted, ref } from 'vue'
 	import { useRouter } from 'vue-router'
+	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
@@ -16,6 +17,7 @@
 	} from '../helpers'
 	import { TableIcon } from '@/shared/icons'
 	import { api } from '../api'
+	import type { ExportOrdersParams } from '../api/orders'
 	import type { Order } from '../types'
 
 	const router = useRouter()
@@ -90,11 +92,47 @@
 		if (!order.id) return
 		router.push(`/admin-panel/orders/${order.id}`)
 	}
+
+	const buildExportParams = (): ExportOrdersParams => ({
+		date_from: filters.value.date_from || undefined,
+		date_to: filters.value.date_to || undefined,
+		email: filters.value.email || undefined,
+		order_status: filters.value.order_status ?? undefined,
+		payment_status: filters.value.payment_status ?? undefined,
+		delivery_status: filters.value.delivery_status ?? undefined,
+		order_number: filters.value.order_number || undefined,
+		product_id: filters.value.product_id ?? undefined
+	})
+
+	const exportXml = async () => {
+		try {
+			await api.exportOrdersXml(buildExportParams())
+			toast.success('XML файл скачан')
+		} catch {
+			toast.error('Не удалось экспортировать XML')
+		}
+	}
+
+	const exportPdf = async () => {
+		try {
+			await api.exportOrdersPdf(buildExportParams())
+			toast.success('PDF файл скачан')
+		} catch {
+			toast.error('Не удалось экспортировать PDF')
+		}
+	}
 </script>
 
 <template>
 	<div class="space-y-6">
-		<Banner title="Заказы" subtitle="Список заказов с фильтрами." :icon="TableIcon" :total="total" />
+		<Banner title="Заказы" subtitle="Список заказов с фильтрами." :icon="TableIcon" :total="total">
+			<template #actions>
+				<div class="flex flex-wrap items-center gap-2">
+					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>
+					<Button type="button" size="sm" variant="outline" :on-click="exportPdf">Экспорт PDF</Button>
+				</div>
+			</template>
+		</Banner>
 
 		<form
 			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-3 xl:grid-cols-4"

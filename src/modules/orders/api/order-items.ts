@@ -19,6 +19,14 @@ async function updateOrderItem(orderId: number, itemId: number, data: UpdateOrde
 	return (response?.data ?? response) as OrderItem
 }
 
+async function deleteOrderItem(orderId: number, itemId: number): Promise<void> {
+	await request({
+		url: `${ordersUrl(orderId)}/items/${itemId}`,
+		method: 'DELETE'
+	})
+}
+
 export const orderItemsApi = {
-	updateOrderItem
+	updateOrderItem,
+	deleteOrderItem
 }
