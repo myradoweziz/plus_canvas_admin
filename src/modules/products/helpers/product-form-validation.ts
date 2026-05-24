@@ -5,6 +5,7 @@ import type {
 	CanvasProductDiscount,
 	CanvasProductSeo
 } from '../types/product'
+import { isHtmlEmpty } from '@/shared/utils'
 import { INNER_IMAGES_MAIN_CATEGORY_SLUG } from './product-form'
 
 export const uploadImageCountFromLayout = (layout: CollageLayout | null): number => {
@@ -42,8 +43,11 @@ export const validateProductInfo = (form: CanvasProduct): Record<string, string>
 	const errors: Record<string, string> = {}
 
 	setRequiredProductError(errors, form, 'name', 'Name')
-	setRequiredProductError(errors, form, 'description', 'Description')
 	setRequiredProductError(errors, form, 'price', 'Price')
+
+	if (isHtmlEmpty(form.description)) {
+		errors.description = 'Поле "Описание" обязательно.'
+	}
 	setRequiredProductError(errors, form, 'product_qode', 'Product Qode')
 	setRequiredProductError(errors, form, 'sku', 'SKU')
 	setRequiredProductError(errors, form, 'main_category_id', 'Main Category')

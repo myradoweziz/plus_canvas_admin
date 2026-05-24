@@ -8,6 +8,7 @@
 	import CollageLayoutSvgImport from '@/shared/ui/CollageLayoutSvgImport.vue'
 	import MultiImageUpload from '@/shared/ui/MultiImageUpload.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
+	import RichTextEditor from '@/shared/ui/RichTextEditor.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
@@ -532,8 +533,8 @@
 		/>
 
 		<div class="md:col-span-3">
-			<TextareaField
-				v-model.trim="form.description"
+			<RichTextEditor
+				v-model="form.description"
 				label="Описание"
 				required
 				name="description"
