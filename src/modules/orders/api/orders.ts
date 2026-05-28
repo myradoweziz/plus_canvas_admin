@@ -18,7 +18,7 @@ export type ListOrdersParams = {
 	offset: number
 }
 
-export type ExportOrdersParams = Omit<ListOrdersParams, 'limit' | 'offset'>
+export type ExportOrdersParams = Omit<ListOrdersParams, 'limit' | 'offset'> & { ids?: number[] }
 
 const listOrders = createListApi<Order, ListOrdersParams>({ url: ORDERS_URL })
 
@@ -49,6 +49,14 @@ async function updateOrder(id: number, data: UpdateOrderPayload): Promise<Order>
 
 async function deleteOrder(id: number): Promise<void> {
 	await request({ url: `${ORDERS_URL}/${id}`, method: 'DELETE' })
+}
+
+async function bulkDeleteOrders(ids: number[]): Promise<void> {
+	await request({
+		url: `${ORDERS_URL}/bulk-delete`,
+		method: 'POST',
+		data: { ids }
+	})
 }
 
 export type UpdateOrderBillingPayload = {
@@ -135,6 +143,17 @@ async function exportOrdersPdf(params?: ExportOrdersParams): Promise<void> {
 	downloadBlob(response as Blob, 'orders.pdf')
 }
 
+async function exportOrdersExcel(params?: ExportOrdersParams): Promise<void> {
+	const response = await request({
+		url: `${ORDERS_URL}/export/excel`,
+		method: 'GET',
+		params: exportParams(params),
+		responseType: 'blob'
+	})
+
+	downloadBlob(response as Blob, 'orders.xlsx')
+}
+
 export const ordersApi = {
 	listOrders,
 	getOrder,
@@ -142,6 +161,8 @@ export const ordersApi = {
 	updateOrderBillingAddress,
 	updateOrderShippingAddress,
 	deleteOrder,
+	bulkDeleteOrders,
 	exportOrdersXml,
-	exportOrdersPdf
+	exportOrdersPdf,
+	exportOrdersExcel
 }

@@ -29,6 +29,26 @@
 							icon: icons.ShoppingCartIcon,
 							name: 'Корзины',
 							path: '/admin-panel/carts'
+						},
+						{
+							icon: icons.ShoppingCartIcon,
+							name: 'Список желаний',
+							path: '/admin-panel/wishlists'
+						},
+						{
+							icon: icons.ShoppingCartIcon,
+							name: 'Бестселлеры',
+							path: '/admin-panel/bestsellers'
+						},
+						{
+							icon: icons.ShoppingCartIcon,
+							name: 'Никогда не покупали',
+							path: '/admin-panel/never-purchased'
+						},
+						{
+							icon: icons.ShoppingCartIcon,
+							name: 'Отчёт по странам',
+							path: '/admin-panel/country-report'
 						}
 					]
 				},

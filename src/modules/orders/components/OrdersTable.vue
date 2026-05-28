@@ -3,7 +3,7 @@
 	import DataTable from '@/shared/ui/DataTable.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
-	import { EditIcon } from '@/shared/icons'
+	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { formatMoney, formatOrderDate, ORDERS_TABLE_COLUMNS, statusBadgeClass } from '../helpers'
 	import type { Order } from '../types'
 
@@ -11,11 +11,18 @@
 		orders: Order[]
 		loading: boolean
 		pagination: { limit: number; offset: number }
+		selectedOrders?: Order[]
 	}>()
 
 	const emit = defineEmits<{
 		(e: 'open', order: Order): void
+		(e: 'delete', order: Order): void
+		(e: 'update:selectedOrders', orders: Order[]): void
 	}>()
+
+	const onUpdateSelected = (rows: unknown[]) => {
+		emit('update:selectedOrders', rows as Order[])
+	}
 
 	const toOrder = (row: unknown) => row as Order
 
@@ -26,11 +33,16 @@
 </script>
 
 <template>
-	<DataTable :columns="ORDERS_TABLE_COLUMNS" :rows="orders" :loading="loading" empty-text="Заказов не найдено." :pagination="pagination">
-		<template #cell-id="{ row }">
-			<span class="font-medium text-gray-800">#{{ toOrder(row).id }}</span>
-		</template>
-
+	<DataTable
+		:columns="ORDERS_TABLE_COLUMNS"
+		:rows="orders"
+		:loading="loading"
+		empty-text="Заказов не найдено."
+		:pagination="pagination"
+		selectable
+		:selected-rows="selectedOrders"
+		@update:selected-rows="onUpdateSelected"
+	>
 		<template #cell-order_status="{ row }">
 			<StatusBadge :tone-class="statusBadgeClass(toOrder(row).order_status)" class="capitalize">
 				{{ toOrder(row).order_status }}
@@ -65,7 +77,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex justify-end">
+			<div class="flex items-center justify-end gap-2">
 				<Button
 					type="button"
 					variant="ghost"
@@ -75,6 +87,16 @@
 					:on-click="() => emit('open', toOrder(row))"
 				>
 					<EditIcon />
+				</Button>
+				<Button
+					type="button"
+					variant="ghost"
+					size="icon"
+					class-name="hover:text-red-700"
+					aria-label="Удалить"
+					:on-click="() => emit('delete', toOrder(row))"
+				>
+					<TrashIcon />
 				</Button>
 			</div>
 		</template>

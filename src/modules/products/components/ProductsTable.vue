@@ -38,6 +38,14 @@
 		:pagination="pagination"
 		@update:selected-rows="onUpdateSelected"
 	>
+		<template #cell-collage_layout="{ row }">
+			<img
+				v-if="toProduct(row).collage_layout?.image_url"
+				:src="toProduct(row).collage_layout?.image_url"
+				alt=""
+				class="w-10 h-10 object-cover"
+			/>
+		</template>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toProduct(row).name }}</span>
 		</template>

@@ -5,6 +5,7 @@
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
+	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
@@ -23,6 +24,10 @@
 	const router = useRouter()
 	const loading = ref(false)
 	const orders = ref<Order[]>([])
+	const selectedOrders = ref<Order[]>([])
+	const selectedOrder = ref<Order | null>(null)
+	const showDeleteModal = ref(false)
+	const loadingDeleteModal = ref(false)
 	const total = ref(0)
 	const limit = ref(15)
 	const offset = ref(0)
@@ -93,16 +98,22 @@
 		router.push(`/admin-panel/orders/${order.id}`)
 	}
 
-	const buildExportParams = (): ExportOrdersParams => ({
-		date_from: filters.value.date_from || undefined,
-		date_to: filters.value.date_to || undefined,
-		email: filters.value.email || undefined,
-		order_status: filters.value.order_status ?? undefined,
-		payment_status: filters.value.payment_status ?? undefined,
-		delivery_status: filters.value.delivery_status ?? undefined,
-		order_number: filters.value.order_number || undefined,
-		product_id: filters.value.product_id ?? undefined
-	})
+	const buildExportParams = (): ExportOrdersParams => {
+		const params: ExportOrdersParams = {
+			date_from: filters.value.date_from || undefined,
+			date_to: filters.value.date_to || undefined,
+			email: filters.value.email || undefined,
+			order_status: filters.value.order_status ?? undefined,
+			payment_status: filters.value.payment_status ?? undefined,
+			delivery_status: filters.value.delivery_status ?? undefined,
+			order_number: filters.value.order_number || undefined,
+			product_id: filters.value.product_id ?? undefined
+		}
+		if (selectedOrders.value.length) {
+			params.ids = selectedOrders.value.map((o) => o.id!)
+		}
+		return params
+	}
 
 	const exportXml = async () => {
 		try {
@@ -121,6 +132,49 @@
 			toast.error('Не удалось экспортировать PDF')
 		}
 	}
+
+	const exportExcel = async () => {
+		try {
+			await api.exportOrdersExcel(buildExportParams())
+			toast.success('Excel файл скачан')
+		} catch {
+			toast.error('Не удалось экспортировать Excel')
+		}
+	}
+
+	const deleteOrder = (order: Order) => {
+		selectedOrder.value = order
+		showDeleteModal.value = true
+	}
+
+	const confirmDelete = async () => {
+		if (!selectedOrder.value?.id) return
+
+		loadingDeleteModal.value = true
+		try {
+			await api.deleteOrder(selectedOrder.value.id)
+			showDeleteModal.value = false
+			selectedOrder.value = null
+			await load()
+		} finally {
+			loadingDeleteModal.value = false
+		}
+	}
+
+	const bulkDelete = async () => {
+		if (!selectedOrders.value.length) return
+		if (!confirm(`Вы действительно хотите удалить ${selectedOrders.value.length} выбранных заказов?`)) return
+
+		try {
+			const ids = selectedOrders.value.map((o) => o.id!)
+			await api.bulkDeleteOrders(ids)
+			toast.success('Выбранные заказы удалены')
+			selectedOrders.value = []
+			await load()
+		} catch {
+			toast.error('Не удалось удалить выбранные заказы')
+		}
+	}
 </script>
 
 <template>
@@ -128,6 +182,16 @@
 		<Banner title="Заказы" subtitle="Список заказов с фильтрами." :icon="TableIcon" :total="total">
 			<template #actions>
 				<div class="flex flex-wrap items-center gap-2">
+					<Button
+						v-if="selectedOrders.length"
+						type="button"
+						size="sm"
+						v-bind:class-name="'bg-red-600 hover:bg-red-700 text-white'"
+						:on-click="bulkDelete"
+					>
+						Удалить выбранные ({{ selectedOrders.length }})
+					</Button>
+					<Button type="button" size="sm" variant="outline" :on-click="exportExcel">Экспорт Excel</Button>
 					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>
 					<Button type="button" size="sm" variant="outline" :on-click="exportPdf">Экспорт PDF</Button>
 				</div>
@@ -178,8 +242,24 @@
 			</div>
 		</form>
 
-		<OrdersTable :orders="orders" :loading="loading" :pagination="{ limit, offset }" @open="openOrder" />
+		<OrdersTable
+			:orders="orders"
+			v-model:selected-orders="selectedOrders"
+			:loading="loading"
+			:pagination="{ limit, offset }"
+			@open="openOrder"
+			@delete="deleteOrder"
+		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
+
+		<DeleteModal
+			:open="showDeleteModal"
+			:title="selectedOrder?.order_number"
+			entity-name="заказ"
+			:loading="loadingDeleteModal"
+			@close="showDeleteModal = false"
+			@confirm="confirmDelete"
+		/>
 	</div>
 </template>

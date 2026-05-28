@@ -2,26 +2,26 @@
 	import DataTable from '@/shared/ui/DataTable.vue'
 
 	import { formatDate } from '@/composables'
-	import { CARTS_TABLE_COLUMNS } from '../helpers'
-	import type { Cart } from '../types'
+	import { WISHLISTS_TABLE_COLUMNS } from '../helpers'
+	import type { Wishlist } from '../types'
 
 	defineProps<{
-		carts: Cart[]
+		wishlists: Wishlist[]
 		loading: boolean
 		pagination: { limit: number; offset: number }
 	}>()
 
 	const emit = defineEmits<{
-		(e: 'open', cart: Cart): void
+		(e: 'open', wishlist: Wishlist): void
 	}>()
 
-	const toCart = (row: unknown) => row as Cart
+	const toCart = (row: unknown) => row as Wishlist
 </script>
 
 <template>
 	<DataTable
-		:columns="CARTS_TABLE_COLUMNS"
-		:rows="carts"
+		:columns="WISHLISTS_TABLE_COLUMNS"
+		:rows="wishlists"
 		:loading="loading"
 		empty-text="Заказов не найдено."
 		:pagination="pagination"

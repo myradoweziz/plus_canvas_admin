@@ -3,6 +3,7 @@ export * from './product-form'
 export * from './product-form-validation'
 
 export const PRODUCTS_TABLE_COLUMNS = [
+	{ key: 'collage_layout', label: 'Фото' },
 	{ key: 'name', label: 'Название' },
 	{ key: 'sku', label: 'SKU' },
 	{ key: 'price', label: 'Цена' },

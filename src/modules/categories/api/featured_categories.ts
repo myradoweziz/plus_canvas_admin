@@ -16,8 +16,8 @@ const FEATURED_CATEGORIES_URL = '/api/admin/categories'
 export type ListFeaturedCategoriesParams = {
 	name?: string
 	main_category_id?: number
-	limit: number
-	offset: number
+	limit?: number
+	offset?: number
 }
 
 export type ListFeaturedCategoriesResult = {
@@ -25,7 +25,9 @@ export type ListFeaturedCategoriesResult = {
 	total: number
 }
 
-async function listFeaturedCategories(params: ListFeaturedCategoriesParams): Promise<ListFeaturedCategoriesResult> {
+async function listFeaturedCategories(
+	params: ListFeaturedCategoriesParams = {}
+): Promise<ListFeaturedCategoriesResult> {
 	const filteredParams = Object.fromEntries(
 		Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
 	)
