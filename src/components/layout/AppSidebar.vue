@@ -1,3 +1,123 @@
+<script setup>
+	import { computed, watch } from 'vue'
+	import { useRoute } from 'vue-router'
+
+	import { useSidebar } from '@/composables/useSidebar'
+	import * as icons from '@/shared/icons'
+	import HeaderLogo from './header/HeaderLogo.vue'
+
+	const route = useRoute()
+
+	const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar()
+
+	const menuGroups = [
+		{
+			items: [
+				{ icon: icons.BannerIcon, name: 'Баннеры', path: '/admin-panel/banners' },
+				{ icon: icons.ProductsIcon, name: 'Продукты', path: '/admin-panel/products' },
+				{
+					icon: icons.TableIcon,
+					name: 'Продажи',
+					path: '/admin-panel/orders',
+					subItems: [
+						{
+							icon: icons.TableIcon,
+							name: 'Заказы',
+							path: '/admin-panel/orders'
+						},
+						{
+							icon: icons.ShoppingCartIcon,
+							name: 'Корзины',
+							path: '/admin-panel/carts'
+						}
+					]
+				},
+				{
+					icon: icons.CategoriesIcon,
+					name: 'Категории',
+					path: '/admin-panel/categories',
+					subItems: [
+						{
+							name: 'Главные категории',
+							path: '/admin-panel/categories/main-categories',
+							icon: icons.MainCategoriesIcon
+						},
+						{
+							name: 'Категории',
+							path: '/admin-panel/categories/featured-categories',
+							icon: icons.FeaturedCategoriesIcon
+						},
+						{ name: 'Подкатегории', path: '/admin-panel/categories/sub-categories', icon: icons.SubCategoriesIcon }
+					]
+				},
+				{ icon: icons.StocksIcon, name: 'Акция рекламный баннер', path: '/admin-panel/stocks' },
+				{ icon: icons.BrandsIcon, name: 'Теги товаров', path: '/admin-panel/product-tags' },
+				{ icon: icons.ColorsIcon, name: 'Цвета', path: '/admin-panel/colors' },
+				{ icon: icons.CanvasSizesIcon, name: 'Размеры холста', path: '/admin-panel/canvas-sizes' },
+				{ icon: icons.CanvasFormatsIcon, name: 'Форматы холста', path: '/admin-panel/canvas-formats' },
+				{ icon: icons.CanvasFramesIcon, name: 'Рамки', path: '/admin-panel/canvas-frames' },
+				{ icon: icons.CanvasEffectsIcon, name: 'Эффекты', path: '/admin-panel/canvas-effects' },
+				{ icon: icons.ChatIcon, name: 'FAQ', path: '/admin-panel/faqs' },
+				{ icon: icons.ContactInfoIcon, name: 'Контактная информация', path: '/admin-panel/contact-info' },
+				{
+					icon: icons.UsersIcon,
+					name: 'Пользователи',
+					path: '/admin-panel/settings/permissions',
+					subItems: [
+						{ icon: icons.PermissionsIcon, name: 'Права', path: '/admin-panel/settings/permissions' },
+						{ icon: icons.RolesIcon, name: 'Роли', path: '/admin-panel/settings/roles' },
+						{ icon: icons.UserCircleIcon, name: 'Пользователи', path: '/admin-panel/settings/users' }
+					]
+				}
+			]
+		}
+	]
+
+	const isActive = (path) => route.path === path
+
+	const activeSubmenuKey = computed(() => {
+		for (const [groupIndex, group] of menuGroups.entries()) {
+			const itemIndex = group.items.findIndex((item) => item.subItems?.some((subItem) => isActive(subItem.path)))
+
+			if (itemIndex >= 0) {
+				return `${groupIndex}-${itemIndex}`
+			}
+		}
+
+		return null
+	})
+
+	watch(
+		() => route.path,
+		() => {
+			openSubmenu.value = activeSubmenuKey.value
+		},
+		{ immediate: true }
+	)
+
+	const toggleSubmenu = (groupIndex, itemIndex) => {
+		const key = `${groupIndex}-${itemIndex}`
+		openSubmenu.value = openSubmenu.value === key ? null : key
+	}
+
+	const isSubmenuOpen = (groupIndex, itemIndex) => {
+		const key = `${groupIndex}-${itemIndex}`
+		return openSubmenu.value === key || activeSubmenuKey.value === key
+	}
+
+	const startTransition = (el) => {
+		el.style.height = 'auto'
+		const height = el.scrollHeight
+		el.style.height = '0px'
+		el.offsetHeight // force reflow
+		el.style.height = height + 'px'
+	}
+
+	const endTransition = (el) => {
+		el.style.height = ''
+	}
+</script>
+
 <template>
 	<aside
 		:class="[
@@ -36,7 +156,7 @@
 									<component :is="item.icon" />
 								</span>
 								<span v-if="isExpanded || isHovered || isMobileOpen" class="truncate">{{ item.name }}</span>
-								<ChevronDownIcon
+								<icons.ChevronDownIcon
 									v-if="isExpanded || isHovered || isMobileOpen"
 									:class="[
 										'ml-auto w-5 h-5 transition-transform duration-200',
@@ -113,123 +233,3 @@
 		</div>
 	</aside>
 </template>
-
-<script setup>
-	import { computed, watch } from 'vue'
-	import { useRoute } from 'vue-router'
-
-	import { useSidebar } from '@/composables/useSidebar'
-	import {
-		BannerIcon,
-		BrandsIcon,
-		CanvasEffectsIcon,
-		CanvasFormatsIcon,
-		CanvasFramesIcon,
-		CanvasSizesIcon,
-		CategoriesIcon,
-		ChatIcon,
-		ChevronDownIcon,
-		ColorsIcon,
-		ContactInfoIcon,
-		StocksIcon,
-		FeaturedCategoriesIcon,
-		HomeIcon,
-		MainCategoriesIcon,
-		PermissionsIcon,
-		ProductsIcon,
-		RolesIcon,
-		TableIcon,
-		SubCategoriesIcon,
-		UserCircleIcon,
-		UsersIcon
-	} from '@/shared/icons'
-	import HeaderLogo from './header/HeaderLogo.vue'
-
-	const route = useRoute()
-
-	const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar()
-
-	const menuGroups = [
-		{
-			items: [
-				{ icon: HomeIcon, name: 'Панель', path: '/admin-panel' },
-				{ icon: BannerIcon, name: 'Баннеры', path: '/admin-panel/banners' },
-				{ icon: ProductsIcon, name: 'Продукты', path: '/admin-panel/products' },
-				{ icon: TableIcon, name: 'Заказы', path: '/admin-panel/orders' },
-				{
-					icon: CategoriesIcon,
-					name: 'Категории',
-					path: '/admin-panel/categories',
-					subItems: [
-						{ name: 'Главные категории', path: '/admin-panel/categories/main-categories', icon: MainCategoriesIcon },
-						{ name: 'Категории', path: '/admin-panel/categories/featured-categories', icon: FeaturedCategoriesIcon },
-						{ name: 'Подкатегории', path: '/admin-panel/categories/sub-categories', icon: SubCategoriesIcon }
-					]
-				},
-				{ icon: StocksIcon, name: 'Акция рекламный баннер', path: '/admin-panel/stocks' },
-				{ icon: BrandsIcon, name: 'Теги товаров', path: '/admin-panel/product-tags' },
-				{ icon: ColorsIcon, name: 'Цвета', path: '/admin-panel/colors' },
-				{ icon: CanvasSizesIcon, name: 'Размеры холста', path: '/admin-panel/canvas-sizes' },
-				{ icon: CanvasFormatsIcon, name: 'Форматы холста', path: '/admin-panel/canvas-formats' },
-				{ icon: CanvasFramesIcon, name: 'Рамки', path: '/admin-panel/canvas-frames' },
-				{ icon: CanvasEffectsIcon, name: 'Эффекты', path: '/admin-panel/canvas-effects' },
-				{ icon: ChatIcon, name: 'FAQ', path: '/admin-panel/faqs' },
-				{ icon: ContactInfoIcon, name: 'Контактная информация', path: '/admin-panel/contact-info' },
-				{
-					icon: UsersIcon,
-					name: 'Пользователи',
-					path: '/admin-panel/settings/permissions',
-					subItems: [
-						{ icon: PermissionsIcon, name: 'Права', path: '/admin-panel/settings/permissions' },
-						{ icon: RolesIcon, name: 'Роли', path: '/admin-panel/settings/roles' },
-						{ icon: UserCircleIcon, name: 'Пользователи', path: '/admin-panel/settings/users' }
-					]
-				}
-			]
-		}
-	]
-
-	const isActive = (path) => route.path === path
-
-	const activeSubmenuKey = computed(() => {
-		for (const [groupIndex, group] of menuGroups.entries()) {
-			const itemIndex = group.items.findIndex((item) => item.subItems?.some((subItem) => isActive(subItem.path)))
-
-			if (itemIndex >= 0) {
-				return `${groupIndex}-${itemIndex}`
-			}
-		}
-
-		return null
-	})
-
-	watch(
-		() => route.path,
-		() => {
-			openSubmenu.value = activeSubmenuKey.value
-		},
-		{ immediate: true }
-	)
-
-	const toggleSubmenu = (groupIndex, itemIndex) => {
-		const key = `${groupIndex}-${itemIndex}`
-		openSubmenu.value = openSubmenu.value === key ? null : key
-	}
-
-	const isSubmenuOpen = (groupIndex, itemIndex) => {
-		const key = `${groupIndex}-${itemIndex}`
-		return openSubmenu.value === key || activeSubmenuKey.value === key
-	}
-
-	const startTransition = (el) => {
-		el.style.height = 'auto'
-		const height = el.scrollHeight
-		el.style.height = '0px'
-		el.offsetHeight // force reflow
-		el.style.height = height + 'px'
-	}
-
-	const endTransition = (el) => {
-		el.style.height = ''
-	}
-</script>

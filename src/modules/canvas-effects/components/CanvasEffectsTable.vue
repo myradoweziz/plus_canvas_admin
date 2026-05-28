@@ -10,6 +10,7 @@
 	defineProps<{
 		effects: CanvasEffect[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	const emit = defineEmits<{
@@ -23,7 +24,13 @@
 </script>
 
 <template>
-	<DataTable :columns="CANVAS_EFFECTS_TABLE_COLUMNS" :rows="effects" :loading="loading" empty-text="Пока нет эффектов.">
+	<DataTable
+		:columns="CANVAS_EFFECTS_TABLE_COLUMNS"
+		:rows="effects"
+		:loading="loading"
+		empty-text="Пока нет эффектов."
+		:pagination="pagination"
+	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toEffect(row).name }}</span>
 		</template>

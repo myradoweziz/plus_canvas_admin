@@ -117,7 +117,13 @@
 			</div>
 		</form>
 
-		<RolesTable :roles="roles" :loading="loading" @edit="editRole" @delete="deleteRole" />
+		<RolesTable
+			:roles="roles"
+			:loading="loading"
+			:pagination="{ limit, offset }"
+			@edit="editRole"
+			@delete="deleteRole"
+		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 

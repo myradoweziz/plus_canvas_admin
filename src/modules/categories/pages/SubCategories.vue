@@ -217,6 +217,7 @@
 			@edit="editSubCategory"
 			@delete="deleteSubCategory"
 			@reorder="reorderSubCategories"
+			:pagination="{ limit, offset }"
 		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />

@@ -9,6 +9,7 @@
 	defineProps<{
 		tags: ProductTag[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	const emit = defineEmits<{
@@ -20,7 +21,13 @@
 </script>
 
 <template>
-	<DataTable :columns="PRODUCT_TAGS_TABLE_COLUMNS" :rows="tags" :loading="loading" empty-text="Пока нет тегов.">
+	<DataTable
+		:columns="PRODUCT_TAGS_TABLE_COLUMNS"
+		:rows="tags"
+		:loading="loading"
+		empty-text="Пока нет тегов."
+		:pagination="pagination"
+	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toTag(row).name }}</span>
 		</template>

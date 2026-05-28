@@ -219,6 +219,7 @@
 			@edit="editFeaturedCategory"
 			@delete="deleteFeaturedCategory"
 			@reorder="reorderFeaturedCategories"
+			:pagination="{ limit, offset }"
 		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />

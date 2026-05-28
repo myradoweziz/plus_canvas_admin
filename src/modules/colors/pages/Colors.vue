@@ -117,7 +117,13 @@
 			</div>
 		</form>
 
-		<ColorsTable :colors="colors" :loading="loading" @edit="editColor" @delete="deleteColor" />
+		<ColorsTable
+			:colors="colors"
+			:loading="loading"
+			:pagination="{ limit, offset }"
+			@edit="editColor"
+			@delete="deleteColor"
+		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 

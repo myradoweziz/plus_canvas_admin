@@ -10,6 +10,7 @@
 	defineProps<{
 		colors: Color[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	const emit = defineEmits<{
@@ -21,7 +22,13 @@
 </script>
 
 <template>
-	<DataTable :columns="COLORS_TABLE_COLUMNS" :rows="colors" :loading="loading" empty-text="Пока нет цветов.">
+	<DataTable
+		:columns="COLORS_TABLE_COLUMNS"
+		:rows="colors"
+		:loading="loading"
+		empty-text="Пока нет цветов."
+		:pagination="pagination"
+	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toColor(row).name }}</span>
 		</template>

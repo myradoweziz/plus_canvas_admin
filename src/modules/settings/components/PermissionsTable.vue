@@ -9,6 +9,7 @@
 	defineProps<{
 		permissions: Permission[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	defineEmits<{
@@ -25,6 +26,7 @@
 		:rows="permissions"
 		:loading="loading"
 		empty-text="Пока нет permissions."
+		:pagination="pagination"
 	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toPermission(row).name }}</span>

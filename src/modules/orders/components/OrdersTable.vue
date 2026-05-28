@@ -7,9 +7,10 @@
 	import { formatMoney, formatOrderDate, ORDERS_TABLE_COLUMNS, statusBadgeClass } from '../helpers'
 	import type { Order } from '../types'
 
-	defineProps<{
+	const props = defineProps<{
 		orders: Order[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	const emit = defineEmits<{
@@ -25,7 +26,7 @@
 </script>
 
 <template>
-	<DataTable :columns="ORDERS_TABLE_COLUMNS" :rows="orders" :loading="loading" empty-text="Заказов не найдено.">
+	<DataTable :columns="ORDERS_TABLE_COLUMNS" :rows="orders" :loading="loading" empty-text="Заказов не найдено." :pagination="pagination">
 		<template #cell-id="{ row }">
 			<span class="font-medium text-gray-800">#{{ toOrder(row).id }}</span>
 		</template>

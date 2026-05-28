@@ -57,7 +57,7 @@
 
 			cookies.set('plus_canvas_admin_authorization', token)
 			toast.success('Вход выполнен')
-			router.push('/admin-panel')
+			router.push('/admin-panel/banners')
 		} catch (error) {
 			console.error(error)
 			toast.error('Не удалось войти')

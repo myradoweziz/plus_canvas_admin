@@ -10,6 +10,7 @@
 	defineProps<{
 		categories: FeaturedCategory[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	const toFeaturedCategory = (row: unknown) => row as FeaturedCategory
@@ -33,6 +34,7 @@
 		empty-text="Пока нет категорий."
 		draggable
 		order-key="featured_order"
+		:pagination="pagination"
 		@reorder="onReorder"
 	>
 		<template #cell-name="{ row }">
@@ -60,7 +62,9 @@
 		</template>
 
 		<template #cell-is_active="{ row }">
-			<StatusBadge :tone-class="toFeaturedCategory(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'">
+			<StatusBadge
+				:tone-class="toFeaturedCategory(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
+			>
 				{{ toFeaturedCategory(row).is_active ? 'Активно' : 'Не активно' }}
 			</StatusBadge>
 		</template>

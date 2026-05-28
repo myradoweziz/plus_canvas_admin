@@ -22,7 +22,9 @@
 	const total = ref(0)
 	const limit = ref(10)
 	const offset = ref(0)
-	const filters = ref({ search: '' })
+	const filters = ref({
+		search: ''
+	})
 
 	const load = async () => {
 		loading.value = true
@@ -111,7 +113,13 @@
 			</div>
 		</form>
 
-		<CanvasEffectsTable :effects="effects" :loading="loading" @edit="editEffect" @delete="deleteEffect" />
+		<CanvasEffectsTable
+			:effects="effects"
+			:loading="loading"
+			:pagination="{ limit, offset }"
+			@edit="editEffect"
+			@delete="deleteEffect"
+		/>
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
 		<CanvasEffectCreateModal

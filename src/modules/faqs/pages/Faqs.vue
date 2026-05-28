@@ -144,6 +144,7 @@
 			@edit="editFaq"
 			@delete="deleteFaq"
 			@reorder="reorderFaqs"
+			:pagination="{ limit, offset }"
 		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />

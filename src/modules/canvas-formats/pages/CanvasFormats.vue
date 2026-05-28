@@ -149,6 +149,7 @@
 			@edit="editCanvasFormat"
 			@delete="deleteCanvasFormat"
 			@reorder="reorderCanvasFormats"
+			:pagination="{ limit, offset }"
 		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />

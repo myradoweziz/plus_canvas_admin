@@ -10,6 +10,11 @@
 		cellClass?: string
 	}
 
+	type Pagination = {
+		offset: number
+		limit: number
+	}
+
 	const props = withDefaults(
 		defineProps<{
 			columns: DataTableColumn[]
@@ -24,6 +29,7 @@
 			orderKey?: string
 			selectable?: boolean
 			selectedRows?: unknown[]
+			pagination?: Pagination
 		}>(),
 		{
 			loading: false,
@@ -35,7 +41,8 @@
 			draggable: false,
 			orderKey: '',
 			selectable: false,
-			selectedRows: () => []
+			selectedRows: () => [],
+			pagination: () => ({ offset: 0, limit: 15 })
 		}
 	)
 
@@ -57,6 +64,9 @@
 
 	const isSelected = (row: unknown, index: number) => {
 		return props.selectedRows.some((r) => getRowKey(r, index) === getRowKey(row, index))
+	}
+	const getGlobalIndex = (index: number) => {
+		return props.pagination.offset + index + 1
 	}
 
 	const toggleSelection = (row: unknown, index: number) => {
@@ -133,7 +143,9 @@
 								@change="toggleAll"
 							/>
 						</th>
+
 						<th v-if="draggable" class="w-12 px-4 py-3"></th>
+						<th v-if="pagination" class="w-12 px-4 py-3">№</th>
 						<th v-for="column in columns" :key="column.key" class="px-4 py-3" :class="column.headerClass">
 							{{ column.label }}
 						</th>
@@ -176,6 +188,11 @@
 						</td>
 						<td v-if="draggable" class="px-4 py-3 text-gray-400">
 							<span class="select-none text-lg leading-none" title="Drag to reorder">⋮⋮</span>
+						</td>
+						<td v-if="pagination" class="px-4 py-3">
+							<span class="font-medium text-gray-800">
+								{{ getGlobalIndex(index) }}
+							</span>
 						</td>
 						<td v-for="column in columns" :key="column.key" class="px-4 py-3" :class="column.cellClass">
 							<slot :name="`cell-${column.key}`" :row="row" :value="getCellValue(row, column.key)" :index="index">

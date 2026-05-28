@@ -9,6 +9,7 @@
 	defineProps<{
 		roles: Role[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	defineEmits<{
@@ -20,7 +21,7 @@
 </script>
 
 <template>
-	<DataTable :columns="ROLES_TABLE_COLUMNS" :rows="roles" :loading="loading" empty-text="Пока нет roles.">
+	<DataTable :columns="ROLES_TABLE_COLUMNS" :rows="roles" :loading="loading" empty-text="Пока нет roles." :pagination="pagination">
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toRole(row).name }}</span>
 		</template>

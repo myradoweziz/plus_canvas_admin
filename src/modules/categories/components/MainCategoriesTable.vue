@@ -10,6 +10,7 @@
 	defineProps<{
 		categories: MainCategory[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	const toMainCategory = (row: unknown) => row as MainCategory
@@ -33,6 +34,7 @@
 		empty-text="Пока нет категорий."
 		draggable
 		order-key="featured_order"
+		:pagination="pagination"
 		@reorder="onReorder"
 	>
 		<template #cell-name="{ row }">
@@ -48,7 +50,9 @@
 		</template>
 
 		<template #cell-is_active="{ row }">
-			<StatusBadge :tone-class="toMainCategory(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'">
+			<StatusBadge
+				:tone-class="toMainCategory(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
+			>
 				{{ toMainCategory(row).is_active ? 'Активно' : 'Не активно' }}
 			</StatusBadge>
 		</template>
@@ -56,8 +60,6 @@
 		<template #cell-featured_order="{ row }">
 			<span class="text-gray-700">{{ toMainCategory(row).featured_order }}</span>
 		</template>
-
-
 
 		<template #cell-actions="{ row }">
 			<div class="flex items-center justify-end gap-2">

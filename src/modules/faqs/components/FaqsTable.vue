@@ -10,6 +10,7 @@
 	defineProps<{
 		faqs: Faq[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	defineEmits<{
@@ -29,6 +30,7 @@
 		empty-text="Пока нет FAQ."
 		draggable
 		order-key="order"
+		:pagination="pagination"
 		@reorder="(rows) => $emit('reorder', rows as Faq[])"
 	>
 		<template #cell-question="{ row }">

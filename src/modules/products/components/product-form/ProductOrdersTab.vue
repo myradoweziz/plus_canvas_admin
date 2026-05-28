@@ -3,6 +3,7 @@
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 	import ProductRequiresSaveNotice from './ProductRequiresSaveNotice.vue'
 
+	import { formatDate } from '@/composables'
 	import {
 		formatDeliveryStatusLabel,
 		formatOrderStatusLabel,
@@ -23,20 +24,6 @@
 		(id) => api.listCanvasProductOrders(id),
 		'Не удалось загрузить заказы'
 	)
-
-	const dateFormatter = new Intl.DateTimeFormat('ru-RU', {
-		day: '2-digit',
-		month: '2-digit',
-		year: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit'
-	})
-
-	const formatDate = (value: string) => {
-		if (!value) return '—'
-		const date = new Date(value)
-		return Number.isNaN(date.getTime()) ? value : dateFormatter.format(date)
-	}
 
 	const toOrder = (row: unknown) => row as CanvasProductOrder
 </script>

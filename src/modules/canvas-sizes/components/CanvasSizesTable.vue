@@ -10,6 +10,7 @@
 	defineProps<{
 		canvasSizes: CanvasSize[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	const emit = defineEmits<{
@@ -33,6 +34,7 @@
 		empty-text="Пока нет размеров холста."
 		draggable
 		order-key="sort_order"
+		:pagination="pagination"
 		@reorder="onReorder"
 	>
 		<template #cell-size="{ row }">
@@ -46,7 +48,9 @@
 		</template>
 
 		<template #cell-is_active="{ row }">
-			<StatusBadge :tone-class="toCanvasSize(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'">
+			<StatusBadge
+				:tone-class="toCanvasSize(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
+			>
 				{{ toCanvasSize(row).is_active ? 'Активно' : 'Не активно' }}
 			</StatusBadge>
 		</template>

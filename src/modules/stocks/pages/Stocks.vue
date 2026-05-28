@@ -138,7 +138,14 @@
 			</div>
 		</form>
 
-		<StocksTable :stocks="stocks" :loading="loading" @edit="editStock" @delete="deleteStock" @reorder="reorderStocks" />
+		<StocksTable
+			:stocks="stocks"
+			:loading="loading"
+			:pagination="{ limit, offset }"
+			@edit="editStock"
+			@delete="deleteStock"
+			@reorder="reorderStocks"
+		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 

@@ -98,8 +98,7 @@ async function updateOrderShippingAddress(id: number, data: UpdateOrderShippingP
 	return (response?.data ?? response) as Order
 }
 
-const exportParams = (params?: ExportOrdersParams) =>
-	filterListParams((params ?? {}) as Record<string, unknown>)
+const exportParams = (params?: ExportOrdersParams) => filterListParams((params ?? {}) as Record<string, unknown>)
 
 async function exportOrdersXml(params?: ExportOrdersParams): Promise<void> {
 	const response = await request({

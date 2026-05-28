@@ -7,9 +7,10 @@
 	import { PRODUCTS_TABLE_COLUMNS } from '../helpers'
 	import type { CanvasProduct } from '../types'
 
-	defineProps<{
+	const props = defineProps<{
 		products: CanvasProduct[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 		selectedProducts?: CanvasProduct[]
 	}>()
 
@@ -34,6 +35,7 @@
 		empty-text="Пока нет продуктов."
 		selectable
 		:selected-rows="selectedProducts"
+		:pagination="pagination"
 		@update:selected-rows="onUpdateSelected"
 	>
 		<template #cell-name="{ row }">
@@ -48,7 +50,9 @@
 		</template>
 
 		<template #cell-is_published="{ row }">
-			<StatusBadge :tone-class="toProduct(row).is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'">
+			<StatusBadge
+				:tone-class="toProduct(row).is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
+			>
 				{{ toProduct(row).is_published ? 'Активно' : 'Не активно' }}
 			</StatusBadge>
 		</template>

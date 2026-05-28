@@ -21,7 +21,7 @@
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
 	const total = ref(0)
-	const limit = ref(10)
+	const limit = ref(15)
 	const offset = ref(0)
 	const filters = ref({
 		search: ''
@@ -161,6 +161,7 @@
 			@edit="editMainCategory"
 			@delete="deleteMainCategory"
 			@reorder="reorderMainCategories"
+			:pagination="{ limit, offset }"
 		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />

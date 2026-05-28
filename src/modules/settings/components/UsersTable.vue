@@ -9,6 +9,7 @@
 	defineProps<{
 		users: User[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	defineEmits<{
@@ -20,7 +21,7 @@
 </script>
 
 <template>
-	<DataTable :columns="USERS_TABLE_COLUMNS" :rows="users" :loading="loading" empty-text="Пока нет users.">
+	<DataTable :columns="USERS_TABLE_COLUMNS" :rows="users" :loading="loading" empty-text="Пока нет users." :pagination="pagination">
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toUser(row).name }}</span>
 		</template>

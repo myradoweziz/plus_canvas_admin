@@ -10,6 +10,7 @@
 	defineProps<{
 		frames: CanvasFrame[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	const emit = defineEmits<{
@@ -21,7 +22,13 @@
 </script>
 
 <template>
-	<DataTable :columns="CANVAS_FRAMES_TABLE_COLUMNS" :rows="frames" :loading="loading" empty-text="Пока нет рамок.">
+	<DataTable
+		:columns="CANVAS_FRAMES_TABLE_COLUMNS"
+		:rows="frames"
+		:loading="loading"
+		empty-text="Пока нет рамок."
+		:pagination="pagination"
+	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toFrame(row).name }}</span>
 		</template>

@@ -117,7 +117,13 @@
 			</div>
 		</form>
 
-		<ProductTagsTable :tags="tags" :loading="loading" @edit="editTag" @delete="deleteTag" />
+		<ProductTagsTable
+			:tags="tags"
+			:loading="loading"
+			:pagination="{ limit, offset }"
+			@edit="editTag"
+			@delete="deleteTag"
+		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 

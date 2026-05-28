@@ -10,14 +10,14 @@
 	import TextField from '@/shared/ui/TextField.vue'
 	import OrdersTable from '../components/OrdersTable.vue'
 
+	import { TableIcon } from '@/shared/icons'
+	import { api } from '../api'
+	import type { ExportOrdersParams } from '../api/orders'
 	import {
 		DELIVERY_STATUS_FILTER_OPTIONS,
 		ORDER_STATUS_FILTER_OPTIONS,
 		PAYMENT_STATUS_FILTER_OPTIONS
 	} from '../helpers'
-	import { TableIcon } from '@/shared/icons'
-	import { api } from '../api'
-	import type { ExportOrdersParams } from '../api/orders'
 	import type { Order } from '../types'
 
 	const router = useRouter()
@@ -178,7 +178,7 @@
 			</div>
 		</form>
 
-		<OrdersTable :orders="orders" :loading="loading" @open="openOrder" />
+		<OrdersTable :orders="orders" :loading="loading" :pagination="{ limit, offset }" @open="openOrder" />
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 	</div>

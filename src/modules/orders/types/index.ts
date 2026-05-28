@@ -1,3 +1,4 @@
+export type { Cart } from './cart'
 export type {
 	Order,
 	OrderCanvasProduct,

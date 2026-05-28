@@ -153,7 +153,13 @@
 			</div>
 		</form>
 
-		<UsersTable :users="users" :loading="loading" @edit="editUser" @delete="deleteUser" />
+		<UsersTable
+			:users="users"
+			:loading="loading"
+			:pagination="{ limit, offset }"
+			@edit="editUser"
+			@delete="deleteUser"
+		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 

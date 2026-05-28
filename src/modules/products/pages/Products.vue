@@ -28,7 +28,7 @@
 	const selectedProducts = ref<CanvasProduct[]>([])
 	const fileInput = ref<HTMLInputElement | null>(null)
 	const total = ref(0)
-	const limit = ref(10)
+	const limit = ref(15)
 	const offset = ref(0)
 	const filters = ref({
 		search: '',
@@ -358,6 +358,7 @@
 			v-model:selected-products="selectedProducts"
 			@edit="editProduct"
 			@delete="deleteProduct"
+			:pagination="{ limit, offset }"
 		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />

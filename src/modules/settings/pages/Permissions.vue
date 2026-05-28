@@ -116,7 +116,13 @@
 			</div>
 		</form>
 
-		<PermissionsTable :permissions="permissions" :loading="loading" @edit="editPermission" @delete="deletePermission" />
+		<PermissionsTable
+			:permissions="permissions"
+			:loading="loading"
+			:pagination="{ limit, offset }"
+			@edit="editPermission"
+			@delete="deletePermission"
+		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 

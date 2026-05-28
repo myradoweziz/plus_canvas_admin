@@ -111,7 +111,13 @@
 			</div>
 		</form>
 
-		<CanvasFramesTable :frames="frames" :loading="loading" @edit="editFrame" @delete="deleteFrame" />
+		<CanvasFramesTable
+			:frames="frames"
+			:loading="loading"
+			:pagination="{ limit, offset }"
+			@edit="editFrame"
+			@delete="deleteFrame"
+		/>
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
 
 		<CanvasFrameCreateModal

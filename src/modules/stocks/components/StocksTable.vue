@@ -10,6 +10,7 @@
 	defineProps<{
 		stocks: Stock[]
 		loading: boolean
+		pagination: { limit: number; offset: number }
 	}>()
 
 	const emit = defineEmits<{
@@ -33,6 +34,7 @@
 		empty-text="Пока нет акций."
 		draggable
 		order-key="order"
+		:pagination="pagination"
 		@reorder="onReorder"
 	>
 		<template #cell-title="{ row }">
