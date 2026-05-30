@@ -9,6 +9,8 @@
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
+	import CloseEye from '@/shared/icons/CloseEye.vue'
+	import Eye from '@/shared/icons/Eye.vue'
 	import { api } from '../../api'
 	import type { Role, User } from '../../types'
 
@@ -22,6 +24,17 @@
 	const selectedRoleName = ref<string | null>(null)
 
 	const isEdit = computed(() => !!props.user?.id)
+
+	const showPassword = ref(false)
+	const showPasswordConfirmation = ref(false)
+
+	const togglePasswordVisibility = () => {
+		showPassword.value = !showPassword.value
+	}
+
+	const togglePasswordConfirmationVisibility = () => {
+		showPasswordConfirmation.value = !showPasswordConfirmation.value
+	}
 
 	const form = reactive({
 		id: null as number | null,
@@ -63,6 +76,8 @@
 		})
 		triedSubmit.value = false
 		selectedRoleName.value = null
+		showPassword.value = false
+		showPasswordConfirmation.value = false
 		fieldErrors.name = ''
 		fieldErrors.email = ''
 		fieldErrors.password = ''
@@ -71,6 +86,8 @@
 	}
 
 	const populateFromUser = (user: User) => {
+		showPassword.value = false
+		showPasswordConfirmation.value = false
 		Object.assign(form, {
 			id: user.id ?? null,
 			name: user.name ?? '',
@@ -271,18 +288,22 @@
 				label="Пароль"
 				required
 				name="password"
-				type="password"
+				:type="showPassword ? 'text' : 'password'"
 				placeholder="Пароль"
 				:error-message="triedSubmit ? fieldErrors.password : ''"
+				:prepend-icon="showPassword ? CloseEye : Eye"
+				@toggle-prepend-icon="togglePasswordVisibility"
 			/>
 			<TextField
 				v-model="form.password_confirmation"
 				label="Подтверждение пароля"
 				required
 				name="password_confirmation"
-				type="password"
+				:type="showPasswordConfirmation ? 'text' : 'password'"
 				placeholder="Подтверждение пароля"
 				:error-message="triedSubmit ? fieldErrors.password_confirmation : ''"
+				:prepend-icon="showPasswordConfirmation ? CloseEye : Eye"
+				@toggle-prepend-icon="togglePasswordConfirmationVisibility"
 			/>
 		</template>
 
@@ -291,17 +312,21 @@
 				v-model="form.password"
 				label="Новый пароль"
 				name="password"
-				type="password"
+				:type="showPassword ? 'text' : 'password'"
 				placeholder="Оставьте пустым, если не меняете"
 				:error-message="triedSubmit ? fieldErrors.password : ''"
+				:prepend-icon="showPassword ? CloseEye : Eye"
+				@toggle-prepend-icon="togglePasswordVisibility"
 			/>
 			<TextField
 				v-model="form.password_confirmation"
 				label="Подтверждение пароля"
 				name="password_confirmation"
-				type="password"
+				:type="showPasswordConfirmation ? 'text' : 'password'"
 				placeholder="Подтверждение пароля"
 				:error-message="triedSubmit ? fieldErrors.password_confirmation : ''"
+				:prepend-icon="showPasswordConfirmation ? CloseEye : Eye"
+				@toggle-prepend-icon="togglePasswordConfirmationVisibility"
 			/>
 		</template>
 

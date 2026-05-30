@@ -11,6 +11,7 @@
 	import UserSendMessageForm from '../components/user/UserSendMessageForm.vue'
 	import UserShoppingCartTab from '../components/user/UserShoppingCartTab.vue'
 	import UserWishlistTab from '../components/user/UserWishlistTab.vue'
+	import UserActivityLogsTab from '../components/user/UserActivityLogsTab.vue'
 
 	import { api } from '../api'
 	import { getUserFormTabs, type UserFormTab } from '../helpers/user-form'
@@ -88,6 +89,7 @@
 				<UserAddressesTab v-else-if="activeTab === 'addresses' && userId" :user-id="userId" :user="user" />
 				<UserShoppingCartTab v-else-if="activeTab === 'shoppingCart' && userId" :user-id="userId" />
 				<UserWishlistTab v-else-if="activeTab === 'wishlist' && userId" :user-id="userId" />
+				<UserActivityLogsTab v-else-if="activeTab === 'activityLogs' && userId" :user-id="userId" />
 				<UserSendEmailForm
 					v-else-if="activeTab === 'sendEmail' && userId"
 					:user-id="userId"

@@ -5,6 +5,7 @@ export * from './user-orders'
 export * from './user-addresses'
 export * from './user-shopping-cart'
 export * from './user-wishlist'
+export * from './user-activity-logs'
 
 export const PERMISSIONS_TABLE_COLUMNS = [
 	{ key: 'name', label: 'Название' },

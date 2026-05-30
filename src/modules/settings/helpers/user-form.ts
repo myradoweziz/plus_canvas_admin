@@ -1,4 +1,12 @@
-export type UserFormTab = 'main' | 'sendEmail' | 'sendMessage' | 'orders' | 'addresses' | 'shoppingCart' | 'wishlist'
+export type UserFormTab =
+	| 'main'
+	| 'sendEmail'
+	| 'sendMessage'
+	| 'orders'
+	| 'addresses'
+	| 'shoppingCart'
+	| 'wishlist'
+	| 'activityLogs'
 
 export type UserFormTabItem = {
 	id: UserFormTab
@@ -12,7 +20,8 @@ export const USER_FORM_TABS = {
 	orders: { id: 'orders', label: 'Orders' } satisfies UserFormTabItem,
 	addresses: { id: 'addresses', label: 'Addresses' } satisfies UserFormTabItem,
 	shoppingCart: { id: 'shoppingCart', label: 'Shopping Cart' } satisfies UserFormTabItem,
-	wishlist: { id: 'wishlist', label: 'Wishlist' } satisfies UserFormTabItem
+	wishlist: { id: 'wishlist', label: 'Wishlist' } satisfies UserFormTabItem,
+	activityLogs: { id: 'activityLogs', label: 'Activity Logs' } satisfies UserFormTabItem
 } as const
 
 export const getUserFormTabs = (showActionTabs: boolean): UserFormTabItem[] => {
@@ -23,6 +32,7 @@ export const getUserFormTabs = (showActionTabs: boolean): UserFormTabItem[] => {
 			USER_FORM_TABS.addresses,
 			USER_FORM_TABS.shoppingCart,
 			USER_FORM_TABS.wishlist,
+			USER_FORM_TABS.activityLogs,
 			USER_FORM_TABS.sendEmail,
 			USER_FORM_TABS.sendMessage
 		)
