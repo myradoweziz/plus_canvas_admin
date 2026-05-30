@@ -86,7 +86,23 @@
 					subItems: [
 						{ icon: icons.PermissionsIcon, name: 'Права', path: '/admin-panel/settings/permissions' },
 						{ icon: icons.RolesIcon, name: 'Роли', path: '/admin-panel/settings/roles' },
-						{ icon: icons.UserCircleIcon, name: 'Пользователи', path: '/admin-panel/settings/users' }
+						{ icon: icons.UserCircleIcon, name: 'Пользователи', path: '/admin-panel/settings/users' },
+						{ icon: icons.UserActivityIcon, name: 'Отчёт по пользователям', path: '/admin-panel/settings/users-report' },
+						{
+							icon: icons.TableIcon,
+							name: 'Отчёт по кол-ву заказов',
+							path: '/admin-panel/settings/users-report-by-count'
+						},
+						{
+							icon: icons.UserCircleIcon,
+							name: 'Зарегистрированные клиенты',
+							path: '/admin-panel/settings/registered-customers'
+						},
+						{
+							icon: icons.UserActivityIcon,
+							name: 'Онлайн-клиенты',
+							path: '/admin-panel/settings/online-customers'
+						}
 					]
 				}
 			]

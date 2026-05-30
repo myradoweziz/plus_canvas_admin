@@ -292,7 +292,11 @@
 		(mainCategoryId, oldMainCategoryId) => {
 			syncMainCategorySlug(mainCategoryId ?? null)
 
-			if (!isApplyingProduct.value && oldMainCategoryId !== undefined && mainCategoryId !== oldMainCategoryId) {
+			if (
+				!isApplyingProduct.value &&
+				oldMainCategoryId != null &&
+				mainCategoryId !== oldMainCategoryId
+			) {
 				form.value.category_id = null
 				form.value.sub_category_id = null
 
@@ -318,7 +322,7 @@
 	watch(
 		() => form.value.category_id,
 		(categoryId, oldCategoryId) => {
-			if (!isApplyingProduct.value && oldCategoryId !== undefined && categoryId !== oldCategoryId) {
+			if (!isApplyingProduct.value && oldCategoryId != null && categoryId !== oldCategoryId) {
 				form.value.sub_category_id = null
 			}
 

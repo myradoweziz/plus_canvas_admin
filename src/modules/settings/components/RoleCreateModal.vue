@@ -4,11 +4,15 @@
 
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
+	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
+	import { api as productsApi } from '@/modules/products/api'
+	import type { CanvasProduct } from '@/modules/products/types'
 	import { api } from '../api'
+	import { createEmptyRole } from '../helpers/roles'
 	import type { Permission, Role } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
@@ -16,25 +20,26 @@
 
 	const saving = ref(false)
 	const loadingPermissions = ref(false)
+	const loadingProducts = ref(false)
 	const allPermissions = ref<Permission[]>([])
+	const products = ref<CanvasProduct[]>([])
 	const selectedPermissionName = ref<string | null>(null)
 	const permissionsRequestId = ref(0)
+	const productsRequestId = ref(0)
 	const triedSubmit = ref(false)
 
-	const form = reactive({
-		id: null as number | null,
-		name: '',
-		permissions: [] as string[]
-	})
+	const form = reactive(createEmptyRole())
 
 	const fieldErrors = reactive({
 		name: '',
+		system_name: '',
 		permissions: ''
 	})
 
 	const resetLocalForm = () => {
-		Object.assign(form, { id: null, name: '', permissions: [] })
+		Object.assign(form, createEmptyRole())
 		fieldErrors.name = ''
+		fieldErrors.system_name = ''
 		fieldErrors.permissions = ''
 		triedSubmit.value = false
 		selectedPermissionName.value = null
@@ -42,16 +47,23 @@
 
 	const validate = () => {
 		fieldErrors.name = ''
+		fieldErrors.system_name = ''
 		fieldErrors.permissions = ''
 		let ok = true
+
 		if (!form.name.trim()) {
 			fieldErrors.name = 'Укажите название'
+			ok = false
+		}
+		if (!form.system_name.trim()) {
+			fieldErrors.system_name = 'Укажите system name'
 			ok = false
 		}
 		if (!form.permissions.length) {
 			fieldErrors.permissions = 'Выберите хотя бы одно право'
 			ok = false
 		}
+
 		return ok
 	}
 
@@ -66,21 +78,42 @@
 	watch(
 		() => props.role,
 		(role) => {
-			if (!role) return
+			if (!role) {
+				Object.assign(form, createEmptyRole())
+				return
+			}
+
 			Object.assign(form, {
 				id: role.id ?? null,
 				name: role.name ?? '',
+				system_name: role.system_name ?? '',
+				free_shipping: !!role.free_shipping,
+				tax_exempt: !!role.tax_exempt,
+				active: role.active !== false,
+				is_system_role: !!role.is_system_role,
+				purchased_with_product: Number(role.purchased_with_product ?? 0),
 				permissions: Array.isArray(role.permissions)
 					? role.permissions
-							.map((p) => (typeof p === 'string' ? p : (p as any)?.name))
+							.map((p) => (typeof p === 'string' ? p : (p as { name?: string })?.name))
 							.filter((p): p is string => typeof p === 'string' && p.length > 0)
 					: []
 			})
 			fieldErrors.name = ''
+			fieldErrors.system_name = ''
 			fieldErrors.permissions = ''
 		},
 		{ immediate: true }
 	)
+
+	const productOptions = computed(() => [
+		{ label: 'Не выбран', value: 0 },
+		...products.value
+			.filter((product): product is CanvasProduct & { id: number } => product.id !== null)
+			.map((product) => ({
+				label: product.name,
+				value: product.id
+			}))
+	])
 
 	const permissionOptions = computed(() =>
 		allPermissions.value
@@ -117,11 +150,28 @@
 		}
 	}
 
+	const loadProducts = async () => {
+		const requestId = productsRequestId.value + 1
+		productsRequestId.value = requestId
+		loadingProducts.value = true
+
+		try {
+			const result = await productsApi.listCanvasProducts({ limit: 1000, offset: 0 })
+			if (requestId !== productsRequestId.value) return
+			products.value = result.items || []
+		} finally {
+			if (requestId === productsRequestId.value) {
+				loadingProducts.value = false
+			}
+		}
+	}
+
 	watch(
 		() => props.open,
 		(open) => {
 			if (!open) return
 			loadPermissions()
+			loadProducts()
 		},
 		{ immediate: true }
 	)
@@ -135,8 +185,15 @@
 			const payload: Role = {
 				id: form.id ?? null,
 				name: form.name.trim(),
+				system_name: form.system_name.trim(),
+				free_shipping: !!form.free_shipping,
+				tax_exempt: !!form.tax_exempt,
+				active: !!form.active,
+				is_system_role: !!form.is_system_role,
+				purchased_with_product: Number(form.purchased_with_product ?? 0),
 				permissions: form.permissions || []
 			}
+
 			if (payload.id) {
 				await api.updateRole(payload)
 			} else {
@@ -171,15 +228,38 @@
 			</div>
 
 			<form class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2" @submit.prevent="onSubmit">
-				<div class="md:col-span-2">
-					<TextField
-						v-model="form.name"
-						label="Название"
-						required
-						name="name"
-						placeholder="название роли"
-						:error-message="triedSubmit ? fieldErrors.name : ''"
-					/>
+				<TextField
+					v-model="form.name"
+					label="Название"
+					required
+					name="name"
+					placeholder="название роли"
+					:error-message="triedSubmit ? fieldErrors.name : ''"
+				/>
+
+				<TextField
+					v-model="form.system_name"
+					label="System name"
+					required
+					name="system_name"
+					placeholder="system_name"
+					:error-message="triedSubmit ? fieldErrors.system_name : ''"
+				/>
+
+				<SelectField
+					v-model="form.purchased_with_product"
+					label="Purchased with product"
+					name="purchased_with_product"
+					placeholder="Выберите продукт"
+					:options="productOptions"
+					:disabled="loadingProducts"
+				/>
+
+				<div class="flex flex-col gap-3 md:col-span-2">
+					<CheckboxField v-model="form.free_shipping" label="Free shipping" name="free_shipping" />
+					<CheckboxField v-model="form.tax_exempt" label="Tax exempt" name="tax_exempt" />
+					<CheckboxField v-model="form.active" label="Active" name="active" />
+					<CheckboxField v-model="form.is_system_role" label="System role" name="is_system_role" />
 				</div>
 
 				<div class="md:col-span-2">

@@ -6,6 +6,8 @@ export * from './user-addresses'
 export * from './user-shopping-cart'
 export * from './user-wishlist'
 export * from './user-activity-logs'
+export * from './customer-report'
+export * from './registered-customers-report'
 
 export const PERMISSIONS_TABLE_COLUMNS = [
 	{ key: 'name', label: 'Название' },

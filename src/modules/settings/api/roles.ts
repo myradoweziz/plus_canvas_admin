@@ -25,9 +25,30 @@ const toPermissionNames = (items: RolePermissionItem[] | null | undefined): stri
 
 const normalizeRole = (item: any): Role => ({
 	id: item?.id ?? null,
-	name: item?.name ?? '',
+	name: String(item?.name ?? ''),
+	system_name: String(item?.system_name ?? ''),
+	free_shipping: !!item?.free_shipping,
+	tax_exempt: !!item?.tax_exempt,
+	active: item?.active !== false,
+	is_system_role: !!item?.is_system_role,
+	purchased_with_product: Number(
+		item?.purchased_with_product ?? item?.purchased_with_product_id ?? item?.product?.id ?? 0
+	),
 	permissions: toPermissionNames(item?.permissions)
 })
+
+function toRolePayload(role: Role): RolePayload {
+	return {
+		name: role.name.trim(),
+		system_name: role.system_name.trim(),
+		free_shipping: !!role.free_shipping,
+		tax_exempt: !!role.tax_exempt,
+		active: !!role.active,
+		is_system_role: !!role.is_system_role,
+		purchased_with_product: Number(role.purchased_with_product ?? 0),
+		permissions: role.permissions
+	}
+}
 
 async function listRoles(params: ListRolesParams): Promise<ListRolesResult> {
 	const filteredParams = Object.fromEntries(
@@ -43,23 +64,18 @@ async function listRoles(params: ListRolesParams): Promise<ListRolesResult> {
 	}
 }
 
-function toRolePayload(role: Role): RolePayload {
-	return {
-		name: role.name,
-		permissions: role.permissions
-	}
-}
-
 async function createRole(role: Role): Promise<Role> {
-	return await request({ url: ROLES_URL, method: 'POST', data: toRolePayload(role) })
+	const response = await request({ url: ROLES_URL, method: 'POST', data: toRolePayload(role) })
+	return normalizeRole(response?.data ?? response)
 }
 
 async function updateRole(role: Role): Promise<Role> {
-	return await request({
+	const response = await request({
 		url: `${ROLES_URL}/${role.id}`,
 		method: 'PUT',
 		data: toRolePayload(role)
 	})
+	return normalizeRole(response?.data ?? response)
 }
 
 async function deleteRole(id: number): Promise<void> {
@@ -72,4 +88,3 @@ export const rolesApi = {
 	updateRole,
 	deleteRole
 }
-

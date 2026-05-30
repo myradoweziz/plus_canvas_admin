@@ -1,8 +1,6 @@
 <script setup lang="ts">
 	import { computed, onMounted, ref } from 'vue'
-
 	import { useRouter } from 'vue-router'
-
 	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'

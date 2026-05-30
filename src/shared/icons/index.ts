@@ -44,6 +44,7 @@ export { default as SuccessIcon } from './SuccessIcon.vue'
 export { default as TableIcon } from './TableIcon.vue'
 export { default as TrashIcon } from './TrashIcon.vue'
 export { default as UserCircleIcon } from './UserCircleIcon.vue'
+export { default as UserActivityIcon } from './UserActivityIcon.vue'
 export { default as WarningIcon } from './WarningIcon.vue'
 export { default as WishlistIcon } from './WishlistIcon.vue'
 
