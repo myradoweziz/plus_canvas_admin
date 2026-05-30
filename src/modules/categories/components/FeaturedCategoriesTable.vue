@@ -11,6 +11,7 @@
 		categories: FeaturedCategory[]
 		loading: boolean
 		pagination: { limit: number; offset: number }
+		selectedCategories?: FeaturedCategory[]
 	}>()
 
 	const toFeaturedCategory = (row: unknown) => row as FeaturedCategory
@@ -19,7 +20,12 @@
 		(e: 'edit', featuredCategory: FeaturedCategory): void
 		(e: 'delete', featuredCategory: FeaturedCategory): void
 		(e: 'reorder', featuredCategories: FeaturedCategory[]): void
+		(e: 'update:selectedCategories', categories: FeaturedCategory[]): void
 	}>()
+
+	const onUpdateSelected = (rows: unknown[]) => {
+		emit('update:selectedCategories', rows as FeaturedCategory[])
+	}
 
 	const onReorder = (rows: unknown[]) => {
 		emit('reorder', rows as FeaturedCategory[])
@@ -32,10 +38,13 @@
 		:rows="categories"
 		:loading="loading"
 		empty-text="Пока нет категорий."
+		selectable
 		draggable
 		order-key="featured_order"
+		:selected-rows="selectedCategories"
 		:pagination="pagination"
 		@reorder="onReorder"
+		@update:selected-rows="onUpdateSelected"
 	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toFeaturedCategory(row).name }}</span>

@@ -228,9 +228,17 @@
 		await load()
 	}
 
+	const buildExportIds = (): number[] =>
+		selectedProducts.value.map((p) => p.id).filter((id): id is number => typeof id === 'number')
+
 	const exportXml = async () => {
+		const ids = buildExportIds()
+		if (!ids.length) {
+			toast.error('Выберите продукты для экспорта')
+			return
+		}
+
 		try {
-			const ids = selectedProducts.value.length ? selectedProducts.value.map((c) => c.id!) : undefined
 			await api.exportCanvasProductsXml(ids)
 			toast.success('XML файл скачан')
 		} catch {
@@ -239,8 +247,13 @@
 	}
 
 	const exportExcel = async () => {
+		const ids = buildExportIds()
+		if (!ids.length) {
+			toast.error('Выберите продукты для экспорта')
+			return
+		}
+
 		try {
-			const ids = selectedProducts.value.length ? selectedProducts.value.map((c) => c.id!) : undefined
 			await api.exportCanvasProductsExcel(ids)
 			toast.success('Excel файл скачан')
 		} catch {
@@ -300,8 +313,24 @@
 						>Удалить выбранные ({{ selectedProducts.length }})</Button
 					>
 					<Button type="button" size="sm" variant="outline" :on-click="triggerImportExcel">Импорт Excel</Button>
-					<Button type="button" size="sm" variant="outline" :on-click="exportExcel">Экспорт Excel</Button>
-					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						:disabled="!selectedProducts.length"
+						:on-click="exportExcel"
+					>
+						Экспорт Excel{{ selectedProducts.length ? ` (${selectedProducts.length})` : '' }}
+					</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						:disabled="!selectedProducts.length"
+						:on-click="exportXml"
+					>
+						Экспорт XML{{ selectedProducts.length ? ` (${selectedProducts.length})` : '' }}
+					</Button>
 					<Button type="button" size="sm" :on-click="openCreate">Добавить</Button>
 				</div>
 			</template>

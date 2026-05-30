@@ -22,6 +22,7 @@
 	const selectedSubCategory = ref<SubCategory | null>(null)
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
+	const selectedCategories = ref<SubCategory[]>([])
 	const loadingFeaturedCategories = ref(false)
 	const featuredCategories = ref<FeaturedCategory[]>([])
 	const featuredCategoriesRequestId = ref(0)
@@ -164,8 +165,14 @@
 	}
 
 	const exportXml = async () => {
+		const ids = selectedCategories.value.map((c) => c.id).filter((id): id is number => typeof id === 'number')
+		if (!ids.length) {
+			toast.error('Выберите подкатегории для экспорта')
+			return
+		}
+
 		try {
-			await api.exportSubCategoriesXml()
+			await api.exportSubCategoriesXml(ids)
 			toast.success('XML файл скачан')
 		} catch {
 			toast.error('Не удалось экспортировать XML')
@@ -183,7 +190,15 @@
 		>
 			<template #actions>
 				<div class="flex items-center gap-2">
-					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						:disabled="!selectedCategories.length"
+						:on-click="exportXml"
+					>
+						Экспорт XML{{ selectedCategories.length ? ` (${selectedCategories.length})` : '' }}
+					</Button>
 					<Button type="button" size="sm" :on-click="openCreate">Добавить подкатегорию</Button>
 				</div>
 			</template>
@@ -212,6 +227,7 @@
 		</form>
 
 		<SubCategoriesTable
+			v-model:selected-categories="selectedCategories"
 			:categories="subCategories"
 			:loading="loading"
 			@edit="editSubCategory"

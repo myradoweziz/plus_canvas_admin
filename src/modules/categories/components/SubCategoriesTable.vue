@@ -11,6 +11,7 @@
 		categories: SubCategory[]
 		loading: boolean
 		pagination: { limit: number; offset: number }
+		selectedCategories?: SubCategory[]
 	}>()
 
 	const toSubCategory = (row: unknown) => row as SubCategory
@@ -19,7 +20,12 @@
 		(e: 'edit', subCategory: SubCategory): void
 		(e: 'delete', subCategory: SubCategory): void
 		(e: 'reorder', subCategories: SubCategory[]): void
+		(e: 'update:selectedCategories', categories: SubCategory[]): void
 	}>()
+
+	const onUpdateSelected = (rows: unknown[]) => {
+		emit('update:selectedCategories', rows as SubCategory[])
+	}
 
 	const onReorder = (rows: unknown[]) => {
 		emit('reorder', rows as SubCategory[])
@@ -32,10 +38,13 @@
 		:rows="categories"
 		:loading="loading"
 		empty-text="Пока нет категорий."
+		selectable
 		draggable
 		order-key="featured_order"
+		:selected-rows="selectedCategories"
 		:pagination="pagination"
 		@reorder="onReorder"
+		@update:selected-rows="onUpdateSelected"
 	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toSubCategory(row).name }}</span>

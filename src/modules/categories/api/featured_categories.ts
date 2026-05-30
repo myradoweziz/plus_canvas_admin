@@ -1,5 +1,6 @@
 import { downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
+import { filterListParams } from '@/shared/api/createListApi'
 import type { FeaturedCategory, FeaturedCategoryPayload } from '../types'
 
 export const featuredCategoriesApi = {
@@ -87,10 +88,11 @@ async function reorderFeaturedCategories(data: ReorderFeaturedCategoriesPayload)
 	return await request({ url: `${FEATURED_CATEGORIES_URL}/reorder`, method: 'POST', data })
 }
 
-async function exportFeaturedCategoriesXml(): Promise<void> {
+async function exportFeaturedCategoriesXml(ids: number[]): Promise<void> {
 	const response = await request({
 		url: `${FEATURED_CATEGORIES_URL}/export/xml`,
 		method: 'GET',
+		params: filterListParams({ ids }),
 		headers: { Accept: 'application/xml, text/xml' },
 		responseType: 'text'
 	})

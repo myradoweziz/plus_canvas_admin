@@ -1,5 +1,6 @@
 import { downloadBlob, downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
+import { filterListParams } from '@/shared/api/createListApi'
 import { createEmptyCanvasProduct } from '../helpers/product-form'
 import type {
 	CanvasProduct,
@@ -478,12 +479,11 @@ async function bulkDeleteCanvasProducts(ids: number[]): Promise<void> {
 	await request({ url: `${CANVAS_PRODUCTS_URL}/bulk-delete`, method: 'POST', data: { ids } })
 }
 
-async function exportCanvasProductsXml(ids?: number[]): Promise<void> {
-	const params = ids && ids.length ? { ids: ids.join(',') } : undefined
+async function exportCanvasProductsXml(ids: number[]): Promise<void> {
 	const response = await request({
 		url: `${CANVAS_PRODUCTS_URL}/export/xml`,
 		method: 'GET',
-		params,
+		params: filterListParams({ ids }),
 		headers: { Accept: 'application/xml, text/xml' },
 		responseType: 'text'
 	})
@@ -499,12 +499,11 @@ async function exportCanvasProductsXml(ids?: number[]): Promise<void> {
 	downloadTextFile(xml, 'products.xml', 'application/xml;charset=utf-8')
 }
 
-async function exportCanvasProductsExcel(ids?: number[]): Promise<void> {
-	const params = ids && ids.length ? { ids: ids.join(',') } : undefined
+async function exportCanvasProductsExcel(ids: number[]): Promise<void> {
 	const response = await request({
 		url: `${CANVAS_PRODUCTS_URL}/export/excel`,
 		method: 'GET',
-		params,
+		params: filterListParams({ ids }),
 		responseType: 'blob'
 	})
 

@@ -20,6 +20,7 @@
 	const selectedMainCategory = ref<MainCategory | null>(null)
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
+	const selectedCategories = ref<MainCategory[]>([])
 	const total = ref(0)
 	const limit = ref(15)
 	const offset = ref(0)
@@ -118,8 +119,14 @@
 	}
 
 	const exportXml = async () => {
+		const ids = selectedCategories.value.map((c) => c.id).filter((id): id is number => typeof id === 'number')
+		if (!ids.length) {
+			toast.error('Выберите категории для экспорта')
+			return
+		}
+
 		try {
-			await api.exportMainCategoriesXml()
+			await api.exportMainCategoriesXml(ids)
 			toast.success('XML файл скачан')
 		} catch {
 			toast.error('Не удалось экспортировать XML')
@@ -137,7 +144,15 @@
 		>
 			<template #actions>
 				<div class="flex items-center gap-2">
-					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						:disabled="!selectedCategories.length"
+						:on-click="exportXml"
+					>
+						Экспорт XML{{ selectedCategories.length ? ` (${selectedCategories.length})` : '' }}
+					</Button>
 					<Button type="button" size="sm" :on-click="openCreate">Добавить главную категорию</Button>
 				</div>
 			</template>
@@ -156,6 +171,7 @@
 		</form>
 
 		<MainCategoriesTable
+			v-model:selected-categories="selectedCategories"
 			:categories="mainCategories"
 			:loading="loading"
 			@edit="editMainCategory"

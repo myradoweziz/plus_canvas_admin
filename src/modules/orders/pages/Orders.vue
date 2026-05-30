@@ -98,26 +98,21 @@
 		router.push(`/admin-panel/orders/${order.id}`)
 	}
 
-	const buildExportParams = (): ExportOrdersParams => {
-		const params: ExportOrdersParams = {
-			date_from: filters.value.date_from || undefined,
-			date_to: filters.value.date_to || undefined,
-			email: filters.value.email || undefined,
-			order_status: filters.value.order_status ?? undefined,
-			payment_status: filters.value.payment_status ?? undefined,
-			delivery_status: filters.value.delivery_status ?? undefined,
-			order_number: filters.value.order_number || undefined,
-			product_id: filters.value.product_id ?? undefined
-		}
-		if (selectedOrders.value.length) {
-			params.ids = selectedOrders.value.map((o) => o.id!)
-		}
-		return params
+	const buildExportParams = (): ExportOrdersParams | null => {
+		const ids = selectedOrders.value.map((o) => o.id).filter((id): id is number => typeof id === 'number')
+		if (!ids.length) return null
+		return { ids }
 	}
 
 	const exportXml = async () => {
+		const params = buildExportParams()
+		if (!params) {
+			toast.error('Выберите заказы для экспорта')
+			return
+		}
+
 		try {
-			await api.exportOrdersXml(buildExportParams())
+			await api.exportOrdersXml(params)
 			toast.success('XML файл скачан')
 		} catch {
 			toast.error('Не удалось экспортировать XML')
@@ -125,8 +120,14 @@
 	}
 
 	const exportPdf = async () => {
+		const params = buildExportParams()
+		if (!params) {
+			toast.error('Выберите заказы для экспорта')
+			return
+		}
+
 		try {
-			await api.exportOrdersPdf(buildExportParams())
+			await api.exportOrdersPdf(params)
 			toast.success('PDF файл скачан')
 		} catch {
 			toast.error('Не удалось экспортировать PDF')
@@ -134,8 +135,14 @@
 	}
 
 	const exportExcel = async () => {
+		const params = buildExportParams()
+		if (!params) {
+			toast.error('Выберите заказы для экспорта')
+			return
+		}
+
 		try {
-			await api.exportOrdersExcel(buildExportParams())
+			await api.exportOrdersExcel(params)
 			toast.success('Excel файл скачан')
 		} catch {
 			toast.error('Не удалось экспортировать Excel')
@@ -191,9 +198,33 @@
 					>
 						Удалить выбранные ({{ selectedOrders.length }})
 					</Button>
-					<Button type="button" size="sm" variant="outline" :on-click="exportExcel">Экспорт Excel</Button>
-					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>
-					<Button type="button" size="sm" variant="outline" :on-click="exportPdf">Экспорт PDF</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						:disabled="!selectedOrders.length"
+						:on-click="exportExcel"
+					>
+						Экспорт Excel{{ selectedOrders.length ? ` (${selectedOrders.length})` : '' }}
+					</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						:disabled="!selectedOrders.length"
+						:on-click="exportXml"
+					>
+						Экспорт XML{{ selectedOrders.length ? ` (${selectedOrders.length})` : '' }}
+					</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						:disabled="!selectedOrders.length"
+						:on-click="exportPdf"
+					>
+						Экспорт PDF{{ selectedOrders.length ? ` (${selectedOrders.length})` : '' }}
+					</Button>
 				</div>
 			</template>
 		</Banner>

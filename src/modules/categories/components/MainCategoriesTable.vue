@@ -11,6 +11,7 @@
 		categories: MainCategory[]
 		loading: boolean
 		pagination: { limit: number; offset: number }
+		selectedCategories?: MainCategory[]
 	}>()
 
 	const toMainCategory = (row: unknown) => row as MainCategory
@@ -19,7 +20,12 @@
 		(e: 'edit', mainCategory: MainCategory): void
 		(e: 'delete', mainCategory: MainCategory): void
 		(e: 'reorder', mainCategories: MainCategory[]): void
+		(e: 'update:selectedCategories', categories: MainCategory[]): void
 	}>()
+
+	const onUpdateSelected = (rows: unknown[]) => {
+		emit('update:selectedCategories', rows as MainCategory[])
+	}
 
 	const onReorder = (rows: unknown[]) => {
 		emit('reorder', rows as MainCategory[])
@@ -32,10 +38,13 @@
 		:rows="categories"
 		:loading="loading"
 		empty-text="Пока нет категорий."
+		selectable
 		draggable
 		order-key="featured_order"
+		:selected-rows="selectedCategories"
 		:pagination="pagination"
 		@reorder="onReorder"
+		@update:selected-rows="onUpdateSelected"
 	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toMainCategory(row).name }}</span>

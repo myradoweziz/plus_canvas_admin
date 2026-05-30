@@ -1,5 +1,6 @@
 import { downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
+import { filterListParams } from '@/shared/api/createListApi'
 import type { SubCategory, SubCategoryPayload } from '../types'
 
 export const subCategoriesApi = {
@@ -79,10 +80,11 @@ async function reorderSubCategories(data: ReorderSubCategoriesPayload): Promise<
 	return await request({ url: `${SUB_CATEGORIES_URL}/reorder`, method: 'POST', data })
 }
 
-async function exportSubCategoriesXml(): Promise<void> {
+async function exportSubCategoriesXml(ids: number[]): Promise<void> {
 	const response = await request({
 		url: `${SUB_CATEGORIES_URL}/export/xml`,
 		method: 'GET',
+		params: filterListParams({ ids }),
 		headers: { Accept: 'application/xml, text/xml' },
 		responseType: 'text'
 	})

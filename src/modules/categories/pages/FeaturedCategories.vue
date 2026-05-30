@@ -24,6 +24,7 @@
 	const selectedFeaturedCategory = ref<FeaturedCategory | null>(null)
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
+	const selectedCategories = ref<FeaturedCategory[]>([])
 	const loadingMainCategories = ref(false)
 	const mainCategories = ref<MainCategory[]>([])
 	const mainCategoriesRequestId = ref(0)
@@ -166,8 +167,14 @@
 	}
 
 	const exportXml = async () => {
+		const ids = selectedCategories.value.map((c) => c.id).filter((id): id is number => typeof id === 'number')
+		if (!ids.length) {
+			toast.error('Выберите категории для экспорта')
+			return
+		}
+
 		try {
-			await api.exportFeaturedCategoriesXml()
+			await api.exportFeaturedCategoriesXml(ids)
 			toast.success('XML файл скачан')
 		} catch {
 			toast.error('Не удалось экспортировать XML')
@@ -185,7 +192,15 @@
 		>
 			<template #actions>
 				<div class="flex items-center gap-2">
-					<Button type="button" size="sm" variant="outline" :on-click="exportXml">Экспорт XML</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						:disabled="!selectedCategories.length"
+						:on-click="exportXml"
+					>
+						Экспорт XML{{ selectedCategories.length ? ` (${selectedCategories.length})` : '' }}
+					</Button>
 					<Button type="button" size="sm" :on-click="openCreate">Добавить категорию</Button>
 				</div>
 			</template>
@@ -214,6 +229,7 @@
 		</form>
 
 		<FeaturedCategoriesTable
+			v-model:selected-categories="selectedCategories"
 			:categories="featuredCategories"
 			:loading="loading"
 			@edit="editFeaturedCategory"

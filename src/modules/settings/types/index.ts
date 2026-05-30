@@ -1,3 +1,6 @@
 export * from './permission'
 export * from './role'
 export * from './user'
+export * from './user-address'
+export * from './user-shopping-cart'
+export * from './user-wishlist'

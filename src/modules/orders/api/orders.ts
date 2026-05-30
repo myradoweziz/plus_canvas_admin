@@ -18,7 +18,9 @@ export type ListOrdersParams = {
 	offset: number
 }
 
-export type ExportOrdersParams = Omit<ListOrdersParams, 'limit' | 'offset'> & { ids?: number[] }
+export type ExportOrdersParams = {
+	ids: number[]
+}
 
 const listOrders = createListApi<Order, ListOrdersParams>({ url: ORDERS_URL })
 
