@@ -1,0 +1,29 @@
+---
+description: Route recurring tasks to personalized subagents in ~/.cursor/agents/ using the cheapest capable model.
+globs:
+alwaysApply: true
+---
+
+# Subagent routing
+
+Read `AGENTS.md` for the full routing table. Apply these rules in every chat:
+
+1. Match task type to subagent before starting work.
+2. Prefer the **narrowest** subagent (validation → `forms-validation`, not `vue-admin-builder`).
+3. Use **Composer 2 Fast** subagents for UI/CSS, forms, and read-only Q&A.
+4. Use **Codex 5.3** subagents for Vue admin implementation, canvas editor, debug/build, and API/upload work.
+5. Use direct Agent mode only when no subagent fits.
+
+## Quick dispatch
+
+| If the user says… | Subagent |
+|-------------------|----------|
+| `daway delay`, `nusno dobawit`, `@src/modules/...`, `pohose na` | vue-admin-builder |
+| canvas, collage, frame, effect, inner_images, lag on editor | canvas-editor-dev |
+| build error, Vue warn, TypeScript error, Traceback, gunicorn | debugger-build-fixer |
+| upload, `/api/media`, axios progress, otprawit po index | api-upload-wire |
+| stili, mobile menu, blur, padding, umensit | ui-css-quick-fix |
+| ubrat validasi, obyazatelny, maxLength, regex | forms-validation |
+| yestli, pochemuta, pravilny, explain without fix | code-reviewer |
+
+Token discipline: read referenced files first; no broad repo exploration unless required.

@@ -26,6 +26,7 @@ const normalize = (raw: any): ContactInfo => {
 		email: raw.email ?? null,
 		logo,
 		logo_path: raw.logo_path ?? raw.logoPath ?? null,
+		logo_url: raw.logo_url ?? raw.logoUrl ?? null,
 		slogan: raw.slogan ?? null,
 		social_links
 	}

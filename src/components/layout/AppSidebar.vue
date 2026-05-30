@@ -16,12 +16,12 @@
 				{ icon: icons.BannerIcon, name: 'Баннеры', path: '/admin-panel/banners' },
 				{ icon: icons.ProductsIcon, name: 'Продукты', path: '/admin-panel/products' },
 				{
-					icon: icons.TableIcon,
+					icon: icons.PieChartIcon,
 					name: 'Продажи',
 					path: '/admin-panel/orders',
 					subItems: [
 						{
-							icon: icons.TableIcon,
+							icon: icons.OrdersIcon,
 							name: 'Заказы',
 							path: '/admin-panel/orders'
 						},
@@ -31,22 +31,22 @@
 							path: '/admin-panel/carts'
 						},
 						{
-							icon: icons.ShoppingCartIcon,
+							icon: icons.WishlistIcon,
 							name: 'Список желаний',
 							path: '/admin-panel/wishlists'
 						},
 						{
-							icon: icons.ShoppingCartIcon,
+							icon: icons.BestsellersIcon,
 							name: 'Бестселлеры',
 							path: '/admin-panel/bestsellers'
 						},
 						{
-							icon: icons.ShoppingCartIcon,
+							icon: icons.NeverPurchasedIcon,
 							name: 'Никогда не покупали',
 							path: '/admin-panel/never-purchased'
 						},
 						{
-							icon: icons.ShoppingCartIcon,
+							icon: icons.CountryReportIcon,
 							name: 'Отчёт по странам',
 							path: '/admin-panel/country-report'
 						}

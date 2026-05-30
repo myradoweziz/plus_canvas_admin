@@ -134,18 +134,16 @@
 			}
 
 			const links = contactInfo?.social_links?.length
-				? contactInfo.social_links.map((l) => {
-						const icon = String(l.image_url ?? '').trim()
-						return {
-							platform: l.platform ?? '',
-							url: l.url ?? '',
-							image: icon,
-							image_url: String(l.image_url ?? '').trim() || undefined
-						}
-					})
+				? contactInfo.social_links.map((l) => ({
+						platform: l.platform ?? '',
+						url: l.url ?? '',
+						image: l.image_url ?? '',
+						image_url: l.image_url ?? l.image ?? ''
+					}))
 				: [emptySocialRow()]
 
-			const logoFromApi = contactInfo?.logo_path
+			const logoPath = String(contactInfo?.logo_path ?? contactInfo?.logo ?? '').trim()
+			const logoUrl = String(contactInfo?.logo_url ?? '').trim()
 
 			Object.assign(form, {
 				id: contactInfo?.id ?? null,
@@ -153,7 +151,8 @@
 				address: contactInfo?.address ? String(contactInfo.address) : '',
 				email: contactInfo?.email ? String(contactInfo.email) : '',
 				slogan: contactInfo?.slogan ? String(contactInfo.slogan) : '',
-				logo: logoFromApi || '',
+				logo: logoPath,
+				logo_url: logoUrl,
 				social_links: links
 			})
 			fieldErrors.phone_number = ''
@@ -162,7 +161,8 @@
 			fieldErrors.slogan = ''
 			fieldErrors.logo = ''
 			fieldErrors.social_links = ''
-		}
+		},
+		{ immediate: true }
 	)
 
 	const onSubmit = async () => {
@@ -252,6 +252,7 @@
 				<div class="md:col-span-2">
 					<SingleImageUpload
 						v-model="form.logo"
+						:current-url="form.logo_url"
 						label="Логотип"
 						description="Необязательно. Файл будет загружен сразу, в форму сохранится URL."
 						:error-message="fieldErrors.logo"
@@ -292,7 +293,8 @@
 							</div>
 							<div class="mt-3">
 								<SingleImageUpload
-									:model-value="row.image || ''"
+									:model-value="row.image"
+									:current-url="row.image_url"
 									label="Иконка"
 									description="Необязательно. Файл будет загружен сразу, в форму сохранится URL."
 									:uploader="mediaApi.uploadImages"

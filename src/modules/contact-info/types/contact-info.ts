@@ -12,6 +12,7 @@ export type ContactInfo = {
 	email?: string | null
 	logo?: string
 	logo_path?: string
+	logo_url?: string | null
 	slogan?: string | null
 	social_links?: ContactSocialLink[]
 }
