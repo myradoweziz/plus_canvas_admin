@@ -1,5 +1,4 @@
 export const USERS_TABLE_COLUMNS = [
-	{ key: 'id', label: 'ID' },
 	{ key: 'email', label: 'Email' },
 	{ key: 'name', label: 'Имя' },
 	{ key: 'roles', label: 'Роли' },
@@ -23,11 +22,7 @@ export const formatUserDate = (value?: string) => {
 	}).format(date)
 }
 
-export const userDisplayName = (user: {
-	name?: string
-	first_name?: string
-	last_name?: string
-}) => {
+export const userDisplayName = (user: { name?: string; first_name?: string; last_name?: string }) => {
 	const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ').trim()
 	return fullName || user.name?.trim() || '—'
 }

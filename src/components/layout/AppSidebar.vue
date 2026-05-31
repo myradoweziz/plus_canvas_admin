@@ -118,6 +118,11 @@
 							icon: icons.NewsletterSubscribersIcon,
 							name: 'Подписчики рассылки',
 							path: '/admin-panel/promotions/newsletter-subscribers'
+						},
+						{
+							icon: icons.DiscountTypesIcon,
+							name: 'Скидки',
+							path: '/admin-panel/promotions/discounts'
 						}
 					]
 				},

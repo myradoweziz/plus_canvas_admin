@@ -38,10 +38,6 @@
 		:selected-rows="selectedUsers"
 		@update:selected-rows="onUpdateSelected"
 	>
-		<template #cell-id="{ row }">
-			<span class="font-medium text-gray-800">{{ toUser(row).id ?? '—' }}</span>
-		</template>
-
 		<template #cell-email="{ row }">
 			<span class="text-gray-700">{{ toUser(row).email || '—' }}</span>
 		</template>

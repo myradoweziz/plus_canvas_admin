@@ -32,10 +32,6 @@
 		empty-text="Нет онлайн-клиентов."
 		:pagination="{ limit: rows.length || 1, offset: 0 }"
 	>
-		<template #cell-id="{ row }">
-			<span class="font-medium text-gray-800">{{ toRow(row).id }}</span>
-		</template>
-
 		<template #cell-email="{ row }">
 			<span class="text-gray-700">{{ toRow(row).email || '—' }}</span>
 		</template>

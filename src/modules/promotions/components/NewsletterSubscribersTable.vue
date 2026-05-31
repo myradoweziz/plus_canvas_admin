@@ -29,10 +29,6 @@
 		empty-text="Подписчиков пока нет."
 		:pagination="pagination"
 	>
-		<template #cell-id="{ row }">
-			<span class="font-medium text-gray-800">{{ toSubscriber(row).id }}</span>
-		</template>
-
 		<template #cell-email="{ row }">
 			<span class="text-gray-700">{{ toSubscriber(row).email || '—' }}</span>
 		</template>

@@ -1,5 +1,4 @@
 export const ONLINE_CUSTOMERS_TABLE_COLUMNS = [
-	{ key: 'id', label: 'ID' },
 	{ key: 'email', label: 'Email' },
 	{ key: 'name', label: 'Имя' },
 	{ key: 'phone_number', label: 'Телефон' },
