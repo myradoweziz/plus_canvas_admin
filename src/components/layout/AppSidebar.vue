@@ -120,6 +120,23 @@
 							path: '/admin-panel/promotions/newsletter-subscribers'
 						}
 					]
+				},
+				{
+					icon: icons.ConfigurationIcon,
+					name: 'Конфигурация',
+					path: '/admin-panel/configuration',
+					subItems: [
+						{
+							icon: icons.DiscountLimitationsIcon,
+							name: 'Ограничения скидок',
+							path: '/admin-panel/configuration/discount-limitations'
+						},
+						{
+							icon: icons.DiscountTypesIcon,
+							name: 'Типы скидок',
+							path: '/admin-panel/configuration/discount-types'
+						}
+					]
 				}
 			]
 		}

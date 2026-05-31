@@ -9,6 +9,7 @@ import canvasSizes from '@/modules/canvas-sizes'
 import categories from '@/modules/categories'
 import colors from '@/modules/colors'
 import contactInfo from '@/modules/contact-info'
+import configuration from '@/modules/configuration'
 import stocks from '@/modules/stocks'
 import faqs from '@/modules/faqs'
 import home from '@/modules/home'
@@ -37,5 +38,6 @@ registerModules({
 	faqs: faqs,
 	profile: profile,
 	promotions: promotions,
+	configuration: configuration,
 	settings: settings
 })
