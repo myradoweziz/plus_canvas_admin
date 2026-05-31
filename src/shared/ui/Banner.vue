@@ -1,3 +1,25 @@
+<script setup lang="ts">
+	import { computed } from 'vue'
+	import { useRoute } from 'vue-router'
+
+	withDefaults(
+		defineProps<{
+			title: string
+			subtitle?: string
+			icon?: any
+			total?: number | string
+		}>(),
+		{
+			subtitle: '',
+			icon: undefined,
+			total: undefined
+		}
+	)
+
+	const route = useRoute()
+	const showTotal = computed(() => !route.path.includes('/admin-panel/profile'))
+</script>
+
 <template>
 	<section class="rounded-2xl border border-gray-200 bg-white p-6 md:p-8">
 		<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -21,7 +43,7 @@
 					</div>
 				</div>
 
-				<div class="text-sm text-gray-600 md:text-base">Всего: {{ total || '-' }}</div>
+				<div v-if="showTotal" class="text-sm text-gray-600 md:text-base">Всего: {{ total || '-' }}</div>
 			</div>
 
 			<div v-if="$slots.actions" class="shrink-0">
@@ -30,19 +52,3 @@
 		</div>
 	</section>
 </template>
-
-<script setup lang="ts">
-	withDefaults(
-		defineProps<{
-			title: string
-			subtitle?: string
-			icon?: any
-			total?: number | string
-		}>(),
-		{
-			subtitle: '',
-			icon: undefined,
-			total: undefined
-		}
-	)
-</script>
