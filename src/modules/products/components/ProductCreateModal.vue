@@ -1,6 +1,5 @@
 <script setup lang="ts">
 	import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
-
 	import { useRoute, useRouter } from 'vue-router'
 
 	import Button from '@/shared/ui/Button.vue'
@@ -24,23 +23,17 @@
 	const activeTab = ref<ProductFormTab>('productInfo')
 
 	const form = ref<CanvasProduct>(createEmptyCanvasProduct())
-
 	const productInfoTabRef = ref<InstanceType<typeof ProductInfoTab> | null>(null)
-
 	const mountedTabs = ref<Set<ProductFormTab>>(new Set(['productInfo']))
 
 	const productId = computed(() => {
 		const id = Number(route.params.id)
-
 		return Number.isFinite(id) ? id : null
 	})
 
 	const isEditMode = computed(() => productId.value != null)
-
 	const effectiveProductId = computed(() => form.value.id ?? productId.value)
-
 	const pageTitle = computed(() => (isEditMode.value ? 'Редактировать продукт' : 'Добавить продукт'))
-
 	const isTabMounted = (tab: ProductFormTab) => mountedTabs.value.has(tab)
 
 	watch(activeTab, (tab) => {
@@ -49,16 +42,14 @@
 
 	const normalizeLoadedProduct = (product: CanvasProduct): CanvasProduct => ({
 		...createEmptyCanvasProduct(),
-
 		...product,
-
-		main_category_slug:
-			product.main_category_slug ?? (product as { main_category?: { slug?: string } }).main_category?.slug ?? '',
-
+		main_category_type:
+			product.main_category_type ??
+			(product as { main_category?: { category_type?: CanvasProduct['main_category_type'] } }).main_category
+				?.category_type ??
+			'',
 		collage_layout_id: product.collage_layout_id ?? product.collage_layout?.id ?? null,
-
 		collage_layout: product.collage_layout ?? null,
-
 		upload_image_count: product.collage_layout
 			? uploadImageCountFromLayout(product.collage_layout) || product.upload_image_count
 			: product.upload_image_count
@@ -68,20 +59,18 @@
 		if (!productId.value) return
 
 		const product = await api.getCanvasProduct(productId.value)
-
+		productInfoTabRef.value?.beginProductApply()
 		form.value = normalizeLoadedProduct(product)
-
 		await nextTick()
-
-		productInfoTabRef.value?.syncCategoryCascade()
+		await productInfoTabRef.value?.syncCategoryCascade()
 	}
 
-	const onProductCreated = async (id: number) => {
-		form.value.id = id
+	const onProductCreated = () => {
+		router.push('/admin-panel/products')
+	}
 
-		await router.replace(`/admin-panel/products/${id}/edit`)
-
-		activeTab.value = 'seo'
+	const onProductUpdated = () => {
+		router.push('/admin-panel/products')
 	}
 
 	onMounted(async () => {
@@ -112,6 +101,7 @@
 					v-model:form="form"
 					:product-id="effectiveProductId"
 					@created="onProductCreated"
+					@updated="onProductUpdated"
 				/>
 
 				<ProductDetailsTab

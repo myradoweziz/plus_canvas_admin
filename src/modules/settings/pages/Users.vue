@@ -75,9 +75,7 @@
 	}
 
 	onMounted(async () => {
-		await loadRoles()
-
-		await load()
+		await Promise.all([loadRoles(), load()])
 	})
 
 	const openCreate = () => {

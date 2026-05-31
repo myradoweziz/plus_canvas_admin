@@ -3,7 +3,7 @@ import type { Role } from '../types/role'
 export const ROLES_TABLE_COLUMNS = [
 	{ key: 'name', label: 'Название' },
 	{ key: 'system_name', label: 'System name' },
-	{ key: 'active', label: 'Активна' },
+	{ key: 'active', label: 'Опубликован' },
 	{ key: 'permissions', label: 'Права' },
 	{ key: 'actions', label: 'Действия', headerClass: 'text-right', cellClass: 'text-right' }
 ]

@@ -61,7 +61,7 @@
 			<StatusBadge
 				:tone-class="toProduct(row).is_published ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
 			>
-				{{ toProduct(row).is_published ? 'Активно' : 'Не активно' }}
+				{{ toProduct(row).is_published ? 'Опубликован' : 'Не опубликован' }}
 			</StatusBadge>
 		</template>
 

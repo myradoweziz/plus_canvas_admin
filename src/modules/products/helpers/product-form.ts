@@ -1,3 +1,4 @@
+import type { CategoryType } from '@/modules/categories/types/main-category'
 import type { CanvasProductComment } from '../types/product-comment'
 import type {
 	CanvasProduct,
@@ -8,7 +9,10 @@ import type {
 	CanvasProductSeo
 } from '../types/product'
 
-export const INNER_IMAGES_MAIN_CATEGORY_SLUG = 'kisiye-ozel-kanvas-tablo'
+export const PERSONAL_CANVAS_CATEGORY_TYPE: CategoryType = 'Kişiye Özel Kanvas Tablo'
+
+export const isPersonalCanvasCategory = (categoryType: string | null | undefined): boolean =>
+	categoryType === PERSONAL_CANVAS_CATEGORY_TYPE
 
 export type ProductFormTab =
 	| 'productInfo'
@@ -81,10 +85,9 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	price: 0,
 	discount: 0,
 	images: [],
-	inner_images: [],
 	upload_image_count: 1,
 	main_category_id: null,
-	main_category_slug: '',
+	main_category_type: '',
 	category_id: null,
 	sub_category_id: null,
 	product_tags: [],

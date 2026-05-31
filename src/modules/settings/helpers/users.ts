@@ -4,7 +4,7 @@ export const USERS_TABLE_COLUMNS = [
 	{ key: 'name', label: 'Имя' },
 	{ key: 'roles', label: 'Роли' },
 	{ key: 'phone_number', label: 'Телефон' },
-	{ key: 'is_active', label: 'Активен' },
+	{ key: 'is_active', label: 'Опубликован' },
 	{ key: 'created_at', label: 'Дата регистрации' },
 	{ key: 'last_activity_at', label: 'Последняя активность' },
 	{ key: 'actions', label: 'Редактировать', headerClass: 'text-right', cellClass: 'text-right' }

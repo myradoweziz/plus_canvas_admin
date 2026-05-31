@@ -32,9 +32,9 @@
 		},
 		messages: {
 			noProduct: 'Сначала сохраните продукт на вкладке Product Info',
-			validation: 'Заполните обязательные поля Details',
-			success: 'Details успешно сохранены',
-			error: 'Не удалось сохранить Details'
+			validation: 'Заполните обязательные поля информации',
+			success: 'Информация успешно сохранены',
+			error: 'Не удалось сохранить информацию'
 		},
 		fieldAliases: {
 			'faq.*.question': 'faq.0.question',
@@ -84,7 +84,7 @@
 
 <template>
 	<div class="contents">
-		<ProductRequiresSaveNotice v-if="!productId" suffix=", затем заполните и сохраните Details" />
+		<ProductRequiresSaveNotice v-if="!productId" suffix=", затем заполните и сохраните информацию" />
 
 		<div class="md:col-span-3">
 			<RichTextEditor
@@ -154,7 +154,7 @@
 
 		<div class="mt-2 flex items-center justify-end gap-3 md:col-span-3">
 			<Button type="button" size="sm" :disabled="!productId || saving" :loading="saving" :on-click="onSaveDetails">
-				{{ saving ? 'Сохранение Details...' : 'Сохранить Details' }}
+				{{ saving ? 'Сохранение информации...' : 'Сохранить информацию' }}
 			</Button>
 		</div>
 	</div>

@@ -1,3 +1,4 @@
+import type { CategoryType } from '@/modules/categories/types/main-category'
 import type { CollageLayout } from './collage-layout'
 
 export interface CanvasProductSeo {
@@ -37,10 +38,9 @@ export type CanvasProduct = {
 	price: number
 	discount: number
 	images: Array<string | File>
-	inner_images: Array<string | File>
 	upload_image_count: number
 	main_category_id: number | null
-	main_category_slug?: string
+	main_category_type?: CategoryType | ''
 	category_id: number | null
 	sub_category_id: number | null
 	product_tags: number[]
@@ -87,7 +87,7 @@ export type CanvasProduct = {
 export type CanvasProductPayload = Omit<
 	CanvasProduct,
 	| 'id'
-	| 'main_category_slug'
+	| 'main_category_type'
 	| 'collage_layout'
 	| 'product_details'
 	| 'seo'

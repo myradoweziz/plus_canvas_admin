@@ -184,10 +184,9 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		price: Number(product.price ?? 0),
 		discount: productDiscount.discount,
 		images: toImageArray(product.images),
-		inner_images: toImageArray(product.inner_images),
 		upload_image_count: Number(product.upload_image_count ?? 0),
 		main_category_id: toNullableNumber(product.main_category_id ?? product.main_category?.id ?? null),
-		main_category_slug: product.main_category_slug ?? product.main_category?.slug ?? '',
+		main_category_type: product.main_category_type ?? product.main_category?.category_type ?? '',
 		category_id: toNullableNumber(product.category_id ?? product.category?.id ?? null),
 		sub_category_id: toNullableNumber(product.sub_category_id ?? product.sub_category?.id ?? null),
 		product_tags: toIdArray(product.product_tags),
@@ -258,7 +257,6 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		name: product.name,
 		price: product.price,
 		images: product.images,
-		inner_images: product.inner_images,
 		upload_image_count: product.upload_image_count,
 		main_category_id: product.main_category_id,
 		category_id: product.category_id,
@@ -333,14 +331,9 @@ function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 	}
 
 	delete data.images
-	delete data.inner_images
 
 	payload.images.forEach((image, index) => {
 		data[`images[${index}]`] = image
-	})
-
-	payload.inner_images.forEach((image, index) => {
-		data[`inner_images[${index}]`] = image
 	})
 
 	if (payload.collage_layout_id != null) {

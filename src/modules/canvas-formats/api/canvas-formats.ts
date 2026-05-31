@@ -31,6 +31,7 @@ function toCanvasFormatPayload(canvasFormat: CanvasFormat): CanvasFormatPayload 
 	return {
 		name: canvasFormat.name,
 		slug: canvasFormat.slug,
+		image: canvasFormat.image || canvasFormat.image_url || '',
 		is_active: canvasFormat.is_active,
 		sort_order: canvasFormat.sort_order,
 		sizes: canvasFormat.sizes.map((size) => ({

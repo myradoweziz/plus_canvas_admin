@@ -12,6 +12,8 @@ export type CanvasFormat = {
 	id: number | null
 	name: string
 	slug: string
+	image?: string
+	image_url?: string
 	is_active: boolean
 	sort_order: number
 	sizes: CanvasFormatSize[]

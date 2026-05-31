@@ -16,6 +16,7 @@ import login from '@/modules/login'
 import orders from '@/modules/orders'
 import products from '@/modules/products'
 import profile from '@/modules/profile'
+import promotions from '@/modules/promotions'
 import settings from '@/modules/settings'
 
 registerModules({
@@ -35,5 +36,6 @@ registerModules({
 	orders: orders,
 	faqs: faqs,
 	profile: profile,
+	promotions: promotions,
 	settings: settings
 })

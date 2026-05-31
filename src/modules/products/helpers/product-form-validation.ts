@@ -8,7 +8,7 @@ import type {
 	CanvasProductSeo
 } from '../types/product'
 import { isHtmlEmpty } from '@/shared/utils'
-import { INNER_IMAGES_MAIN_CATEGORY_SLUG } from './product-form'
+import { isPersonalCanvasCategory } from './product-form'
 
 export const uploadImageCountFromLayout = (layout: CollageLayout | null): number => {
 	if (!layout) return 0
@@ -58,6 +58,11 @@ export const validateProductInfo = (form: CanvasProduct): Record<string, string>
 
 	if (!form.images.length) {
 		errors.images = 'Изображения обязательны.'
+	} else if (isPersonalCanvasCategory(form.main_category_type)) {
+		const slots = uploadImageCountFromLayout(form.collage_layout ?? null)
+		if (slots > 0 && form.images.length !== slots) {
+			errors.images = `Загрузите ровно ${slots} изображений — по числу слотов в SVG layout.`
+		}
 	}
 
 	if (!form.colors.length) {
@@ -72,14 +77,9 @@ export const validateProductInfo = (form: CanvasProduct): Record<string, string>
 		errors.frames = 'Выберите хотя бы одну рамку.'
 	}
 
-	if (form.main_category_slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG) {
+	if (isPersonalCanvasCategory(form.main_category_type)) {
 		if (form.collage_layout_id == null) {
 			errors.collage_layout_id = 'Импортируйте SVG layout.'
-		}
-
-		const slots = uploadImageCountFromLayout(form.collage_layout ?? null)
-		if (slots > 0 && form.inner_images.length !== slots) {
-			errors.inner_images = `Загрузите ровно ${slots} внутренних изображений — по числу слотов в SVG layout.`
 		}
 	}
 

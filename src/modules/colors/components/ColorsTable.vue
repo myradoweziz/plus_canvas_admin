@@ -45,7 +45,7 @@
 
 		<template #cell-is_active="{ row }">
 			<StatusBadge :tone-class="toColor(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'">
-				{{ toColor(row).is_active ? 'Активно' : 'Не активно' }}
+				{{ toColor(row).is_active ? 'Опубликован' : 'Не опубликован' }}
 			</StatusBadge>
 		</template>
 

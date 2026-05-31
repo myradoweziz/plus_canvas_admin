@@ -51,7 +51,7 @@
 			<StatusBadge
 				:tone-class="toCanvasSize(row).is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'"
 			>
-				{{ toCanvasSize(row).is_active ? 'Активно' : 'Не активно' }}
+				{{ toCanvasSize(row).is_active ? 'Опубликован' : 'Не опубликован' }}
 			</StatusBadge>
 		</template>
 

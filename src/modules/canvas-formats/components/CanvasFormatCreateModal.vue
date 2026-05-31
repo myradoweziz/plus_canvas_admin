@@ -6,11 +6,13 @@
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
+	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { canvasSizesApi } from '@/modules/canvas-sizes/api/canvas-sizes'
 	import type { CanvasSize } from '@/modules/canvas-sizes/types/canvas-size'
 	import { slugify } from '@/shared'
+	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { api } from '../api'
 	import { type CanvasFormat, type CanvasFormatSize, getCanvasFormatSizeLabel } from '../types'
@@ -32,6 +34,8 @@
 		id: null as number | null,
 		name: '',
 		slug: '',
+		image: '',
+		image_url: '',
 		is_active: true,
 		sort_order: 0 as number | string,
 		sizes: [] as CanvasFormatSize[]
@@ -45,7 +49,16 @@
 	})
 
 	const resetLocalForm = () => {
-		Object.assign(form, { id: null, name: '', slug: '', is_active: true, sort_order: 0, sizes: [] })
+		Object.assign(form, {
+			id: null,
+			name: '',
+			slug: '',
+			image: '',
+			image_url: '',
+			is_active: true,
+			sort_order: 0,
+			sizes: []
+		})
 		fieldErrors.name = ''
 		fieldErrors.slug = ''
 		fieldErrors.sort_order = ''
@@ -96,6 +109,8 @@
 				id: canvasFormat.id ?? null,
 				name: canvasFormat.name ?? '',
 				slug: canvasFormat.slug ?? '',
+				image: canvasFormat.image_url ?? canvasFormat.image ?? '',
+				image_url: canvasFormat.image_url ?? canvasFormat.image ?? '',
 				is_active: !!canvasFormat.is_active,
 				sort_order: canvasFormat.sort_order ?? 0,
 				sizes: canvasFormat.sizes.map((size) => ({
@@ -224,6 +239,7 @@
 				id: form.id ?? null,
 				name: form.name.trim(),
 				slug: form.slug.trim(),
+				image: form.image || form.image_url || '',
 				is_active: !!form.is_active,
 				sort_order: Number(form.sort_order) || 0,
 				sizes: (form.sizes || []).map((size, index) => ({
@@ -305,6 +321,16 @@
 				</div>
 
 				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
+
+				<div class="md:col-span-2">
+					<SingleImageUpload
+						v-model="form.image"
+						label="Изображение"
+						accept="image/svg+xml"
+						description="Необязательно. Файл будет загружен сразу, в форму сохранится URL."
+						:uploader="mediaApi.uploadImages"
+					/>
+				</div>
 
 				<div class="md:col-span-2">
 					<SelectField

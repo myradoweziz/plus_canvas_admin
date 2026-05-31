@@ -172,8 +172,7 @@
 	)
 
 	onMounted(async () => {
-		await loadDictionaries()
-		await load()
+		await Promise.all([loadDictionaries(), load()])
 	})
 
 	const openCreate = () => {

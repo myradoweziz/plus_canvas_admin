@@ -20,7 +20,7 @@
 	import {
 		getErrorMessage,
 		getValidationErrors,
-		INNER_IMAGES_MAIN_CATEGORY_SLUG,
+		isPersonalCanvasCategory,
 		PRODUCT_TYPE_OPTIONS,
 		uploadImageCountFromLayout,
 		validateProductInfo
@@ -108,16 +108,26 @@
 			'canvas_formats',
 			'frames',
 			'product_tags',
-			'collage_layout_id',
-			'inner_images'
+			'collage_layout_id'
 		] as const
 	).forEach((field) => clearValidationErrorOnChange(field))
 
-	const requiredInnerImagesCount = computed(() =>
-		form.value.main_category_slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG
-			? uploadImageCountFromLayout(form.value.collage_layout ?? null)
-			: 0
+	const showsCollageLayout = computed(() => isPersonalCanvasCategory(form.value.main_category_type))
+
+	const requiredImagesCount = computed(() =>
+		showsCollageLayout.value ? uploadImageCountFromLayout(form.value.collage_layout ?? null) : 0
 	)
+
+	const imagesDescription = computed(() => {
+		const slots = requiredImagesCount.value
+		if (slots > 0) {
+			return `Загрузите ровно ${slots} изображений — по числу слотов в SVG layout.`
+		}
+		if (showsCollageLayout.value) {
+			return 'Сначала импортируйте SVG layout, затем загрузите изображения по числу слотов.'
+		}
+		return 'Выберите одну или несколько картинок продукта.'
+	})
 
 	const onCollageLayoutUpdate = (layout: CollageLayout | null) => {
 		form.value.collage_layout = layout
@@ -126,15 +136,12 @@
 		if (layout?.id != null) {
 			clearFieldError('collage_layout_id')
 		}
-		clearFieldError('inner_images')
+		clearFieldError('images')
 	}
 
-	const syncMainCategorySlug = (mainCategoryId: number | null) => {
+	const syncMainCategoryMeta = (mainCategoryId: number | null) => {
 		if (!mainCategoryId) {
-			form.value.main_category_slug = ''
-			if (!isApplyingProduct.value) {
-				form.value.inner_images = []
-			}
+			form.value.main_category_type = ''
 			return
 		}
 
@@ -143,10 +150,9 @@
 			return
 		}
 
-		form.value.main_category_slug = category?.slug ?? ''
+		form.value.main_category_type = category?.category_type ?? ''
 
-		if (form.value.main_category_slug === INNER_IMAGES_MAIN_CATEGORY_SLUG && !isApplyingProduct.value) {
-			form.value.inner_images = []
+		if (isPersonalCanvasCategory(form.value.main_category_type) && !isApplyingProduct.value) {
 			form.value.collage_layout_id = null
 			form.value.collage_layout = null
 			form.value.upload_image_count = 1
@@ -222,7 +228,7 @@
 	)
 	const syncCategoryCascade = async () => {
 		isApplyingProduct.value = true
-		syncMainCategorySlug(form.value.main_category_id)
+		syncMainCategoryMeta(form.value.main_category_id)
 
 		if (form.value.main_category_id) {
 			await loadFeaturedCategories(form.value.main_category_id)
@@ -236,7 +242,12 @@
 		isApplyingProduct.value = false
 	}
 
-	defineExpose({ syncCategoryCascade })
+	defineExpose({
+		beginProductApply: () => {
+			isApplyingProduct.value = true
+		},
+		syncCategoryCascade
+	})
 
 	const loadFeaturedCategories = async (mainCategoryId: number) => {
 		const requestId = featuredCategoriesRequestId.value + 1
@@ -282,23 +293,21 @@
 
 	watch(mainCategories, () => {
 		if (form.value.main_category_id) {
-			syncMainCategorySlug(form.value.main_category_id)
+			syncMainCategoryMeta(form.value.main_category_id)
 		}
 	})
 
 	watch(
 		() => form.value.main_category_id,
 		(mainCategoryId, oldMainCategoryId) => {
-			syncMainCategorySlug(mainCategoryId ?? null)
+			syncMainCategoryMeta(mainCategoryId ?? null)
 
 			if (!isApplyingProduct.value && oldMainCategoryId != null && mainCategoryId !== oldMainCategoryId) {
 				form.value.category_id = null
 				form.value.sub_category_id = null
 
 				const category = mainCategories.value.find((item) => item.id === mainCategoryId)
-				const slug = category?.slug ?? ''
-				if (slug === INNER_IMAGES_MAIN_CATEGORY_SLUG) {
-					form.value.inner_images = []
+				if (isPersonalCanvasCategory(category?.category_type)) {
 					form.value.collage_layout_id = null
 					form.value.collage_layout = null
 					form.value.upload_image_count = 1
@@ -308,7 +317,7 @@
 			featuredCategories.value = []
 			subCategories.value = []
 
-			if (mainCategoryId) {
+			if (mainCategoryId && !isApplyingProduct.value) {
 				loadFeaturedCategories(mainCategoryId)
 			}
 		}
@@ -323,7 +332,7 @@
 
 			subCategories.value = []
 
-			if (categoryId) {
+			if (categoryId && !isApplyingProduct.value) {
 				loadSubCategories(categoryId)
 			}
 		}
@@ -331,10 +340,6 @@
 
 	onMounted(async () => {
 		await loadDictionaries()
-
-		if (form.value.main_category_id || form.value.category_id) {
-			await syncCategoryCascade()
-		}
 	})
 
 	onBeforeUnmount(() => {
@@ -518,41 +523,27 @@
 			:disabled="loadingDictionaries"
 		/>
 
+		<div v-if="showsCollageLayout" class="md:col-span-3 space-y-4">
+			<CollageLayoutSvgImport
+				v-model="form.collage_layout_id"
+				:current-layout="form.collage_layout"
+				:disabled="loadingDictionaries"
+				required
+				:error-message="validationErrors.collage_layout_id ?? ''"
+				@update:current-layout="onCollageLayoutUpdate"
+			/>
+		</div>
+
 		<div class="md:col-span-3">
 			<MultiImageUpload
 				v-model="form.images"
 				label="Изображения"
 				required
-				description="Выберите одну или несколько картинок продукта."
+				:description="imagesDescription"
 				:error-message="validationErrors.images"
 				:uploader="(files, onProgress) => api.uploadImages(files, onProgress)"
 			/>
 		</div>
-
-		<div v-if="form.main_category_slug !== INNER_IMAGES_MAIN_CATEGORY_SLUG" class="md:col-span-3 space-y-4">
-			<MultiImageUpload
-				v-model="form.inner_images"
-				label="Внутренние изображения"
-				required
-				:description="
-					requiredInnerImagesCount > 0
-						? `Загрузите ровно ${requiredInnerImagesCount} изображений — по числу слотов в SVG layout.`
-						: 'Сначала импортируйте SVG layout.'
-				"
-				:error-message="validationErrors.inner_images"
-				:uploader="(files, onProgress) => api.uploadImages(files, onProgress)"
-			/>
-		</div>
-
-		<CollageLayoutSvgImport
-			v-model="form.collage_layout_id"
-			:current-layout="form.collage_layout"
-			:disabled="loadingDictionaries"
-			required
-			:error-message="validationErrors.collage_layout_id ?? ''"
-			@update:current-layout="onCollageLayoutUpdate"
-			class="md:col-span-3"
-		/>
 
 		<div class="md:col-span-3">
 			<SelectField
