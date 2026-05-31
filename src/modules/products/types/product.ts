@@ -20,10 +20,20 @@ export interface CanvasProductDiscount {
 	special_price_end: string
 }
 
+export interface CanvasProductFaqItem {
+	question: string
+	answer: string
+}
+
+export interface CanvasProductDetails {
+	description: string
+	short_description: string
+	faq: CanvasProductFaqItem[]
+}
+
 export type CanvasProduct = {
 	id: number | null
 	name: string
-	description: string
 	price: number
 	discount: number
 	images: Array<string | File>
@@ -45,7 +55,6 @@ export type CanvasProduct = {
 	collage_layout_id: number | null
 	collage_layout?: CollageLayout | null
 	product_type: 'simple' | 'grouped'
-	short_description: string
 	admin_comment: string
 	sku: string
 	show_on_homepage: boolean
@@ -69,6 +78,7 @@ export type CanvasProduct = {
 	availability_start: string | null
 	availability_end: string | null
 	is_published: boolean
+	product_details: CanvasProductDetails
 	seo: CanvasProductSeo
 	category_mappings: CanvasProductCategoryMapping[]
 	product_discount: CanvasProductDiscount
@@ -79,6 +89,7 @@ export type CanvasProductPayload = Omit<
 	| 'id'
 	| 'main_category_slug'
 	| 'collage_layout'
+	| 'product_details'
 	| 'seo'
 	| 'category_mappings'
 	| 'product_discount'

@@ -7,6 +7,7 @@
 	import ProductFormTabBar from './product-form/ProductFormTabBar.vue'
 	import ProductInfoTab from './product-form/ProductInfoTab.vue'
 	const ProductDiscountTab = defineAsyncComponent(() => import('./product-form/ProductDiscountTab.vue'))
+	const ProductDetailsTab = defineAsyncComponent(() => import('./product-form/ProductDetailsTab.vue'))
 	const ProductSeoTab = defineAsyncComponent(() => import('./product-form/ProductSeoTab.vue'))
 	const ProductCategoryMappingsTab = defineAsyncComponent(() => import('./product-form/ProductCategoryMappingsTab.vue'))
 	const ProductTagsTab = defineAsyncComponent(() => import('./product-form/ProductTagsTab.vue'))
@@ -111,6 +112,13 @@
 					v-model:form="form"
 					:product-id="effectiveProductId"
 					@created="onProductCreated"
+				/>
+
+				<ProductDetailsTab
+					v-show="activeTab === 'productDetails'"
+					v-if="isTabMounted('productDetails')"
+					v-model:product-details="form.product_details"
+					:product-id="effectiveProductId"
 				/>
 
 				<ProductDiscountTab

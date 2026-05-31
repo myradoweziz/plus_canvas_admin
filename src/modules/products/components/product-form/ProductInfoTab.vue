@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+	import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 	import { useRouter } from 'vue-router'
 	import { toast } from 'vue3-toastify'
 
@@ -10,11 +10,11 @@
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
-	const RichTextEditor = defineAsyncComponent(() => import('@/shared/ui/RichTextEditor.vue'))
 
 	import { api as categoriesApi } from '@/modules/categories/api'
 	import type { FeaturedCategory, SubCategory } from '@/modules/categories/types'
 	import type { Color } from '@/modules/colors/types'
+	import { TurkishLiraIcon } from '@/shared/icons'
 	import { api } from '../../api'
 	import { useFieldErrors, useProductFormDictionaries } from '../../composables'
 	import {
@@ -98,7 +98,6 @@
 	;(
 		[
 			'name',
-			'description',
 			'price',
 			'product_qode',
 			'sku',
@@ -292,11 +291,7 @@
 		(mainCategoryId, oldMainCategoryId) => {
 			syncMainCategorySlug(mainCategoryId ?? null)
 
-			if (
-				!isApplyingProduct.value &&
-				oldMainCategoryId != null &&
-				mainCategoryId !== oldMainCategoryId
-			) {
+			if (!isApplyingProduct.value && oldMainCategoryId != null && mainCategoryId !== oldMainCategoryId) {
 				form.value.category_id = null
 				form.value.sub_category_id = null
 
@@ -452,6 +447,7 @@
 			name="price"
 			type="number"
 			min="0"
+			:append-icon="TurkishLiraIcon"
 			:error-message="validationErrors.price"
 		/>
 
@@ -473,26 +469,6 @@
 			placeholder="Артикул (SKU)"
 			:error-message="validationErrors.sku"
 		/>
-
-		<div class="md:col-span-3">
-			<RichTextEditor
-				v-model="form.description"
-				label="Описание"
-				required
-				name="description"
-				placeholder="Описание"
-				:error-message="validationErrors.description"
-			/>
-		</div>
-
-		<div class="md:col-span-3">
-			<TextareaField
-				v-model.trim="form.short_description"
-				label="Краткое описание"
-				name="short_description"
-				placeholder="Краткое описание"
-			/>
-		</div>
 
 		<SelectField v-model="form.product_type" label="Тип продукта" name="product_type" :options="productTypeOptions" />
 
@@ -716,6 +692,7 @@
 			name="old_price"
 			type="number"
 			min="0"
+			:append-icon="TurkishLiraIcon"
 			@update:model-value="(v) => setNullableNumber('old_price', v)"
 		/>
 		<TextField
@@ -724,6 +701,7 @@
 			name="cost_price"
 			type="number"
 			min="0"
+			:append-icon="TurkishLiraIcon"
 			@update:model-value="(v) => setNullableNumber('cost_price', v)"
 		/>
 
@@ -809,6 +787,7 @@
 			name="additional_shipping_charge"
 			type="number"
 			min="0"
+			:append-icon="TurkishLiraIcon"
 			@update:model-value="(v) => setNullableNumber('additional_shipping_charge', v)"
 		/>
 		<TextField

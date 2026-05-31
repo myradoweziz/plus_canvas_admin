@@ -5,6 +5,7 @@
 	import TextField from '@/shared/ui/TextField.vue'
 	import ProductRequiresSaveNotice from './ProductRequiresSaveNotice.vue'
 
+	import { TurkishLiraIcon } from '@/shared/icons'
 	import { api } from '../../api'
 	import { useProductSubResourceSave } from '../../composables'
 	import { validateProductDiscount } from '../../helpers'
@@ -65,6 +66,7 @@
 			name="special_price"
 			type="number"
 			min="0"
+			:append-icon="TurkishLiraIcon"
 			:disabled="!productId"
 			:error-message="validationErrors.special_price"
 		/>

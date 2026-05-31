@@ -31,6 +31,10 @@ router.beforeEach(async (to) => {
 		await auth.getProfile()
 	}
 
+	if (auth.isAuth && to.path === `${ADMIN_PREFIX}`) {
+		return `${ADMIN_PREFIX}/banners`
+	}
+
 	if (!auth.isAuth && !to.meta.noAuth && to.path !== `${ADMIN_PREFIX}/login`) {
 		return `${ADMIN_PREFIX}/login`
 	}

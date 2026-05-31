@@ -1,3 +1,5 @@
+export const CANVAS_SIZE_DEFAULT_UNIT = 'cm'
+
 export const CANVAS_SIZE_UNIT_OPTIONS = [
 	{ label: 'cm', value: 'cm' },
 	{ label: 'mm', value: 'mm' },

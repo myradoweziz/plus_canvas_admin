@@ -3,6 +3,7 @@ import type { CanvasProductComment } from '../types/product-comment'
 import type {
 	CanvasProduct,
 	CanvasProductCategoryMapping,
+	CanvasProductDetails,
 	CanvasProductDiscount,
 	CanvasProductSeo
 } from '../types/product'
@@ -46,9 +47,6 @@ export const validateProductInfo = (form: CanvasProduct): Record<string, string>
 	setRequiredProductError(errors, form, 'name', 'Name')
 	setRequiredProductError(errors, form, 'price', 'Price')
 
-	if (isHtmlEmpty(form.description)) {
-		errors.description = 'Поле "Описание" обязательно.'
-	}
 	setRequiredProductError(errors, form, 'product_qode', 'Product Qode')
 	setRequiredProductError(errors, form, 'sku', 'SKU')
 	setRequiredProductError(errors, form, 'main_category_id', 'Main Category')
@@ -84,6 +82,28 @@ export const validateProductInfo = (form: CanvasProduct): Record<string, string>
 			errors.inner_images = `Загрузите ровно ${slots} внутренних изображений — по числу слотов в SVG layout.`
 		}
 	}
+
+	return errors
+}
+
+export const validateProductDetails = (details: CanvasProductDetails): Record<string, string> => {
+	const errors: Record<string, string> = {}
+
+	if (isHtmlEmpty(details.description)) {
+		errors.description = 'Поле "Описание" обязательно.'
+	}
+
+	details.faq.forEach((item, index) => {
+		const prefix = `faq.${index}`
+
+		if (!String(item.question || '').trim()) {
+			errors[`${prefix}.question`] = 'Укажите вопрос'
+		}
+
+		if (!String(item.answer || '').trim()) {
+			errors[`${prefix}.answer`] = 'Укажите ответ'
+		}
+	})
 
 	return errors
 }

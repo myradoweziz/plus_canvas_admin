@@ -5,7 +5,9 @@ import { createEmptyCanvasProduct } from '../helpers/product-form'
 import type {
 	CanvasProduct,
 	CanvasProductCategoryMapping,
+	CanvasProductDetails,
 	CanvasProductDiscount,
+	CanvasProductFaqItem,
 	CanvasProductPayload,
 	CanvasProductSeo
 } from '../types/product'
@@ -146,15 +148,39 @@ const normalizeCanvasProductDiscount = (product: Record<string, unknown>): Canva
 	}
 }
 
+const normalizeCanvasProductFaq = (items: unknown): CanvasProductFaqItem[] => {
+	if (!Array.isArray(items)) return []
+
+	return items
+		.map((item) => {
+			const row = item as Record<string, unknown>
+			return {
+				question: String(row.question ?? ''),
+				answer: String(row.answer ?? '')
+			}
+		})
+		.filter((item) => item.question.trim() || item.answer.trim())
+}
+
+const normalizeCanvasProductDetails = (product: Record<string, unknown>): CanvasProductDetails => {
+	const nested = (product.product_details ?? product.details) as Record<string, unknown> | undefined
+
+	return {
+		description: String(nested?.description ?? product.description ?? ''),
+		short_description: String(nested?.short_description ?? product.short_description ?? ''),
+		faq: normalizeCanvasProductFaq(nested?.faq ?? product.faq)
+	}
+}
+
 function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 	const defaults = createEmptyCanvasProduct()
 	const productDiscount = normalizeCanvasProductDiscount(product)
+	const productDetails = normalizeCanvasProductDetails(product)
 
 	return {
 		...defaults,
 		id: product.id ?? null,
 		name: product.name ?? '',
-		description: product.description ?? '',
 		price: Number(product.price ?? 0),
 		discount: productDiscount.discount,
 		images: toImageArray(product.images),
@@ -178,7 +204,6 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 			? collageLayoutsApi.normalizeCollageLayout(product.collage_layout as Record<string, unknown>)
 			: null,
 		product_type: toProductType(product.product_type),
-		short_description: product.short_description ?? '',
 		admin_comment: product.admin_comment ?? '',
 		sku: product.sku ?? '',
 		show_on_homepage: !!product.show_on_homepage,
@@ -203,6 +228,7 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		availability_start: toDatetimeLocalValue(product.availability_start),
 		availability_end: toDatetimeLocalValue(product.availability_end),
 		is_published: product.is_published !== false,
+		product_details: productDetails,
 		seo: normalizeCanvasProductSeo(product),
 		category_mappings: normalizeCanvasProductCategoryMappings(product)
 	}
@@ -230,7 +256,6 @@ async function getCanvasProduct(id: number): Promise<CanvasProduct> {
 function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 	return {
 		name: product.name,
-		description: product.description,
 		price: product.price,
 		images: product.images,
 		inner_images: product.inner_images,
@@ -249,7 +274,6 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		effects: product.effects,
 		collage_layout_id: product.collage_layout_id,
 		product_type: product.product_type,
-		short_description: product.short_description,
 		admin_comment: product.admin_comment,
 		sku: product.sku,
 		show_on_homepage: product.show_on_homepage,
@@ -356,6 +380,35 @@ async function updateCanvasProduct(product: CanvasProduct): Promise<CanvasProduc
 	})
 
 	return normalizeCanvasProduct((response?.data || response) as Record<string, unknown>)
+}
+
+async function getCanvasProductDetails(productId: number): Promise<CanvasProductDetails> {
+	const response = await request({ url: `${CANVAS_PRODUCTS_URL}/${productId}/details`, method: 'GET' })
+	return normalizeCanvasProductDetails((response?.data || response) as Record<string, unknown>)
+}
+
+function toCanvasProductDetailsPayload(details: CanvasProductDetails): CanvasProductDetails {
+	return {
+		description: details.description,
+		short_description: details.short_description.trim(),
+		faq: details.faq.map((item) => ({
+			question: item.question.trim(),
+			answer: item.answer.trim()
+		}))
+	}
+}
+
+async function updateCanvasProductDetails(
+	productId: number,
+	details: CanvasProductDetails
+): Promise<CanvasProductDetails> {
+	const response = await request({
+		url: `${CANVAS_PRODUCTS_URL}/${productId}/details`,
+		method: 'PUT',
+		data: toCanvasProductDetailsPayload(details)
+	})
+
+	return normalizeCanvasProductDetails((response?.data || response) as Record<string, unknown>)
 }
 
 async function updateCanvasProductSeo(productId: number, seo: CanvasProductSeo): Promise<CanvasProductSeo> {
@@ -522,8 +575,10 @@ async function importCanvasProductsExcel(file: File): Promise<void> {
 export const productsApi = {
 	listCanvasProducts,
 	getCanvasProduct,
+	getCanvasProductDetails,
 	createCanvasProduct,
 	updateCanvasProduct,
+	updateCanvasProductDetails,
 	updateCanvasProductSeo,
 	updateCanvasProductDiscount,
 	saveCanvasProductCategory,

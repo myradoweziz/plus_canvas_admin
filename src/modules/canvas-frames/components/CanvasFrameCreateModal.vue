@@ -9,6 +9,7 @@
 	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
+	import { TurkishLiraIcon } from '@/shared/icons'
 	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { api } from '../api'
@@ -184,6 +185,7 @@
 						name="price"
 						type="number"
 						min="0"
+						:append-icon="TurkishLiraIcon"
 						:error-message="fieldErrors.price"
 					/>
 				</div>

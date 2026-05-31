@@ -5,12 +5,12 @@
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
-	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
+	import { TurkishLiraIcon } from '@/shared/icons'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { api } from '../api'
-	import { CANVAS_SIZE_UNIT_OPTIONS } from '../helpers'
+	import { CANVAS_SIZE_DEFAULT_UNIT } from '../helpers'
 	import type { CanvasSize } from '../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
@@ -23,7 +23,6 @@
 		id: null as number | null,
 		width: 0 as number | string,
 		height: 0 as number | string,
-		unit: 'cm',
 		is_active: true,
 		sort_order: 0 as number | string,
 		price: 0 as number | string
@@ -32,16 +31,14 @@
 	const fieldErrors = reactive({
 		width: '',
 		height: '',
-		unit: '',
 		price: '',
 		sort_order: ''
 	})
 
 	const resetLocalForm = () => {
-		Object.assign(form, { id: null, width: 0, height: 0, unit: 'cm', is_active: true, sort_order: 0, price: 0 })
+		Object.assign(form, { id: null, width: 0, height: 0, is_active: true, sort_order: 0, price: 0 })
 		fieldErrors.width = ''
 		fieldErrors.height = ''
-		fieldErrors.unit = ''
 		fieldErrors.price = ''
 		fieldErrors.sort_order = ''
 	}
@@ -49,7 +46,6 @@
 	const validate = () => {
 		fieldErrors.width = ''
 		fieldErrors.height = ''
-		fieldErrors.unit = ''
 		fieldErrors.price = ''
 		fieldErrors.sort_order = ''
 
@@ -62,10 +58,6 @@
 		const height = Number(form.height)
 		if (!Number.isFinite(height) || height <= 0) {
 			fieldErrors.height = 'Укажите высоту'
-			ok = false
-		}
-		if (!String(form.unit || '').trim()) {
-			fieldErrors.unit = 'Выберите единицу'
 			ok = false
 		}
 		const sortOrder = Number(form.sort_order)
@@ -94,14 +86,12 @@
 				id: canvasSize.id ?? null,
 				width: canvasSize.width ?? 0,
 				height: canvasSize.height ?? 0,
-				unit: canvasSize.unit ?? 'cm',
 				is_active: !!canvasSize.is_active,
 				sort_order: canvasSize.sort_order ?? 0,
 				price: canvasSize.price ?? 0
 			})
 			fieldErrors.width = ''
 			fieldErrors.height = ''
-			fieldErrors.unit = ''
 			fieldErrors.price = ''
 			fieldErrors.sort_order = ''
 		},
@@ -117,7 +107,7 @@
 				id: form.id ?? null,
 				width: Number(form.width),
 				height: Number(form.height),
-				unit: String(form.unit),
+				unit: CANVAS_SIZE_DEFAULT_UNIT,
 				is_active: !!form.is_active,
 				sort_order: Number(form.sort_order) || 0,
 				price: Number(form.price) || 0
@@ -186,18 +176,6 @@
 				</div>
 
 				<div class="md:col-span-1">
-					<SelectField
-						v-model="form.unit"
-						label="Единица"
-						required
-						name="unit"
-						placeholder="Выберите единицу"
-						:options="CANVAS_SIZE_UNIT_OPTIONS"
-						:error-message="fieldErrors.unit"
-					/>
-				</div>
-
-				<div class="md:col-span-1">
 					<TextField
 						v-model.number="form.sort_order"
 						label="Порядок"
@@ -217,6 +195,7 @@
 						name="price"
 						type="number"
 						min="0"
+						:append-icon="TurkishLiraIcon"
 						:error-message="fieldErrors.price"
 					/>
 				</div>

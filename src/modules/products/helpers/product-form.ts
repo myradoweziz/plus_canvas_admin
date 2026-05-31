@@ -2,7 +2,9 @@ import type { CanvasProductComment } from '../types/product-comment'
 import type {
 	CanvasProduct,
 	CanvasProductCategoryMapping,
+	CanvasProductDetails,
 	CanvasProductDiscount,
+	CanvasProductFaqItem,
 	CanvasProductSeo
 } from '../types/product'
 
@@ -10,6 +12,7 @@ export const INNER_IMAGES_MAIN_CATEGORY_SLUG = 'kisiye-ozel-kanvas-tablo'
 
 export type ProductFormTab =
 	| 'productInfo'
+	| 'productDetails'
 	| 'discount'
 	| 'seo'
 	| 'categoryMappings'
@@ -19,6 +22,7 @@ export type ProductFormTab =
 
 export const PRODUCT_FORM_TABS: Array<{ id: ProductFormTab; label: string }> = [
 	{ id: 'productInfo', label: 'Product Info' },
+	{ id: 'productDetails', label: 'Product Content' },
 	{ id: 'discount', label: 'Discount' },
 	{ id: 'seo', label: 'SEO' },
 	{ id: 'categoryMappings', label: 'Category mappings' },
@@ -55,6 +59,17 @@ export const createEmptyCanvasProductSeo = (): CanvasProductSeo => ({
 	slug: ''
 })
 
+export const createEmptyCanvasProductFaqItem = (): CanvasProductFaqItem => ({
+	question: '',
+	answer: ''
+})
+
+export const createEmptyCanvasProductDetails = (): CanvasProductDetails => ({
+	description: '',
+	short_description: '',
+	faq: []
+})
+
 export const PRODUCT_TYPE_OPTIONS = [
 	{ label: 'Simple Product', value: 'simple' },
 	{ label: 'Grouped Product', value: 'grouped' }
@@ -63,7 +78,6 @@ export const PRODUCT_TYPE_OPTIONS = [
 export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	id: null,
 	name: '',
-	description: '',
 	price: 0,
 	discount: 0,
 	images: [],
@@ -85,7 +99,6 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	collage_layout_id: null,
 	collage_layout: null,
 	product_type: 'simple',
-	short_description: '',
 	admin_comment: '',
 	sku: '',
 	show_on_homepage: false,
@@ -109,6 +122,7 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	availability_start: null,
 	availability_end: null,
 	is_published: false,
+	product_details: createEmptyCanvasProductDetails(),
 	seo: createEmptyCanvasProductSeo(),
 	category_mappings: [],
 	product_discount: createEmptyCanvasProductDiscount()
