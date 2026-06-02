@@ -98,12 +98,12 @@
 							path: '/admin-panel/settings/users-report-by-count'
 						},
 						{
-							icon: icons.UserCircleIcon,
+							icon: icons.ListIcon,
 							name: 'Зарегистрированные клиенты',
 							path: '/admin-panel/settings/registered-customers'
 						},
 						{
-							icon: icons.UserActivityIcon,
+							icon: icons.InfoCircleIcon,
 							name: 'Онлайн-клиенты',
 							path: '/admin-panel/settings/online-customers'
 						}
@@ -119,11 +119,7 @@
 							name: 'Подписчики рассылки',
 							path: '/admin-panel/promotions/newsletter-subscribers'
 						},
-						{
-							icon: icons.DiscountTypesIcon,
-							name: 'Скидки',
-							path: '/admin-panel/promotions/discounts'
-						}
+						{ icon: icons.TurkishLiraIcon, name: 'Скидки', path: '/admin-panel/promotions/discounts' }
 					]
 				},
 				{
@@ -136,10 +132,49 @@
 							name: 'Ограничения скидок',
 							path: '/admin-panel/configuration/discount-limitations'
 						},
+						{ icon: icons.DiscountTypesIcon, name: 'Типы скидок', path: '/admin-panel/configuration/discount-types' },
 						{
-							icon: icons.DiscountTypesIcon,
-							name: 'Типы скидок',
-							path: '/admin-panel/configuration/discount-types'
+							icon: icons.StoreIcon,
+							name: 'Настройки магазина',
+							path: '/admin-panel/configuration/stores'
+						},
+						{
+							icon: icons.MailIcon,
+							name: 'Email-аккаунты',
+							path: '/admin-panel/configuration/email-accounts'
+						},
+						{
+							icon: icons.PlugInIcon,
+							name: 'Способы доставки',
+							path: '/admin-panel/configuration/shipping-methods'
+						},
+						{
+							icon: icons.CountriesIcon,
+							name: 'Страны',
+							path: '/admin-panel/configuration/countries'
+						},
+						{
+							icon: icons.WarningIcon,
+							name: 'Ограничения доставки по странам',
+							path: '/admin-panel/configuration/shipping-restrictions'
+						},
+						{
+							icon: icons.PlugInIcon,
+							name: 'Провайдер расчёта стоимости доставки',
+							path: '/admin-panel/configuration/shipping-providers'
+						}
+					]
+				},
+				{
+					icon: icons.DocsIcon,
+					name: 'Управление контентом',
+					path: '/admin-panel/content-management',
+					subItems: [
+						{ icon: icons.PageIcon, name: 'Страницы', path: '/admin-panel/content-management/topics' },
+						{
+							icon: icons.EditIcon,
+							name: 'Шаблоны email-сообщений',
+							path: '/admin-panel/content-management/message-templates'
 						}
 					]
 				}
@@ -147,7 +182,25 @@
 		}
 	]
 
-	const isActive = (path) => route.path === path
+	const allMenuPaths = computed(() => {
+		const paths = []
+		for (const group of menuGroups) {
+			for (const item of group.items) {
+				if (item.path) paths.push(item.path)
+				item.subItems?.forEach((subItem) => paths.push(subItem.path))
+			}
+		}
+		return paths
+	})
+
+	const isActive = (path) => {
+		const matches = allMenuPaths.value.filter(
+			(menuPath) => route.path === menuPath || route.path.startsWith(`${menuPath}/`)
+		)
+		if (!matches.length) return false
+		const longestMatch = matches.reduce((longest, current) => (current.length > longest.length ? current : longest))
+		return longestMatch === path
+	}
 
 	const activeSubmenuKey = computed(() => {
 		for (const [groupIndex, group] of menuGroups.entries()) {

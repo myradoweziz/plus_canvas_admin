@@ -12,11 +12,10 @@
 		:class="props.class"
 		aria-hidden="true"
 	>
-		<path
-			d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-		/>
-		<path d="M3.27 6.96L12 12l8.73-5.04" />
-		<path d="M12 22V12" />
+		<path d="M3 9l2-4h14l2 4" />
+		<path d="M3 9v11h18V9" />
+		<path d="M9 20V12h6v8" />
+		<path d="M3 9h18" />
 	</svg>
 </template>
 
@@ -26,4 +25,3 @@
 		class: ''
 	})
 </script>
-

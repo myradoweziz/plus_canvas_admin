@@ -1,24 +1,25 @@
 import { registerModules } from './register-modules'
 
 import banners from '@/modules/banners'
-import productTags from '@/modules/product-tags'
-import canvasFormats from '@/modules/canvas-formats'
 import canvasEffects from '@/modules/canvas-effects'
+import canvasFormats from '@/modules/canvas-formats'
 import canvasFrames from '@/modules/canvas-frames'
 import canvasSizes from '@/modules/canvas-sizes'
 import categories from '@/modules/categories'
 import colors from '@/modules/colors'
-import contactInfo from '@/modules/contact-info'
+import contentManagement from '@/modules/content-management'
 import configuration from '@/modules/configuration'
-import stocks from '@/modules/stocks'
+import contactInfo from '@/modules/contact-info'
 import faqs from '@/modules/faqs'
 import home from '@/modules/home'
 import login from '@/modules/login'
 import orders from '@/modules/orders'
+import productTags from '@/modules/product-tags'
 import products from '@/modules/products'
 import profile from '@/modules/profile'
 import promotions from '@/modules/promotions'
 import settings from '@/modules/settings'
+import stocks from '@/modules/stocks'
 
 registerModules({
 	home: home,
@@ -27,6 +28,7 @@ registerModules({
 	stocks: stocks,
 	productTags: productTags,
 	colors: colors,
+	contentManagement: contentManagement,
 	contactInfo: contactInfo,
 	canvasSizes: canvasSizes,
 	canvasFormats: canvasFormats,
