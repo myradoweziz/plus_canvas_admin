@@ -4,8 +4,8 @@
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import { COUNTRY_STATES_TABLE_COLUMNS } from '../helpers'
-	import type { CountryState } from '../types'
+	import { COUNTRY_STATES_TABLE_COLUMNS } from '../../helpers'
+	import type { CountryState } from '../../types'
 
 	defineProps<{
 		items: CountryState[]

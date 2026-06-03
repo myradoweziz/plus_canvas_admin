@@ -13,9 +13,9 @@
 	import { api as configurationApi } from '@/modules/configuration/api'
 	import type { Store } from '@/modules/configuration/types'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { api } from '../api'
-	import type { CountryFormTab } from '../helpers'
-	import type { Country } from '../types'
+	import { api } from '../../api'
+	import type { CountryFormTab } from '../../helpers'
+	import type { Country } from '../../types'
 
 	const route = useRoute()
 	const router = useRouter()

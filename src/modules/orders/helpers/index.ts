@@ -9,7 +9,7 @@ export const ORDERS_TABLE_COLUMNS = [
 	{ key: 'customer', label: 'Покупатель' },
 	{ key: 'created_at', label: 'Дата' },
 	{ key: 'total', label: 'Сумма' },
-	{ key: 'actions', label: 'Редактировать', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Редактировать' }
 ]
 
 export const CARTS_TABLE_COLUMNS = [
@@ -32,18 +32,18 @@ export const BESTSELLERS_TABLE_COLUMNS = [
 	{ key: 'canvas_product_name', label: 'Товар' },
 	{ key: 'sales_count', label: 'Продаж' },
 	{ key: 'total_amount_without_tax', label: 'Сумма (без налога)' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]
 
 export const NEVER_PURCHASED_TABLE_COLUMNS = [
 	{ key: 'image', label: 'Фото' },
 	{ key: 'name', label: 'Название товара' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]
 
 export const COUNTRY_REPORT_TABLE_COLUMNS = [
 	{ key: 'country', label: 'Страна' },
 	{ key: 'order_count', label: 'Заказов' },
 	{ key: 'total_amount', label: 'Сумма' },
-	{ key: 'map', label: 'Карта', headerClass: 'text-right' }
+	{ key: 'map', label: 'Карта' }
 ]

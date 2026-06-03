@@ -8,7 +8,7 @@ export const PRODUCTS_TABLE_COLUMNS = [
 	{ key: 'sku', label: 'SKU' },
 	{ key: 'price', label: 'Цена' },
 	{ key: 'is_published', label: 'Опубликован' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]
 
 export const PRODUCT_ORDERS_TABLE_COLUMNS = [

@@ -7,8 +7,8 @@
 	import CountryStatesTable from '../CountryStatesTable.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { api } from '../../api'
-	import type { CountryState } from '../../types'
+	import { api } from '../../../api'
+	import type { CountryState } from '../../../types'
 
 	const CountryStateModal = defineAsyncComponent(() => import('../CountryStateModal.vue'))
 

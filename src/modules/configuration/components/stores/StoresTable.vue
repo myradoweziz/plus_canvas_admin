@@ -4,8 +4,8 @@
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import { STORES_TABLE_COLUMNS } from '../helpers'
-	import type { Store } from '../types'
+	import { STORES_TABLE_COLUMNS } from '../../helpers'
+	import type { Store } from '../../types'
 
 	defineProps<{
 		items: Store[]

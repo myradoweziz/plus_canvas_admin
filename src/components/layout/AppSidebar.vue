@@ -162,6 +162,21 @@
 							icon: icons.PlugInIcon,
 							name: 'Провайдер расчёта стоимости доставки',
 							path: '/admin-panel/configuration/shipping-providers'
+						},
+						{
+							icon: icons.ClockIcon,
+							name: 'Сроки доставки',
+							path: '/admin-panel/configuration/delivery-times'
+						},
+						{
+							icon: icons.CreditCardIcon,
+							name: 'Способы оплаты',
+							path: '/admin-panel/configuration/payment-methods'
+						},
+						{
+							icon: icons.WarningIcon,
+							name: 'Ограничения оплаты по странам',
+							path: '/admin-panel/configuration/payment-restrictions'
 						}
 					]
 				},

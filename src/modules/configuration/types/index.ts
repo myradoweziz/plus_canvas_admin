@@ -10,3 +10,10 @@ export type {
 	ShippingMethodRestrictionRow
 } from './shipping-method-restriction'
 export type { ShippingProvider, ShippingProviderPayload } from './shipping-provider'
+export type { DeliveryDate, DeliveryDatePayload } from './delivery-date'
+export type { PaymentMethod, PaymentMethodPayload } from './payment-method'
+export type {
+	PaymentMethodRestriction,
+	PaymentMethodRestrictionsPayload,
+	PaymentMethodRestrictionRow
+} from './payment-method-restriction'

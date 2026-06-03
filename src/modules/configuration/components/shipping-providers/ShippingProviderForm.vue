@@ -10,8 +10,8 @@
 
 	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { api } from '../api'
-	import type { ShippingProvider } from '../types'
+	import { api } from '../../api'
+	import type { ShippingProvider } from '../../types'
 
 	const route = useRoute()
 	const router = useRouter()

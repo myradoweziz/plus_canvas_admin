@@ -4,5 +4,5 @@ export const BANNERS_TABLE_COLUMNS = [
 	{ key: 'url', label: 'URL' },
 	{ key: 'order', label: 'Порядок' },
 	{ key: 'is_active', label: 'Опубликован' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]

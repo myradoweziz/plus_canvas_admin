@@ -5,8 +5,8 @@
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
-	import NameSlugTable from '../components/NameSlugTable.vue'
-	const NameSlugCreateModal = defineAsyncComponent(() => import('../components/NameSlugCreateModal.vue'))
+	import NameSlugTable from '../components/name-slug/NameSlugTable.vue'
+	const NameSlugCreateModal = defineAsyncComponent(() => import('../components/name-slug/NameSlugCreateModal.vue'))
 
 	import { DiscountTypesIcon } from '@/shared/icons'
 	import { api } from '../api'

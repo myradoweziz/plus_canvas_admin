@@ -7,7 +7,7 @@
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
-	import CountriesTable from '../components/CountriesTable.vue'
+	import CountriesTable from '../components/countries/CountriesTable.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { ConfigurationIcon } from '@/shared/icons'

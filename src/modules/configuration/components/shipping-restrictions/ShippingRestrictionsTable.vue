@@ -2,8 +2,8 @@
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
 
-	import { SHIPPING_METHOD_RESTRICTIONS_TABLE_COLUMNS } from '../helpers'
-	import type { ShippingMethodRestrictionRow } from '../types'
+	import { SHIPPING_METHOD_RESTRICTIONS_TABLE_COLUMNS } from '../../helpers'
+	import type { ShippingMethodRestrictionRow } from '../../types'
 
 	defineProps<{
 		items: ShippingMethodRestrictionRow[]

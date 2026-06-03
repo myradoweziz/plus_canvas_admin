@@ -4,7 +4,7 @@
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
-	import ShippingRestrictionsTable from '../components/ShippingRestrictionsTable.vue'
+	import ShippingRestrictionsTable from '../components/shipping-restrictions/ShippingRestrictionsTable.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { CountriesIcon } from '@/shared/icons'

@@ -8,7 +8,7 @@
 
 	import { slugify } from '@/shared'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import type { NameSlugEntity } from '../types'
+	import type { NameSlugEntity } from '../../types'
 
 	const props = defineProps<{
 		open: boolean

@@ -18,7 +18,7 @@ export const FEATURED_CATEGORIES_TABLE_COLUMNS = [
 	{ key: 'is_active', label: 'Опубликован' },
 	{ key: 'featured_order', label: 'Порядок' },
 	{ key: 'discount', label: 'Скидка' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]
 
 export const MAIN_CATEGORIES_TABLE_COLUMNS = [
@@ -27,7 +27,7 @@ export const MAIN_CATEGORIES_TABLE_COLUMNS = [
 	{ key: 'category_type', label: 'Тип категории' },
 	{ key: 'is_active', label: 'Опубликован' },
 	{ key: 'featured_order', label: 'Порядок' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]
 
 export const SUB_CATEGORIES_TABLE_COLUMNS = [
@@ -38,5 +38,5 @@ export const SUB_CATEGORIES_TABLE_COLUMNS = [
 	{ key: 'is_active', label: 'Опубликован' },
 	{ key: 'featured_order', label: 'Порядок' },
 	{ key: 'discount', label: 'Скидка' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]

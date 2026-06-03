@@ -22,7 +22,7 @@ export const ORDER_ITEMS_TABLE_COLUMNS = [
 	{ key: 'price', label: 'Цена' },
 	{ key: 'discount_amount', label: 'Скидка' },
 	{ key: 'total', label: 'Сумма' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]
 
 export const getOrderItemProduct = (item: OrderItem): OrderCanvasProduct | undefined =>

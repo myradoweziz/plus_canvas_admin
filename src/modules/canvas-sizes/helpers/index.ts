@@ -12,5 +12,5 @@ export const CANVAS_SIZES_TABLE_COLUMNS = [
 	{ key: 'price', label: 'Цена' },
 	{ key: 'is_active', label: 'Опубликован' },
 	{ key: 'sort_order', label: 'Порядок' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]

@@ -4,8 +4,8 @@
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import { EMAIL_ACCOUNTS_TABLE_COLUMNS } from '../helpers'
-	import type { EmailAccount } from '../types'
+	import { EMAIL_ACCOUNTS_TABLE_COLUMNS } from '../../helpers'
+	import type { EmailAccount } from '../../types'
 
 	defineProps<{
 		items: EmailAccount[]

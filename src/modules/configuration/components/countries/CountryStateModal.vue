@@ -8,8 +8,8 @@
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { api } from '../api'
-	import type { CountryState } from '../types'
+	import { api } from '../../api'
+	import type { CountryState } from '../../types'
 
 	const emit = defineEmits<{ (e: 'close'): void; (e: 'saved'): void }>()
 

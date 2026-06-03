@@ -3,8 +3,8 @@
 	import DataTable from '@/shared/ui/DataTable.vue'
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import { SHIPPING_METHODS_TABLE_COLUMNS } from '../helpers'
-	import type { ShippingMethod } from '../types'
+	import { SHIPPING_METHODS_TABLE_COLUMNS } from '../../helpers'
+	import type { ShippingMethod } from '../../types'
 
 	defineProps<{
 		items: ShippingMethod[]

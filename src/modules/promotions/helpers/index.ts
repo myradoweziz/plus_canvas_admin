@@ -2,7 +2,7 @@ export const NEWSLETTER_SUBSCRIBERS_TABLE_COLUMNS = [
 	{ key: 'email', label: 'Email' },
 	{ key: 'is_active', label: 'Опубликован' },
 	{ key: 'created_at', label: 'Дата подписки' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]
 
 export const formatNewsletterSubscriberDate = (value?: string) => {
@@ -24,7 +24,7 @@ export const DISCOUNTS_TABLE_COLUMNS = [
 	{ key: 'amount', label: 'Размер' },
 	{ key: 'period', label: 'Период' },
 	{ key: 'promo_code', label: 'Промокод' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]
 
 export const formatDiscountAmount = (discount: { is_percentage: boolean; amount: number }) =>

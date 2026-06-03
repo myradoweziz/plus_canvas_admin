@@ -5,5 +5,5 @@ export const USER_ADDRESSES_TABLE_COLUMNS = [
 	{ key: 'address', label: 'Адрес' },
 	{ key: 'city', label: 'Город' },
 	{ key: 'is_default', label: 'По умолчанию' },
-	{ key: 'actions', label: 'Действия', headerClass: 'text-right' }
+	{ key: 'actions', label: 'Действия' }
 ]

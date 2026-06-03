@@ -4,8 +4,8 @@
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import { SHIPPING_PROVIDERS_TABLE_COLUMNS } from '../helpers'
-	import type { ShippingProvider } from '../types'
+	import { SHIPPING_PROVIDERS_TABLE_COLUMNS } from '../../helpers'
+	import type { ShippingProvider } from '../../types'
 
 	defineProps<{
 		items: ShippingProvider[]

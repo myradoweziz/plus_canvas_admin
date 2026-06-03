@@ -7,6 +7,9 @@ import { countriesApi } from './countries'
 import { countryStatesApi } from './country-states'
 import { shippingMethodRestrictionsApi } from './shipping-method-restrictions'
 import { shippingProvidersApi } from './shipping-providers'
+import { deliveryDatesApi } from './delivery-dates'
+import { paymentMethodsApi } from './payment-methods'
+import { paymentMethodRestrictionsApi } from './payment-method-restrictions'
 
 export const api = {
 	...discountLimitationsApi,
@@ -17,5 +20,8 @@ export const api = {
 	...countriesApi,
 	...countryStatesApi,
 	...shippingMethodRestrictionsApi,
-	...shippingProvidersApi
+	...shippingProvidersApi,
+	...deliveryDatesApi,
+	...paymentMethodsApi,
+	...paymentMethodRestrictionsApi
 }

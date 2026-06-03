@@ -3,8 +3,8 @@
 	import DataTable from '@/shared/ui/DataTable.vue'
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import { NAME_SLUG_TABLE_COLUMNS } from '../helpers'
-	import type { NameSlugEntity } from '../types'
+	import { NAME_SLUG_TABLE_COLUMNS } from '../../helpers'
+	import type { NameSlugEntity } from '../../types'
 
 	defineProps<{
 		items: NameSlugEntity[]

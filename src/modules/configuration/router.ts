@@ -7,13 +7,18 @@ const Stores = () => import('./pages/Stores.vue')
 const EmailAccounts = () => import('./pages/EmailAccounts.vue')
 const ShippingMethods = () => import('./pages/ShippingMethods.vue')
 const Countries = () => import('./pages/Countries.vue')
-const StoreForm = () => import('./components/StoreForm.vue')
-const EmailAccountForm = () => import('./components/EmailAccountForm.vue')
-const ShippingMethodForm = () => import('./components/ShippingMethodForm.vue')
-const CountryForm = () => import('./components/CountryForm.vue')
+const StoreForm = () => import('./components/stores/StoreForm.vue')
+const EmailAccountForm = () => import('./components/email-accounts/EmailAccountForm.vue')
+const ShippingMethodForm = () => import('./components/shipping-methods/ShippingMethodForm.vue')
+const CountryForm = () => import('./components/countries/CountryForm.vue')
 const ShippingRestrictions = () => import('./pages/ShippingRestrictions.vue')
 const ShippingProviders = () => import('./pages/ShippingProviders.vue')
-const ShippingProviderForm = () => import('./components/ShippingProviderForm.vue')
+const ShippingProviderForm = () => import('./components/shipping-providers/ShippingProviderForm.vue')
+const DeliveryTimes = () => import('./pages/DeliveryTimes.vue')
+const DeliveryDateForm = () => import('./components/delivery-times/DeliveryDateForm.vue')
+const PaymentMethods = () => import('./pages/PaymentMethods.vue')
+const PaymentMethodForm = () => import('./components/payment-methods/PaymentMethodForm.vue')
+const PaymentRestrictions = () => import('./pages/PaymentRestrictions.vue')
 
 const moduleRoute = {
 	path: '/admin-panel/configuration',
@@ -112,6 +117,41 @@ const moduleRoute = {
 			path: 'shipping-providers/:id/edit',
 			component: ShippingProviderForm,
 			meta: { title: 'Редактировать провайдера доставки', layout: Layouts.admin }
+		},
+		{
+			path: 'delivery-times',
+			component: DeliveryTimes,
+			meta: { title: 'Сроки доставки', layout: Layouts.admin }
+		},
+		{
+			path: 'delivery-times/create',
+			component: DeliveryDateForm,
+			meta: { title: 'Добавить срок доставки', layout: Layouts.admin }
+		},
+		{
+			path: 'delivery-times/:id/edit',
+			component: DeliveryDateForm,
+			meta: { title: 'Редактировать срок доставки', layout: Layouts.admin }
+		},
+		{
+			path: 'payment-methods',
+			component: PaymentMethods,
+			meta: { title: 'Способы оплаты', layout: Layouts.admin }
+		},
+		{
+			path: 'payment-methods/create',
+			component: PaymentMethodForm,
+			meta: { title: 'Добавить способ оплаты', layout: Layouts.admin }
+		},
+		{
+			path: 'payment-methods/:id/edit',
+			component: PaymentMethodForm,
+			meta: { title: 'Редактировать способ оплаты', layout: Layouts.admin }
+		},
+		{
+			path: 'payment-restrictions',
+			component: PaymentRestrictions,
+			meta: { title: 'Ограничения оплаты по странам', layout: Layouts.admin }
 		}
 	]
 }

@@ -7,7 +7,7 @@
 	import Button from '@/shared/ui/Button.vue'
 	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
-	import ShippingMethodsTable from '../components/ShippingMethodsTable.vue'
+	import ShippingMethodsTable from '../components/shipping-methods/ShippingMethodsTable.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { ConfigurationIcon } from '@/shared/icons'

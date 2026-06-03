@@ -8,8 +8,8 @@
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { api } from '../api'
-	import type { ShippingMethod } from '../types'
+	import { api } from '../../api'
+	import type { ShippingMethod } from '../../types'
 
 	const route = useRoute()
 	const router = useRouter()
