@@ -19,6 +19,7 @@ import products from '@/modules/products'
 import profile from '@/modules/profile'
 import promotions from '@/modules/promotions'
 import settings from '@/modules/settings'
+import system from '@/modules/system'
 import stocks from '@/modules/stocks'
 
 registerModules({
@@ -41,5 +42,6 @@ registerModules({
 	profile: profile,
 	promotions: promotions,
 	configuration: configuration,
-	settings: settings
+	settings: settings,
+	system: system
 })

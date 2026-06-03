@@ -192,6 +192,23 @@
 							path: '/admin-panel/content-management/message-templates'
 						}
 					]
+				},
+				{
+					icon: icons.SystemIcon,
+					name: 'Системный раздел',
+					path: '/admin-panel/system',
+					subItems: [
+						{
+							icon: icons.ActivityLogIcon,
+							name: 'Лог активности',
+							path: '/admin-panel/system/activity-log'
+						},
+						{
+							icon: icons.SystemWarningsIcon,
+							name: 'Системные уведомления',
+							path: '/admin-panel/system/system-warnings'
+						}
+					]
 				}
 			]
 		}
