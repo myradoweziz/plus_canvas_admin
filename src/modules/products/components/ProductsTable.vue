@@ -4,7 +4,7 @@
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
 	import { EditIcon, TrashIcon } from '@/shared/icons'
-	import { PRODUCTS_TABLE_COLUMNS } from '../helpers'
+	import { getProductListImageUrl, PRODUCTS_TABLE_COLUMNS } from '../helpers'
 	import type { CanvasProduct } from '../types'
 
 	const props = defineProps<{
@@ -25,6 +25,7 @@
 	}
 
 	const toProduct = (row: unknown) => row as CanvasProduct
+	const productImageUrl = (row: unknown) => getProductListImageUrl(toProduct(row))
 </script>
 
 <template>
@@ -38,13 +39,14 @@
 		:pagination="pagination"
 		@update:selected-rows="onUpdateSelected"
 	>
-		<template #cell-collage_layout="{ row }">
+		<template #cell-images="{ row }">
 			<img
-				v-if="toProduct(row).collage_layout?.image_url"
-				:src="toProduct(row).collage_layout?.image_url"
-				alt=""
-				class="w-10 h-10 object-cover"
+				v-if="productImageUrl(row)"
+				:src="productImageUrl(row)!"
+				:alt="toProduct(row).name"
+				class="h-10 w-10 rounded object-cover ring-1 ring-gray-200"
 			/>
+			<span v-else class="text-sm text-gray-400">—</span>
 		</template>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toProduct(row).name }}</span>
