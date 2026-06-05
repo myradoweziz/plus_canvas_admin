@@ -217,7 +217,7 @@
 			sub_category_id: null,
 			product_tag_id: null
 		}
-		limit.value = 10
+		limit.value = 15
 		offset.value = 0
 		await load()
 	}

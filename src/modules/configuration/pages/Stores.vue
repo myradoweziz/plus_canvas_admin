@@ -22,7 +22,7 @@
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
 	const total = ref(0)
-	const limit = ref(10)
+	const limit = ref(15)
 	const offset = ref(0)
 
 	const load = async () => {

@@ -20,7 +20,7 @@
 			<button
 				type="button"
 				class="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-200 hover:bg-gray-50 disabled:opacity-50"
-				:disabled="offset + limit >= total"
+				:disabled="isLastPage"
 				@click="goToNext"
 			>
 				Вперёд
@@ -40,7 +40,7 @@
 		}>(),
 		{
 			total: 0,
-			limit: 10,
+			limit: 15,
 			offset: 0
 		}
 	)
@@ -50,16 +50,17 @@
 	}>()
 
 	const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.limit)))
-	const currentPage = computed(() => Math.floor(props.offset / props.limit) + 1)
-	const fromItem = computed(() => (props.total === 0 ? 0 : props.offset + 1))
-	const toItem = computed(() => Math.min(props.offset + props.limit, props.total))
+	const currentPage = computed(() => props.offset + 1)
+	const fromItem = computed(() => (props.total === 0 ? 0 : props.offset * props.limit + 1))
+	const toItem = computed(() => Math.min((props.offset + 1) * props.limit, props.total))
+	const isLastPage = computed(() => props.offset + 1 >= totalPages.value)
 
 	const goToPrevious = () => {
-		emit('update:offset', Math.max(0, props.offset - props.limit))
+		emit('update:offset', Math.max(0, props.offset - 1))
 	}
 
 	const goToNext = () => {
-		emit('update:offset', props.offset + props.limit)
+		emit('update:offset', props.offset + 1)
 	}
 </script>
 

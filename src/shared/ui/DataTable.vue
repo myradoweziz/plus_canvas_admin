@@ -66,7 +66,7 @@
 		return props.selectedRows.some((r) => getRowKey(r, index) === getRowKey(row, index))
 	}
 	const getGlobalIndex = (index: number) => {
-		return props.pagination.offset + index + 1
+		return props.pagination.offset * props.pagination.limit + index + 1
 	}
 
 	const toggleSelection = (row: unknown, index: number) => {

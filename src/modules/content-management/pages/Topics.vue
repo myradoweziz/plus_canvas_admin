@@ -27,7 +27,7 @@ import type { Topic } from '../types'
 	const showDeleteModal = ref(false)
 	const loadingDeleteModal = ref(false)
 	const total = ref(0)
-	const limit = ref(10)
+	const limit = ref(15)
 	const offset = ref(0)
 	const filters = ref<{ store_id?: number }>({})
 	const stores = ref<{ label: string; value: number }[]>([])
@@ -112,7 +112,7 @@ import type { Topic } from '../types'
 
 	const resetFilters = async () => {
 		filters.value = {}
-		limit.value = 10
+		limit.value = 15
 		offset.value = 0
 		await load()
 	}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { computed, onMounted, ref } from 'vue'
+	import { onMounted, ref } from 'vue'
 	import { toast } from 'vue3-toastify'
 
 	import Banner from '@/shared/ui/Banner.vue'
@@ -21,7 +21,7 @@
 	const showClearModal = ref(false)
 	const items = ref<ActivityLog[]>([])
 	const total = ref(0)
-	const limit = ref(20)
+	const limit = ref(15)
 	const offset = ref(0)
 
 	const filters = ref({
@@ -30,13 +30,11 @@
 		email: ''
 	})
 
-	const currentPage = computed(() => Math.floor(offset.value / limit.value) + 1)
-
 	const load = async () => {
 		loading.value = true
 		try {
 			const result = await api.listActivityLog({
-				page: currentPage.value,
+				page: offset.value + 1,
 				per_page: limit.value,
 				date: filters.value.date || undefined,
 				event: filters.value.event || undefined,

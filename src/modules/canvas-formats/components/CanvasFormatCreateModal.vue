@@ -271,7 +271,9 @@
 
 <template>
 	<Modal v-if="open" @close="$emit('close')">
-		<div class="relative z-100000 mx-auto w-[92vw] max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+		<div
+			class="relative z-100000 mx-auto w-[92vw] max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+		>
 			<div class="flex items-start justify-between gap-4">
 				<div class="min-w-0">
 					<h3 class="text-lg font-semibold text-gray-900">

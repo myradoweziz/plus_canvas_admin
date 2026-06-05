@@ -21,7 +21,7 @@
 	const selectedRole = ref<Role | null>(null)
 	const selectedEditRole = ref<Role | null>(null)
 	const total = ref(0)
-	const limit = ref(10)
+	const limit = ref(15)
 	const offset = ref(0)
 	const filters = ref({
 		search: ''
@@ -84,7 +84,7 @@
 
 	const resetFilters = async () => {
 		filters.value = { search: '' }
-		limit.value = 10
+		limit.value = 15
 		offset.value = 0
 		await load()
 	}

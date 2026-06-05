@@ -21,7 +21,7 @@
 	const users = ref<User[]>([])
 	const selectedUsers = ref<User[]>([])
 	const total = ref(0)
-	const limit = ref(10)
+	const limit = ref(15)
 	const offset = ref(0)
 	const filters = ref({
 		role_type: null as string | null,
@@ -102,7 +102,7 @@
 			last_name: '',
 			phone_number: ''
 		}
-		limit.value = 10
+		limit.value = 15
 		offset.value = 0
 		await load()
 	}
