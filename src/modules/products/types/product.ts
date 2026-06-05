@@ -46,7 +46,6 @@ export type CanvasProduct = {
 	product_tags: number[]
 	banner_id: number | null
 	flag: string
-	product_qode: string
 	stock_id: number | null
 	colors: number[]
 	canvas_formats: number[]

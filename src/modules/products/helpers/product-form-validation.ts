@@ -47,7 +47,6 @@ export const validateProductInfo = (form: CanvasProduct): Record<string, string>
 	setRequiredProductError(errors, form, 'name', 'Name')
 	setRequiredProductError(errors, form, 'price', 'Price')
 
-	setRequiredProductError(errors, form, 'product_qode', 'Product Qode')
 	setRequiredProductError(errors, form, 'sku', 'SKU')
 	setRequiredProductError(errors, form, 'main_category_id', 'Main Category')
 	setRequiredProductError(errors, form, 'category_id', 'Category')

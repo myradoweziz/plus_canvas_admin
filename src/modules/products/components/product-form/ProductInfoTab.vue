@@ -99,7 +99,6 @@
 		[
 			'name',
 			'price',
-			'product_qode',
 			'sku',
 			'main_category_id',
 			'category_id',
@@ -457,14 +456,6 @@
 		/>
 
 		<TextField v-model.trim="form.flag" label="Флаг" name="flag" placeholder="Флаг" />
-		<TextField
-			v-model.trim="form.product_qode"
-			label="Код продукта"
-			required
-			name="product_qode"
-			placeholder="Код продукта"
-			:error-message="validationErrors.product_qode"
-		/>
 
 		<TextField
 			v-model.trim="form.sku"

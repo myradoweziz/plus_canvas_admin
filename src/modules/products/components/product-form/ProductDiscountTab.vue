@@ -52,7 +52,7 @@
 
 		<TextField
 			v-model.number="productDiscount.discount"
-			label="Акция %"
+			label="Скидка %"
 			name="discount"
 			type="number"
 			min="0"
