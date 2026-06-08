@@ -426,5 +426,5 @@
 </template>
 
 <style lang="scss" scoped>
-	@import './rich-text-editor/editor.scss';
+	@use './rich-text-editor/editor.scss';
 </style>

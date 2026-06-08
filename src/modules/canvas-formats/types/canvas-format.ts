@@ -31,4 +31,3 @@ export const getCanvasFormatSizeLabel = (size: CanvasFormatSize | CanvasSize) =>
 
 	return `${size.width} x ${size.height} ${size.unit}`
 }
-
