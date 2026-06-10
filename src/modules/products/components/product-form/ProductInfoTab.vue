@@ -22,6 +22,7 @@
 		getValidationErrors,
 		isPersonalCanvasCategory,
 		PRODUCT_TYPE_OPTIONS,
+		resolveUploadImageCount,
 		validateProductInfo
 	} from '../../helpers'
 	import type { CanvasProduct, CollageLayout } from '../../types'
@@ -112,12 +113,48 @@
 	).forEach((field) => clearValidationErrorOnChange(field))
 
 	const showsCollageLayout = computed(() => isPersonalCanvasCategory(form.value.main_category_type))
+	const isCanvasFormatsDisabled = computed(() => form.value.collage_layout_id != null)
+
+	const syncUploadImageCount = () => {
+		form.value.upload_image_count = resolveUploadImageCount(
+			form.value.collage_layout_id,
+			form.value.collage_layout
+		)
+	}
+
+	const clearCanvasFormats = () => {
+		form.value.canvas_formats = []
+		form.value.active_canvas_format_id = null
+	}
 
 	const onCollageLayoutUpdate = (layout: CollageLayout | null) => {
 		form.value.collage_layout = layout
 		if (layout?.id != null) {
 			clearFieldError('collage_layout_id')
+			clearCanvasFormats()
 		}
+		syncUploadImageCount()
+	}
+
+	watch(
+		() => form.value.collage_layout_id,
+		(collageLayoutId, previousCollageLayoutId) => {
+			if (collageLayoutId != null) {
+				clearCanvasFormats()
+				return
+			}
+
+			if (previousCollageLayoutId != null) {
+				clearCanvasFormats()
+			}
+		}
+	)
+
+	const removeCollageLayout = () => {
+		form.value.collage_layout_id = null
+		form.value.collage_layout = null
+		clearCanvasFormats()
+		syncUploadImageCount()
 	}
 
 	const syncMainCategoryMeta = (mainCategoryId: number | null) => {
@@ -136,6 +173,7 @@
 		if (isPersonalCanvasCategory(form.value.main_category_type) && !isApplyingProduct.value) {
 			form.value.collage_layout_id = null
 			form.value.collage_layout = null
+			syncUploadImageCount()
 		}
 	}
 
@@ -286,6 +324,7 @@
 				if (isPersonalCanvasCategory(category?.category_type)) {
 					form.value.collage_layout_id = null
 					form.value.collage_layout = null
+					syncUploadImageCount()
 				}
 			}
 
@@ -339,6 +378,8 @@
 	const isActiveCanvasFormat = (id: number) => form.value.active_canvas_format_id === id
 
 	const setActiveCanvasFormat = (id: number, active: boolean) => {
+		if (isCanvasFormatsDisabled.value) return
+
 		if (active) {
 			form.value.active_canvas_format_id = id
 			return
@@ -351,7 +392,7 @@
 
 	const addCanvasFormat = (value: string | number | null) => {
 		selectedCanvasFormatId.value = null
-		if (value === null) return
+		if (value === null || isCanvasFormatsDisabled.value) return
 
 		const id = Number(value)
 		if (Number.isFinite(id) && !form.value.canvas_formats.includes(id)) {
@@ -363,6 +404,8 @@
 	}
 
 	const removeCanvasFormat = (id: number) => {
+		if (isCanvasFormatsDisabled.value) return
+
 		form.value.canvas_formats = form.value.canvas_formats.filter((item) => item !== id)
 		if (form.value.active_canvas_format_id === id) {
 			form.value.active_canvas_format_id = form.value.canvas_formats[0] ?? null
@@ -514,9 +557,9 @@
 				v-model="form.collage_layout_id"
 				:current-layout="form.collage_layout"
 				:disabled="loadingDictionaries"
-				required
 				:error-message="validationErrors.collage_layout_id ?? ''"
 				@update:current-layout="onCollageLayoutUpdate"
+				@remove="removeCollageLayout"
 			/>
 		</div>
 
@@ -570,35 +613,51 @@
 				name="canvas_formats"
 				placeholder="Выберите формат"
 				:options="canvasFormatOptions"
-				:disabled="loadingDictionaries"
+				:disabled="loadingDictionaries || isCanvasFormatsDisabled"
 				:error-message="validationErrors.canvas_formats"
 				@update:model-value="addCanvasFormat"
 			/>
-			<div v-if="form.canvas_formats.length" class="mt-3 space-y-2">
-				<div
+			<p v-if="isCanvasFormatsDisabled" class="mt-1.5 text-xs text-gray-500">
+				Недоступно при выбранном коллаже.
+			</p>
+			<div v-if="form.canvas_formats.length" class="mt-3 flex flex-wrap gap-2">
+				<span
 					v-for="formatId in form.canvas_formats"
 					:key="formatId"
-					class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3"
+					class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm text-gray-700"
+					:class="[
+						isActiveCanvasFormat(formatId)
+							? 'bg-blue-50 text-blue-800 ring-1 ring-blue-200'
+							: 'bg-gray-100',
+						isCanvasFormatsDisabled ? 'opacity-60' : ''
+					]"
 				>
-					<span class="text-sm font-medium text-gray-900">{{ getCanvasFormatLabel(formatId) }}</span>
-					<div class="flex items-center gap-3">
-						<CheckboxField
-							:model-value="isActiveCanvasFormat(formatId)"
-							label="Активный"
+					<label
+						class="inline-flex items-center"
+						:class="isCanvasFormatsDisabled ? 'cursor-not-allowed' : 'cursor-pointer'"
+					>
+						<input
+							type="checkbox"
+							class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed"
 							:name="`canvas_format_active_${formatId}`"
-							@update:model-value="(value) => setActiveCanvasFormat(formatId, value)"
+							:checked="isActiveCanvasFormat(formatId)"
+							:disabled="isCanvasFormatsDisabled"
+							@change="setActiveCanvasFormat(formatId, ($event.target as HTMLInputElement).checked)"
 						/>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon"
-							class-name="h-5 w-5 text-gray-500 hover:text-red-600"
-							:on-click="() => removeCanvasFormat(formatId)"
-						>
-							✕
-						</Button>
-					</div>
-				</div>
+						<span class="sr-only">Активный формат: {{ getCanvasFormatLabel(formatId) }}</span>
+					</label>
+					<span>{{ getCanvasFormatLabel(formatId) }}</span>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						class-name="h-5 w-5 text-gray-500 hover:text-red-600"
+						:disabled="isCanvasFormatsDisabled"
+						:on-click="() => removeCanvasFormat(formatId)"
+					>
+						✕
+					</Button>
+				</span>
 			</div>
 		</div>
 

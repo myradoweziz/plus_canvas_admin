@@ -8,8 +8,6 @@ import type {
 } from '../types/product'
 import { isHtmlEmpty } from '@/shared/utils'
 import { resolveProductImageUrl } from './product-image'
-import { isPersonalCanvasCategory } from './product-form'
-
 const setRequiredProductError = (
 	errors: Record<string, string>,
 	form: CanvasProduct,
@@ -53,12 +51,6 @@ export const validateProductInfo = (form: CanvasProduct): Record<string, string>
 
 	if (!form.colors.length) {
 		errors.colors = 'Выберите хотя бы один цвет.'
-	}
-
-	if (isPersonalCanvasCategory(form.main_category_type)) {
-		if (form.collage_layout_id == null) {
-			errors.collage_layout_id = 'Импортируйте SVG layout.'
-		}
 	}
 
 	return errors

@@ -31,6 +31,7 @@
 		(e: 'update:modelValue', layoutId: number | null): void
 		(e: 'update:currentLayout', layout: CollageLayout | null): void
 		(e: 'created', layoutId: number): void
+		(e: 'remove'): void
 	}>()
 
 	const displayLayout = ref<CollageLayout | null>(null)
@@ -163,19 +164,31 @@
 		</div>
 
 		<div v-if="previewLayout && !draft" class="mt-4 space-y-3">
-			<div class="flex flex-col gap-3 sm:flex-row sm:items-start">
-				<img
-					v-if="previewLayout.image_url"
-					:src="previewLayout.image_url"
-					:alt="previewLayout.name"
-					class="h-24 w-24 rounded-lg object-contain ring-1 ring-gray-200"
-				/>
-				<div class="min-w-0 text-sm text-gray-700">
-					<p class="font-semibold text-gray-900">{{ previewLayout.name }}</p>
-					<p class="mt-1 text-xs text-gray-500">
-						id: {{ previewLayout.id }} · слотов: {{ previewLayout.layout_json?.length ?? 0 }}
-					</p>
+			<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+				<div class="flex flex-col gap-3 sm:flex-row sm:items-start">
+					<img
+						v-if="previewLayout.image_url"
+						:src="previewLayout.image_url"
+						:alt="previewLayout.name"
+						class="h-24 w-24 rounded-lg object-contain ring-1 ring-gray-200"
+					/>
+					<div class="min-w-0 text-sm text-gray-700">
+						<p class="font-semibold text-gray-900">{{ previewLayout.name }}</p>
+						<p class="mt-1 text-xs text-gray-500">
+							id: {{ previewLayout.id }} · слотов: {{ previewLayout.layout_json?.length ?? 0 }}
+						</p>
+					</div>
 				</div>
+
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					:disabled="disabled"
+					:on-click="() => emit('remove')"
+				>
+					Удалить
+				</Button>
 			</div>
 		</div>
 

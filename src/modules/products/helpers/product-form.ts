@@ -1,4 +1,5 @@
 import type { CategoryType } from '@/modules/categories/types/main-category'
+import type { CollageLayout } from '../types/collage-layout'
 import type {
 	CanvasProduct,
 	CanvasProductCategoryMapping,
@@ -13,6 +14,17 @@ export const PERSONAL_CANVAS_CATEGORY_TYPE: CategoryType = 'Kişiye Özel Kanvas
 
 export const isPersonalCanvasCategory = (categoryType: string | null | undefined): boolean =>
 	categoryType === PERSONAL_CANVAS_CATEGORY_TYPE
+
+export const resolveUploadImageCount = (
+	collageLayoutId: number | null,
+	collageLayout?: CollageLayout | null
+): number => {
+	if (collageLayoutId == null) return 1
+
+	const slotCount = collageLayout?.layout_json?.length ?? collageLayout?.max_images ?? 0
+
+	return slotCount > 0 ? slotCount : 1
+}
 
 export type ProductFormTab =
 	| 'productInfo'
@@ -102,6 +114,7 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	effects: [],
 	collage_layout_id: null,
 	collage_layout: null,
+	upload_image_count: 1,
 	product_type: 'simple',
 	admin_comment: '',
 	sku: '',
