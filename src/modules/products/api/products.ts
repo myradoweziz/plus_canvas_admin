@@ -2,6 +2,7 @@ import { downloadBlob, downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import { filterListParams } from '@/shared/api/createListApi'
 import { createEmptyCanvasProduct } from '../helpers/product-form'
+import { resolveProductImageUrl, type ProductImageValue } from '../helpers/product-image'
 import type {
 	CanvasProduct,
 	CanvasProductCategoryMapping,
@@ -42,35 +43,21 @@ const toIdArray = (items: RelationItem[] | null | undefined): number[] => {
 		.filter((id): id is number => typeof id === 'number')
 }
 
-type ImageItem =
-	| string
-	| File
-	| {
-			url?: string | null
-			path?: string | null
-			image?: string | null
-			image_url?: string | null
-			image_path?: string | null
-	  }
+const normalizeProductImage = (product: Record<string, unknown>): string => {
+	const fromImage = resolveProductImageUrl(product.image as ProductImageValue)
+	if (fromImage) return fromImage
 
-const toImageUrl = (item: Exclude<ImageItem, string | File>): string | null => {
-	const url = item.url ?? item.image_url ?? item.image ?? item.path ?? item.image_path ?? null
-	return typeof url === 'string' && url.trim() ? url.trim() : null
-}
+	const images = product.images
+	if (Array.isArray(images) && images.length) {
+		const first = images[0]
+		if (typeof first === 'string' && first.trim()) return first.trim()
+		if (first && typeof first === 'object' && !(first instanceof File)) {
+			return resolveProductImageUrl(first as ProductImageValue)
+		}
+	}
 
-const toImageArray = (items: ImageItem[] | null | undefined): Array<string | File> => {
-	if (!Array.isArray(items)) return []
-
-	return items
-		.map((item) => {
-			if (typeof item === 'string') {
-				const trimmed = item.trim()
-				return trimmed || null
-			}
-			if (item instanceof File) return item
-			return toImageUrl(item)
-		})
-		.filter((item): item is string | File => item !== null)
+	const fallback = product.image_url ?? product.image_path
+	return typeof fallback === 'string' && fallback.trim() ? fallback.trim() : ''
 }
 
 const toNullableNumber = (value: unknown): number | null => {
@@ -100,9 +87,7 @@ const toDateOnlyValue = (value: unknown): string => {
 const toProductType = (value: unknown): CanvasProduct['product_type'] =>
 	value === 'grouped' || value === 'Grouped Product' ? 'grouped' : 'simple'
 
-const normalizeCanvasProductCategoryMappings = (
-	product: Record<string, unknown>
-): CanvasProductCategoryMapping[] => {
+const normalizeCanvasProductCategoryMappings = (product: Record<string, unknown>): CanvasProductCategoryMapping[] => {
 	const raw = product.category_mappings ?? product.categories
 
 	if (!Array.isArray(raw)) return []
@@ -183,8 +168,7 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		name: product.name ?? '',
 		price: Number(product.price ?? 0),
 		discount: productDiscount.discount,
-		images: toImageArray(product.images),
-		upload_image_count: Number(product.upload_image_count ?? 0),
+		image: normalizeProductImage(product),
 		main_category_id: toNullableNumber(product.main_category_id ?? product.main_category?.id ?? null),
 		main_category_type: product.main_category_type ?? product.main_category?.category_type ?? '',
 		category_id: toNullableNumber(product.category_id ?? product.category?.id ?? null),
@@ -227,6 +211,7 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		availability_end: toDatetimeLocalValue(product.availability_end),
 		is_published: product.is_published !== false,
 		product_details: productDetails,
+		product_dimensions: String(product.product_dimensions ?? ''),
 		seo: normalizeCanvasProductSeo(product),
 		category_mappings: normalizeCanvasProductCategoryMappings(product)
 	}
@@ -255,8 +240,7 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 	return {
 		name: product.name,
 		price: product.price,
-		images: product.images,
-		upload_image_count: product.upload_image_count,
+		image: resolveProductImageUrl(product.image),
 		main_category_id: product.main_category_id,
 		category_id: product.category_id,
 		sub_category_id: product.sub_category_id,
@@ -312,13 +296,19 @@ const omitNullFormValues = (data: Record<string, unknown>) => {
 
 function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 	const payload = toCanvasProductPayload(product)
-	
+
 	const booleanFields = [
-		'show_on_homepage', 'allow_customer_reviews', 'disable_buy_button', 
-		'available_for_preorder', 'call_for_price', 'shipping_included', 
-		'free_shipping', 'separate_shipment', 'is_published'
+		'show_on_homepage',
+		'allow_customer_reviews',
+		'disable_buy_button',
+		'available_for_preorder',
+		'call_for_price',
+		'shipping_included',
+		'free_shipping',
+		'separate_shipment',
+		'is_published'
 	]
-	
+
 	const data: Record<string, any> = {
 		...payload,
 		colors: JSON.stringify(payload.colors),
@@ -328,11 +318,7 @@ function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 		product_tags: JSON.stringify(payload.product_tags)
 	}
 
-	delete data.images
-
-	payload.images.forEach((image, index) => {
-		data[`images[${index}]`] = image
-	})
+	data.image = payload.image
 
 	if (payload.collage_layout_id != null) {
 		data.collage_layout_id = payload.collage_layout_id
@@ -400,6 +386,17 @@ async function updateCanvasProductDetails(
 	})
 
 	return normalizeCanvasProductDetails((response?.data || response) as Record<string, unknown>)
+}
+
+async function updateCanvasProductDimensions(productId: number, productDimensions: string): Promise<string> {
+	const response = await request({
+		url: `${CANVAS_PRODUCTS_URL}/${productId}/dimensions`,
+		method: 'PUT',
+		data: { product_dimensions: productDimensions }
+	})
+	const payload = (response?.data ?? response) as Record<string, unknown> | string
+	if (typeof payload === 'string') return payload
+	return String(payload?.product_dimensions ?? productDimensions)
 }
 
 async function updateCanvasProductSeo(productId: number, seo: CanvasProductSeo): Promise<CanvasProductSeo> {
@@ -532,11 +529,8 @@ async function exportCanvasProductsXml(ids: number[]): Promise<void> {
 		responseType: 'text'
 	})
 
-	const xml = typeof response === 'string'
-		? response
-		: typeof (response as any)?.data === 'string'
-			? (response as any).data
-			: ''
+	const xml =
+		typeof response === 'string' ? response : typeof (response as any)?.data === 'string' ? (response as any).data : ''
 
 	if (!xml.trim()) throw new Error('Пустой ответ XML')
 
@@ -570,6 +564,7 @@ export const productsApi = {
 	createCanvasProduct,
 	updateCanvasProduct,
 	updateCanvasProductDetails,
+	updateCanvasProductDimensions,
 	updateCanvasProductSeo,
 	updateCanvasProductDiscount,
 	saveCanvasProductCategory,

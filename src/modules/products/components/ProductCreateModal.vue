@@ -7,6 +7,7 @@
 	import ProductInfoTab from './product-form/ProductInfoTab.vue'
 	const ProductDiscountTab = defineAsyncComponent(() => import('./product-form/ProductDiscountTab.vue'))
 	const ProductDetailsTab = defineAsyncComponent(() => import('./product-form/ProductDetailsTab.vue'))
+	const ProductDimensionsTab = defineAsyncComponent(() => import('./product-form/ProductDimensionsTab.vue'))
 	const ProductSeoTab = defineAsyncComponent(() => import('./product-form/ProductSeoTab.vue'))
 	const ProductCategoryMappingsTab = defineAsyncComponent(() => import('./product-form/ProductCategoryMappingsTab.vue'))
 	const ProductTagsTab = defineAsyncComponent(() => import('./product-form/ProductTagsTab.vue'))
@@ -14,7 +15,7 @@
 	const ProductOrdersTab = defineAsyncComponent(() => import('./product-form/ProductOrdersTab.vue'))
 
 	import { api } from '../api'
-	import { createEmptyCanvasProduct, uploadImageCountFromLayout, type ProductFormTab } from '../helpers'
+	import { createEmptyCanvasProduct, type ProductFormTab } from '../helpers'
 	import type { CanvasProduct } from '../types'
 
 	const route = useRoute()
@@ -49,10 +50,7 @@
 				?.category_type ??
 			'',
 		collage_layout_id: product.collage_layout_id ?? product.collage_layout?.id ?? null,
-		collage_layout: product.collage_layout ?? null,
-		upload_image_count: product.collage_layout
-			? uploadImageCountFromLayout(product.collage_layout) || product.upload_image_count
-			: product.upload_image_count
+		collage_layout: product.collage_layout ?? null
 	})
 
 	const loadProduct = async () => {
@@ -108,6 +106,13 @@
 					v-show="activeTab === 'productDetails'"
 					v-if="isTabMounted('productDetails')"
 					v-model:product-details="form.product_details"
+					:product-id="effectiveProductId"
+				/>
+
+				<ProductDimensionsTab
+					v-show="activeTab === 'productDimensions'"
+					v-if="isTabMounted('productDimensions')"
+					v-model:product-dimensions="form.product_dimensions"
 					:product-id="effectiveProductId"
 				/>
 

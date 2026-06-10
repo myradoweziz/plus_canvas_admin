@@ -39,7 +39,7 @@
 		:pagination="pagination"
 		@update:selected-rows="onUpdateSelected"
 	>
-		<template #cell-images="{ row }">
+		<template #cell-image="{ row }">
 			<img
 				v-if="productImageUrl(row)"
 				:src="productImageUrl(row)!"

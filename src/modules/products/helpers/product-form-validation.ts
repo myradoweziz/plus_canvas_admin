@@ -1,4 +1,3 @@
-import type { CollageLayout } from '../types/collage-layout'
 import type { CanvasProductComment } from '../types/product-comment'
 import type {
 	CanvasProduct,
@@ -8,15 +7,8 @@ import type {
 	CanvasProductSeo
 } from '../types/product'
 import { isHtmlEmpty } from '@/shared/utils'
+import { resolveProductImageUrl } from './product-image'
 import { isPersonalCanvasCategory } from './product-form'
-
-export const uploadImageCountFromLayout = (layout: CollageLayout | null): number => {
-	if (!layout) return 0
-	const slots = layout.layout_json?.length ?? 0
-	if (slots > 0) return slots
-	const maxImages = layout.max_images ?? 0
-	return maxImages > 0 ? maxImages : 0
-}
 
 const setRequiredProductError = (
 	errors: Record<string, string>,
@@ -55,25 +47,12 @@ export const validateProductInfo = (form: CanvasProduct): Record<string, string>
 		errors.price = 'Цена должна быть больше 0.'
 	}
 
-	if (!form.images.length) {
-		errors.images = 'Изображения обязательны.'
-	} else if (isPersonalCanvasCategory(form.main_category_type)) {
-		const slots = uploadImageCountFromLayout(form.collage_layout ?? null)
-		if (slots > 0 && form.images.length !== slots) {
-			errors.images = `Загрузите ровно ${slots} изображений — по числу слотов в SVG layout.`
-		}
+	if (!resolveProductImageUrl(form.image)) {
+		errors.image = 'Изображение обязательно.'
 	}
 
 	if (!form.colors.length) {
 		errors.colors = 'Выберите хотя бы один цвет.'
-	}
-
-	if (!form.canvas_formats.length) {
-		errors.canvas_formats = 'Выберите хотя бы один формат.'
-	}
-
-	if (!form.frames.length) {
-		errors.frames = 'Выберите хотя бы одну рамку.'
 	}
 
 	if (isPersonalCanvasCategory(form.main_category_type)) {

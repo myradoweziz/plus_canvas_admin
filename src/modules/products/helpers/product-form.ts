@@ -1,5 +1,4 @@
 import type { CategoryType } from '@/modules/categories/types/main-category'
-import type { CanvasProductComment } from '../types/product-comment'
 import type {
 	CanvasProduct,
 	CanvasProductCategoryMapping,
@@ -8,6 +7,7 @@ import type {
 	CanvasProductFaqItem,
 	CanvasProductSeo
 } from '../types/product'
+import type { CanvasProductComment } from '../types/product-comment'
 
 export const PERSONAL_CANVAS_CATEGORY_TYPE: CategoryType = 'Kişiye Özel Kanvas Tablo'
 
@@ -17,6 +17,7 @@ export const isPersonalCanvasCategory = (categoryType: string | null | undefined
 export type ProductFormTab =
 	| 'productInfo'
 	| 'productDetails'
+	| 'productDimensions'
 	| 'discount'
 	| 'seo'
 	| 'categoryMappings'
@@ -27,6 +28,7 @@ export type ProductFormTab =
 export const PRODUCT_FORM_TABS: Array<{ id: ProductFormTab; label: string }> = [
 	{ id: 'productInfo', label: 'Product Info' },
 	{ id: 'productDetails', label: 'Product Content' },
+	{ id: 'productDimensions', label: 'Product Dimensions' },
 	{ id: 'discount', label: 'Discount' },
 	{ id: 'seo', label: 'SEO' },
 	{ id: 'categoryMappings', label: 'Category mappings' },
@@ -84,8 +86,7 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	name: '',
 	price: 0,
 	discount: 0,
-	images: [],
-	upload_image_count: 1,
+	image: '',
 	main_category_id: null,
 	main_category_type: '',
 	category_id: null,
@@ -125,6 +126,7 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	availability_end: null,
 	is_published: false,
 	product_details: createEmptyCanvasProductDetails(),
+	product_dimensions: '',
 	seo: createEmptyCanvasProductSeo(),
 	category_mappings: [],
 	product_discount: createEmptyCanvasProductDiscount()

@@ -6,7 +6,7 @@
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import CollageLayoutSvgImport from '@/shared/ui/CollageLayoutSvgImport.vue'
-	import MultiImageUpload from '@/shared/ui/MultiImageUpload.vue'
+	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
@@ -22,7 +22,6 @@
 		getValidationErrors,
 		isPersonalCanvasCategory,
 		PRODUCT_TYPE_OPTIONS,
-		uploadImageCountFromLayout,
 		validateProductInfo
 	} from '../../helpers'
 	import type { CanvasProduct, CollageLayout } from '../../types'
@@ -102,7 +101,7 @@
 			'sku',
 			'main_category_id',
 			'category_id',
-			'images',
+			'image',
 			'colors',
 			'canvas_formats',
 			'frames',
@@ -113,29 +112,11 @@
 
 	const showsCollageLayout = computed(() => isPersonalCanvasCategory(form.value.main_category_type))
 
-	const requiredImagesCount = computed(() =>
-		showsCollageLayout.value ? uploadImageCountFromLayout(form.value.collage_layout ?? null) : 0
-	)
-
-	const imagesDescription = computed(() => {
-		const slots = requiredImagesCount.value
-		if (slots > 0) {
-			return `Загрузите ровно ${slots} изображений — по числу слотов в SVG layout.`
-		}
-		if (showsCollageLayout.value) {
-			return 'Сначала импортируйте SVG layout, затем загрузите изображения по числу слотов.'
-		}
-		return 'Выберите одну или несколько картинок продукта.'
-	})
-
 	const onCollageLayoutUpdate = (layout: CollageLayout | null) => {
 		form.value.collage_layout = layout
-		const slots = uploadImageCountFromLayout(layout)
-		form.value.upload_image_count = slots > 0 ? slots : 1
 		if (layout?.id != null) {
 			clearFieldError('collage_layout_id')
 		}
-		clearFieldError('images')
 	}
 
 	const syncMainCategoryMeta = (mainCategoryId: number | null) => {
@@ -154,7 +135,6 @@
 		if (isPersonalCanvasCategory(form.value.main_category_type) && !isApplyingProduct.value) {
 			form.value.collage_layout_id = null
 			form.value.collage_layout = null
-			form.value.upload_image_count = 1
 		}
 	}
 
@@ -309,7 +289,6 @@
 				if (isPersonalCanvasCategory(category?.category_type)) {
 					form.value.collage_layout_id = null
 					form.value.collage_layout = null
-					form.value.upload_image_count = 1
 				}
 			}
 
@@ -526,12 +505,11 @@
 		</div>
 
 		<div class="md:col-span-3">
-			<MultiImageUpload
-				v-model="form.images"
-				label="Изображения"
+			<SingleImageUpload
+				v-model="form.image"
+				label="Изображение"
 				required
-				:description="imagesDescription"
-				:error-message="validationErrors.images"
+				:error-message="validationErrors.image"
 				:uploader="(files, onProgress) => api.uploadImages(files, onProgress)"
 			/>
 		</div>
@@ -573,7 +551,6 @@
 			<SelectField
 				:model-value="selectedCanvasFormatId"
 				label="Форматы холста"
-				required
 				name="canvas_formats"
 				placeholder="Выберите формат"
 				:options="canvasFormatOptions"
@@ -605,7 +582,6 @@
 			<SelectField
 				:model-value="selectedCanvasFrameId"
 				label="Рамки"
-				required
 				name="frames"
 				placeholder="Выберите рамку"
 				:options="canvasFrameOptions"

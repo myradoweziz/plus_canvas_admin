@@ -32,13 +32,17 @@ export interface CanvasProductDetails {
 	faq: CanvasProductFaqItem[]
 }
 
+export interface CanvasProductImage {
+	path: string
+	url: string
+}
+
 export type CanvasProduct = {
 	id: number | null
 	name: string
 	price: number
 	discount: number
-	images: Array<string | File>
-	upload_image_count: number
+	image: string
 	main_category_id: number | null
 	main_category_type?: CategoryType | ''
 	category_id: number | null
@@ -78,6 +82,7 @@ export type CanvasProduct = {
 	availability_end: string | null
 	is_published: boolean
 	product_details: CanvasProductDetails
+	product_dimensions: string
 	seo: CanvasProductSeo
 	category_mappings: CanvasProductCategoryMapping[]
 	product_discount: CanvasProductDiscount
@@ -89,6 +94,7 @@ export type CanvasProductPayload = Omit<
 	| 'main_category_type'
 	| 'collage_layout'
 	| 'product_details'
+	| 'product_dimensions'
 	| 'seo'
 	| 'category_mappings'
 	| 'product_discount'
