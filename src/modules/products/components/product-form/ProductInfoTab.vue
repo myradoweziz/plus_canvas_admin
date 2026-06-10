@@ -104,6 +104,7 @@
 			'image',
 			'colors',
 			'canvas_formats',
+			'active_canvas_format_id',
 			'frames',
 			'product_tags',
 			'collage_layout_id'
@@ -177,12 +178,8 @@
 			}
 		})
 	)
-	const selectedCanvasFormats = computed(() =>
-		form.value.canvas_formats.map((id) => ({
-			id,
-			label: canvasFormats.value.find((format) => format.id === id)?.name ?? `#${id}`
-		}))
-	)
+	const getCanvasFormatLabel = (id: number) =>
+		canvasFormats.value.find((format) => format.id === id)?.name ?? `#${id}`
 	const canvasFrameOptions = computed(() =>
 		toSelectOptions(canvasFrames.value, (item) => item.name).filter(
 			(item) => !form.value.frames.includes(Number(item.value))
@@ -339,6 +336,19 @@
 		form.value.colors = form.value.colors.filter((item) => item !== id)
 	}
 
+	const isActiveCanvasFormat = (id: number) => form.value.active_canvas_format_id === id
+
+	const setActiveCanvasFormat = (id: number, active: boolean) => {
+		if (active) {
+			form.value.active_canvas_format_id = id
+			return
+		}
+
+		if (form.value.active_canvas_format_id === id) {
+			form.value.active_canvas_format_id = null
+		}
+	}
+
 	const addCanvasFormat = (value: string | number | null) => {
 		selectedCanvasFormatId.value = null
 		if (value === null) return
@@ -346,11 +356,17 @@
 		const id = Number(value)
 		if (Number.isFinite(id) && !form.value.canvas_formats.includes(id)) {
 			form.value.canvas_formats.push(id)
+			if (form.value.active_canvas_format_id == null) {
+				form.value.active_canvas_format_id = id
+			}
 		}
 	}
 
 	const removeCanvasFormat = (id: number) => {
 		form.value.canvas_formats = form.value.canvas_formats.filter((item) => item !== id)
+		if (form.value.active_canvas_format_id === id) {
+			form.value.active_canvas_format_id = form.value.canvas_formats[0] ?? null
+		}
 	}
 
 	const addCanvasFrame = (value: string | number | null) => {
@@ -558,23 +574,31 @@
 				:error-message="validationErrors.canvas_formats"
 				@update:model-value="addCanvasFormat"
 			/>
-			<div v-if="selectedCanvasFormats.length" class="mt-3 flex flex-wrap gap-2">
-				<span
-					v-for="format in selectedCanvasFormats"
-					:key="format.id"
-					class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+			<div v-if="form.canvas_formats.length" class="mt-3 space-y-2">
+				<div
+					v-for="formatId in form.canvas_formats"
+					:key="formatId"
+					class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3"
 				>
-					{{ format.label }}
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon"
-						class-name="h-5 w-5 text-gray-500 hover:text-red-600"
-						:on-click="() => removeCanvasFormat(format.id)"
-					>
-						✕
-					</Button>
-				</span>
+					<span class="text-sm font-medium text-gray-900">{{ getCanvasFormatLabel(formatId) }}</span>
+					<div class="flex items-center gap-3">
+						<CheckboxField
+							:model-value="isActiveCanvasFormat(formatId)"
+							label="Активный"
+							:name="`canvas_format_active_${formatId}`"
+							@update:model-value="(value) => setActiveCanvasFormat(formatId, value)"
+						/>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							class-name="h-5 w-5 text-gray-500 hover:text-red-600"
+							:on-click="() => removeCanvasFormat(formatId)"
+						>
+							✕
+						</Button>
+					</div>
+				</div>
 			</div>
 		</div>
 

@@ -6,6 +6,8 @@ const CANVAS_SIZES_URL = '/api/admin/canvas-sizes'
 export type ListCanvasSizesParams = {
 	limit: number
 	offset: number
+	width?: string
+	height?: string
 }
 
 export type ListCanvasSizesResult = {

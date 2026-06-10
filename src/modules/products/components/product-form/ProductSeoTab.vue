@@ -1,12 +1,11 @@
 <script setup lang="ts">
-	import { ref, watch } from 'vue'
+	import { watch } from 'vue'
 
 	import Button from '@/shared/ui/Button.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 	import ProductRequiresSaveNotice from './ProductRequiresSaveNotice.vue'
 
-	import { slugify } from '@/shared'
 	import { api } from '../../api'
 	import { useProductSubResourceSave } from '../../composables'
 	import { validateProductSeo } from '../../helpers'
@@ -15,26 +14,23 @@
 	const props = defineProps<{
 		productId: number | null
 		productName: string
+		onSlugManualInput: (slug: string) => void
 	}>()
 
 	const seo = defineModel<CanvasProductSeo>('seo', { required: true })
+	const slugManuallyEdited = defineModel<boolean>('slugManuallyEdited', { required: true })
 
 	const emit = defineEmits<{
 		saved: [seo: CanvasProductSeo]
+		syncSlugState: []
 	}>()
-
-	const slugManuallyEdited = ref(false)
-
-	const syncSlugManuallyEdited = () => {
-		slugManuallyEdited.value = Boolean(seo.value.slug && seo.value.slug !== slugify(props.productName ?? ''))
-	}
 
 	const { saving, validationErrors, clearFieldError, runSave } = useProductSubResourceSave({
 		validate: () => validateProductSeo(seo.value),
 		save: () => api.updateCanvasProductSeo(props.productId!, seo.value),
 		onSuccess: (savedSeo) => {
 			seo.value = savedSeo
-			syncSlugManuallyEdited()
+			emit('syncSlugState')
 			emit('saved', savedSeo)
 		},
 		messages: {
@@ -52,24 +48,13 @@
 		)
 	})
 
-	watch(
-		() => props.productName,
-		(name) => {
-			const generatedSlug = slugify(name ?? '')
-			if (!slugManuallyEdited.value || !seo.value.slug) {
-				seo.value.slug = generatedSlug
-			}
-		}
-	)
-
 	const onSlugInput = (value: string | number) => {
-		seo.value.slug = String(value)
-		slugManuallyEdited.value = seo.value.slug !== slugify(props.productName ?? '')
+		props.onSlugManualInput(String(value))
 	}
 
 	watch(
 		() => props.productId,
-		() => syncSlugManuallyEdited(),
+		() => emit('syncSlugState'),
 		{ immediate: true }
 	)
 

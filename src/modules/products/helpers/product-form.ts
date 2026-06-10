@@ -96,6 +96,7 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	flag: '',
 	stock_id: null,
 	colors: [],
+	active_canvas_format_id: null,
 	canvas_formats: [],
 	frames: [],
 	effects: [],

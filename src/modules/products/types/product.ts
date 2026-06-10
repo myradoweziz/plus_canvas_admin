@@ -43,6 +43,7 @@ export type CanvasProduct = {
 	price: number
 	discount: number
 	image: string
+	active_canvas_format_id: number | null
 	main_category_id: number | null
 	main_category_type?: CategoryType | ''
 	category_id: number | null

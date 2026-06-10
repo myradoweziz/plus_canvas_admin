@@ -43,6 +43,36 @@ const toIdArray = (items: RelationItem[] | null | undefined): number[] => {
 		.filter((id): id is number => typeof id === 'number')
 }
 
+const normalizeActiveCanvasFormatId = (product: Record<string, unknown>): number | null => {
+	const direct = toNullableNumber(
+		product.active_canvas_format_id ??
+			(product.active_canvas_format as { id?: number | null } | undefined)?.id ??
+			null
+	)
+	if (direct != null) return direct
+
+	const formats = product.canvas_formats
+	if (!Array.isArray(formats)) return null
+
+	for (const item of formats) {
+		if (typeof item !== 'object' || item === null) continue
+
+		const format = item as {
+			id?: number | null
+			canvas_format_id?: number | null
+			is_active?: boolean
+			pivot?: { is_active?: boolean }
+		}
+		const isActive = format.pivot?.is_active ?? format.is_active
+		if (!isActive) continue
+
+		const id = format.id ?? format.canvas_format_id
+		if (typeof id === 'number' && Number.isFinite(id)) return id
+	}
+
+	return null
+}
+
 const normalizeProductImage = (product: Record<string, unknown>): string => {
 	const fromImage = resolveProductImageUrl(product.image as ProductImageValue)
 	if (fromImage) return fromImage
@@ -178,6 +208,7 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		flag: product.flag ?? '',
 		stock_id: product.stock_id ?? product.discount?.id ?? null,
 		colors: toIdArray(product.colors),
+		active_canvas_format_id: normalizeActiveCanvasFormatId(product),
 		canvas_formats: toIdArray(product.canvas_formats),
 		frames: toIdArray(product.frames),
 		effects: toIdArray(product.effects),
@@ -249,6 +280,7 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		flag: product.flag,
 		stock_id: product.stock_id,
 		colors: product.colors,
+		active_canvas_format_id: product.active_canvas_format_id,
 		canvas_formats: product.canvas_formats,
 		frames: product.frames,
 		effects: product.effects,

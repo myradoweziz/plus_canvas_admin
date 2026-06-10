@@ -15,6 +15,7 @@
 	const ProductOrdersTab = defineAsyncComponent(() => import('./product-form/ProductOrdersTab.vue'))
 
 	import { api } from '../api'
+	import { useProductSlugSync } from '../composables'
 	import { createEmptyCanvasProduct, type ProductFormTab } from '../helpers'
 	import type { CanvasProduct } from '../types'
 
@@ -24,6 +25,7 @@
 	const activeTab = ref<ProductFormTab>('productInfo')
 
 	const form = ref<CanvasProduct>(createEmptyCanvasProduct())
+	const { slugManuallyEdited, syncSlugManuallyEdited, onSlugManualInput } = useProductSlugSync(form)
 	const productInfoTabRef = ref<InstanceType<typeof ProductInfoTab> | null>(null)
 	const mountedTabs = ref<Set<ProductFormTab>>(new Set(['productInfo']))
 
@@ -59,6 +61,7 @@
 		const product = await api.getCanvasProduct(productId.value)
 		productInfoTabRef.value?.beginProductApply()
 		form.value = normalizeLoadedProduct(product)
+		syncSlugManuallyEdited()
 		await nextTick()
 		await productInfoTabRef.value?.syncCategoryCascade()
 	}
@@ -127,8 +130,11 @@
 					v-show="activeTab === 'seo'"
 					v-if="isTabMounted('seo')"
 					v-model:seo="form.seo"
+					v-model:slug-manually-edited="slugManuallyEdited"
 					:product-id="effectiveProductId"
 					:product-name="form.name"
+					:on-slug-manual-input="onSlugManualInput"
+					@sync-slug-state="syncSlugManuallyEdited"
 				/>
 
 				<ProductCategoryMappingsTab
