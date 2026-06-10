@@ -1,3 +1,15 @@
+const turkishMap: Record<string, string> = {
+	ç: 'c',
+	ğ: 'g',
+	ı: 'i',
+	ö: 'o',
+	ş: 's',
+	ü: 'u',
+	â: 'a',
+	î: 'i',
+	û: 'u'
+}
+
 const cyrillicMap: Record<string, string> = {
 	а: 'a',
 	б: 'b',
@@ -34,11 +46,25 @@ const cyrillicMap: Record<string, string> = {
 	я: 'ya'
 }
 
+const transliterateChar = (char: string) => turkishMap[char] ?? cyrillicMap[char] ?? char
+
+export const isValidSlugFormat = (value: string) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.trim())
+
+export const looksLikeUnslugifiedSlug = (slug: string, source: string) => {
+	const normalizedSlug = slug.trim()
+	const normalizedSource = source.trim()
+
+	if (!normalizedSlug) return true
+	if (normalizedSlug === normalizedSource) return true
+
+	return !isValidSlugFormat(normalizedSlug)
+}
+
 export const slugify = (value: string) => {
 	return value
-		.toLowerCase()
+		.toLocaleLowerCase('tr-TR')
 		.split('')
-		.map((char) => cyrillicMap[char] ?? char)
+		.map((char) => transliterateChar(char))
 		.join('')
 		.normalize('NFD')
 		.replace(/[\u0300-\u036f]/g, '')
