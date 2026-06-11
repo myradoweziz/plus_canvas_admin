@@ -5,6 +5,7 @@
 
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
+	import DeleteModal from '@/shared/ui/DeleteModal.vue'
 	import Pagination from '@/shared/ui/Pagination.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
@@ -33,6 +34,9 @@
 
 	const loadingRoles = ref(false)
 	const roles = ref<Role[]>([])
+	const showDeleteModal = ref(false)
+	const loadingDeleteModal = ref(false)
+	const selectedUser = ref<User | null>(null)
 
 	const roleOptions = computed(() =>
 		roles.value
@@ -148,12 +152,26 @@
 		}
 	}
 
-	const deleteUser = async (user: User) => {
-		if (!user.id) return
+	const deleteUser = (user: User) => {
+		selectedUser.value = user
+		showDeleteModal.value = true
+	}
 
-		usersApi.deleteUser(user.id)
-		await load()
-		toast.success('Пользователь удален')
+	const confirmDelete = async () => {
+		if (!selectedUser.value?.id) return
+
+		loadingDeleteModal.value = true
+		try {
+			await usersApi.deleteUser(selectedUser.value.id)
+			showDeleteModal.value = false
+			selectedUser.value = null
+			await load()
+			toast.success('Пользователь удален')
+		} catch {
+			toast.error('Не удалось удалить пользователя')
+		} finally {
+			loadingDeleteModal.value = false
+		}
 	}
 </script>
 
@@ -208,5 +226,13 @@
 		/>
 
 		<Pagination :total="total" :limit="limit" :offset="offset" @update:offset="changeOffset" />
+
+		<DeleteModal
+			:open="showDeleteModal"
+			entity-name="пользователя"
+			:loading="loadingDeleteModal"
+			@close="showDeleteModal = false"
+			@confirm="confirmDelete"
+		/>
 	</div>
 </template>

@@ -1,6 +1,5 @@
 import type { Component } from 'vue'
 
-import { canAccessPermission } from '@/shared/auth/user-access'
 import * as icons from '@/shared/icons'
 import { ADMIN_PERMISSIONS } from './admin-permissions'
 
@@ -328,29 +327,18 @@ export const adminMenuGroups: AdminMenuGroup[] = [
 	}
 ]
 
-export const filterAdminMenuGroups = (
-	groups: AdminMenuGroup[],
-	userPermissions: string[],
-	roles: string[]
-): AdminMenuGroup[] =>
-	groups
-		.map((group) => ({
-			items: filterAdminMenuItems(group.items, userPermissions, roles)
-		}))
-		.filter((group) => group.items.length > 0)
+const toPermissionList = (permission?: string | string[]) => {
+	if (!permission) return []
+	return Array.isArray(permission) ? permission : [permission]
+}
 
-const filterAdminMenuItems = (items: AdminMenuItem[], userPermissions: string[], roles: string[]): AdminMenuItem[] =>
-	items
-		.map((item) => {
-			if (item.subItems?.length) {
-				const subItems = filterAdminMenuItems(item.subItems, userPermissions, roles)
-				if (!subItems.length) return null
+export const collectMenuItemPermissions = (item: AdminMenuItem): string[] => {
+	if (item.subItems?.length) {
+		return item.subItems.flatMap((subItem) => toPermissionList(subItem.permission))
+	}
 
-				return { ...item, subItems }
-			}
+	return toPermissionList(item.permission)
+}
 
-			if (!canAccessPermission(item.permission, userPermissions, roles)) return null
-
-			return item
-		})
-		.filter((item): item is AdminMenuItem => item !== null)
+export const collectGroupPermissions = (group: AdminMenuGroup): string[] =>
+	group.items.flatMap((item) => collectMenuItemPermissions(item))

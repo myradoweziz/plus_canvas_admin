@@ -1,25 +1,20 @@
 <script setup>
 	import { computed, watch } from 'vue'
 	import { useRoute } from 'vue-router'
-	import { storeToRefs } from 'pinia'
 
-	import { adminMenuGroups, filterAdminMenuGroups } from '@/config/admin-menu'
-	import { useSidebar } from '@/composables/useSidebar'
-	import { useAuth } from '@/stores/auth'
-	import * as icons from '@/shared/icons'
 	import HeaderLogo from './header/HeaderLogo.vue'
 
+	import { useSidebar } from '@/composables/useSidebar'
+	import { adminMenuGroups, collectGroupPermissions, collectMenuItemPermissions } from '@/config/admin-menu'
+	import * as icons from '@/shared/icons'
+
 	const route = useRoute()
-	const auth = useAuth()
-	const { permissions, roles } = storeToRefs(auth)
 
 	const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar()
 
-	const menuGroups = computed(() => filterAdminMenuGroups(adminMenuGroups, permissions.value, roles.value))
-
 	const allMenuPaths = computed(() => {
 		const paths = []
-		for (const group of menuGroups.value) {
+		for (const group of adminMenuGroups) {
 			for (const item of group.items) {
 				if (item.path) paths.push(item.path)
 				item.subItems?.forEach((subItem) => paths.push(subItem.path))
@@ -38,7 +33,7 @@
 	}
 
 	const activeSubmenuKey = computed(() => {
-		for (const [groupIndex, group] of menuGroups.value.entries()) {
+		for (const [groupIndex, group] of adminMenuGroups.entries()) {
 			const itemIndex = group.items.findIndex((item) => item.subItems?.some((subItem) => isActive(subItem.path)))
 
 			if (itemIndex >= 0) {
@@ -103,8 +98,17 @@
 		<div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
 			<nav class="mb-6">
 				<div class="flex flex-col gap-4">
-					<ul v-for="(group, groupIndex) in menuGroups" :key="groupIndex" class="flex flex-col gap-4">
-						<li v-for="(item, index) in group.items" :key="item.name">
+					<ul
+						v-for="(group, groupIndex) in adminMenuGroups"
+						:key="groupIndex"
+						v-permission:any="collectGroupPermissions(group)"
+						class="flex flex-col gap-4"
+					>
+						<li
+							v-for="(item, index) in group.items"
+							:key="item.name"
+							v-permission:any="collectMenuItemPermissions(item)"
+						>
 							<button
 								v-if="item.subItems"
 								@click="toggleSubmenu(groupIndex, index)"
@@ -149,7 +153,7 @@
 							>
 								<div v-show="isSubmenuOpen(groupIndex, index) && (isExpanded || isHovered || isMobileOpen)">
 									<ul class="mt-2 space-y-1 ml-9">
-										<li v-for="subItem in item.subItems" :key="subItem.name">
+										<li v-for="subItem in item.subItems" :key="subItem.name" v-permission="subItem.permission">
 											<router-link
 												:to="subItem.path"
 												:class="[

@@ -1,3 +1,27 @@
+<script setup lang="ts">
+	import { ref } from 'vue'
+
+	import UserMenu from './header/UserMenu.vue'
+
+	import { useSidebar } from '@/composables/useSidebar'
+
+	const { toggleSidebar, toggleMobileSidebar, isMobileOpen } = useSidebar()
+
+	const handleToggle = () => {
+		if (window.innerWidth >= 1024) {
+			toggleSidebar()
+		} else {
+			toggleMobileSidebar()
+		}
+	}
+
+	const isApplicationMenuOpen = ref(false)
+
+	const toggleApplicationMenu = () => {
+		isApplicationMenuOpen.value = !isApplicationMenuOpen.value
+	}
+</script>
+
 <template>
 	<header class="sticky top-0 flex w-full bg-white border-gray-200 z-99999 lg:border-b">
 		<div class="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
@@ -58,27 +82,3 @@
 		</div>
 	</header>
 </template>
-
-<script setup lang="ts">
-	import { ref } from 'vue'
-
-	import UserMenu from './header/UserMenu.vue'
-
-	import { useSidebar } from '@/composables/useSidebar'
-
-	const { toggleSidebar, toggleMobileSidebar, isMobileOpen } = useSidebar()
-
-	const handleToggle = () => {
-		if (window.innerWidth >= 1024) {
-			toggleSidebar()
-		} else {
-			toggleMobileSidebar()
-		}
-	}
-
-	const isApplicationMenuOpen = ref(false)
-
-	const toggleApplicationMenu = () => {
-		isApplicationMenuOpen.value = !isApplicationMenuOpen.value
-	}
-</script>
