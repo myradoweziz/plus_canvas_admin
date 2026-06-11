@@ -54,7 +54,25 @@
 
 	const dragIndex = ref<number | null>(null)
 
-	const colSpan = computed(() => props.columns.length + (props.draggable ? 1 : 0) + (props.selectable ? 1 : 0))
+	const mergeClasses = (...classes: Array<string | undefined>) =>
+		[...new Set(classes.filter(Boolean).join(' ').split(/\s+/).filter(Boolean))].join(' ')
+
+	const normalizedColumns = computed(() =>
+		props.columns.map((column, index, columns) => {
+			const isLastColumn = index === columns.length - 1
+			if (!isLastColumn) return column
+
+			return {
+				...column,
+				headerClass: mergeClasses('text-right', column.headerClass),
+				cellClass: mergeClasses('text-right', column.cellClass)
+			}
+		})
+	)
+
+	const colSpan = computed(
+		() => normalizedColumns.value.length + (props.draggable ? 1 : 0) + (props.selectable ? 1 : 0)
+	)
 
 	const getTableRow = (row: unknown) => row as DataTableRow
 
@@ -146,7 +164,7 @@
 
 						<th v-if="draggable" class="w-12 px-4 py-3"></th>
 						<th v-if="pagination" class="w-12 px-4 py-3">№</th>
-						<th v-for="column in columns" :key="column.key" class="px-4 py-3" :class="column.headerClass">
+						<th v-for="column in normalizedColumns" :key="column.key" class="px-4 py-3" :class="column.headerClass">
 							{{ column.label }}
 						</th>
 					</tr>
@@ -178,7 +196,7 @@
 						@drop="onDrop(index)"
 						@dragend="onDragEnd"
 					>
-						<td v-if="selectable" class="px-4 py-3">
+						<td v-if="selectable" class="px-4 py-3" @click.stop>
 							<input
 								type="checkbox"
 								class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -194,7 +212,7 @@
 								{{ getGlobalIndex(index) }}
 							</span>
 						</td>
-						<td v-for="column in columns" :key="column.key" class="px-4 py-3" :class="column.cellClass">
+						<td v-for="column in normalizedColumns" :key="column.key" class="px-4 py-3" :class="column.cellClass">
 							<slot :name="`cell-${column.key}`" :row="row" :value="getCellValue(row, column.key)" :index="index">
 								{{ getCellValue(row, column.key) }}
 							</slot>

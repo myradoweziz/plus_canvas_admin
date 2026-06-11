@@ -1,3 +1,4 @@
+export * from './usePermissions'
 export * from './useSidebar'
 
 export const downloadTextFile = (content: string, filename: string, mimeType: string) => {

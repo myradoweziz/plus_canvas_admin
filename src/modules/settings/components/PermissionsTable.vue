@@ -1,8 +1,7 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 
-	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { PERMISSIONS_TABLE_COLUMNS } from '../helpers'
 	import type { Permission } from '../types'
 
@@ -27,34 +26,15 @@
 		:loading="loading"
 		empty-text="Пока нет permissions."
 		:pagination="pagination"
+		clickable
+		@row-click="(row) => $emit('edit', toPermission(row))"
 	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toPermission(row).name }}</span>
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Edit"
-					:on-click="() => $emit('edit', toPermission(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:text-red-700"
-					aria-label="Delete"
-					:on-click="() => $emit('delete', toPermission(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions @delete="$emit('delete', toPermission(row))" />
 		</template>
 	</DataTable>
 </template>

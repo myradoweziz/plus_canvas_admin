@@ -1,8 +1,6 @@
 <script setup lang="ts">
 	import { useRouter } from 'vue-router'
 
-	import EditIcon from '@/shared/icons/EditIcon.vue'
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
 
 	import { BESTSELLERS_TABLE_COLUMNS } from '../helpers'
@@ -30,6 +28,8 @@
 		:loading="loading"
 		empty-text="Данные не найдены."
 		:pagination="pagination"
+		clickable
+		@row-click="(row) => showProduct(toBestseller(row).canvas_product_id)"
 	>
 		<template #cell-canvas_product_name="{ row }">
 			<span class="font-medium text-gray-800">{{ toBestseller(row).canvas_product_name }}</span>
@@ -43,18 +43,5 @@
 			<span class="font-medium text-gray-800">{{ toBestseller(row).total_amount_without_tax }}</span>
 		</template>
 
-		<template #cell-actions="{ row }">
-			<div class="flex justify-end">
-				<Button
-					size="icon"
-					variant="ghost"
-					aria-label="Edit"
-					:on-click="() => showProduct(toBestseller(row).canvas_product_id)"
-					class-name="hover:bg-green-100"
-				>
-					<EditIcon />
-				</Button>
-			</div>
-		</template>
 	</DataTable>
 </template>

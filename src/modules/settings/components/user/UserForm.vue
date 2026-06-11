@@ -197,11 +197,7 @@
 	const onSubmit = async () => {
 		triedSubmit.value = true
 		if (!validate()) {
-			const first =
-				fieldErrors.name ||
-				fieldErrors.email ||
-				fieldErrors.password ||
-				fieldErrors.password_confirmation
+			const first = fieldErrors.name || fieldErrors.email || fieldErrors.password || fieldErrors.password_confirmation
 			if (first) toast.error(first)
 			return
 		}
@@ -260,13 +256,7 @@
 			placeholder="user@example.com"
 			:error-message="triedSubmit ? fieldErrors.email : ''"
 		/>
-		<TextField
-			v-model="form.phone_number"
-			label="Телефон"
-			type="tel"
-			name="phone_number"
-			placeholder="Необязательно"
-		/>
+		<TextField v-model="form.phone_number" label="Телефон" type="tel" name="phone_number" placeholder="Необязательно" />
 
 		<div class="flex flex-col gap-3 md:col-span-1">
 			<CheckboxField v-model="form.is_active" label="Активен" name="is_active" />

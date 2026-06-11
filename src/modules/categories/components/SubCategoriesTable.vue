@@ -1,9 +1,8 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
-	import { EditIcon, TrashIcon } from '@/shared/icons'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 	import { SUB_CATEGORIES_TABLE_COLUMNS } from '../helpers'
 	import type { SubCategory } from '../types'
 
@@ -84,28 +83,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Edit"
-					:on-click="() => $emit('edit', toSubCategory(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:text-red-700"
-					aria-label="Delete"
-					:on-click="() => $emit('delete', toSubCategory(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions show-edit @edit="emit('edit', toSubCategory(row))" @delete="emit('delete', toSubCategory(row))" />
 		</template>
 	</DataTable>
 </template>

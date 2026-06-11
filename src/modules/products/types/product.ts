@@ -54,6 +54,7 @@ export type CanvasProduct = {
 	stock_id: number | null
 	colors: number[]
 	canvas_formats: number[]
+	canvas_sizes: number[]
 	frames: number[]
 	effects: number[]
 	collage_layout_id: number | null

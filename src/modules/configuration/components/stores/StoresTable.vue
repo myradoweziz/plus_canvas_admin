@@ -1,9 +1,7 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
-
-	import { EditIcon, TrashIcon } from '@/shared/icons'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 	import { STORES_TABLE_COLUMNS } from '../../helpers'
 	import type { Store } from '../../types'
 
@@ -22,7 +20,14 @@
 </script>
 
 <template>
-	<DataTable :columns="STORES_TABLE_COLUMNS" :rows="items" :loading="loading" empty-text="Пока нет магазинов.">
+	<DataTable
+		:columns="STORES_TABLE_COLUMNS"
+		:rows="items"
+		:loading="loading"
+		empty-text="Пока нет магазинов."
+		clickable
+		@row-click="(row) => $emit('edit', toStore(row))"
+	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toStore(row).name }}</span>
 		</template>
@@ -42,28 +47,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Edit"
-					:on-click="() => $emit('edit', toStore(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:text-red-700"
-					aria-label="Delete"
-					:on-click="() => $emit('delete', toStore(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions @delete="$emit('delete', toStore(row))" />
 		</template>
 	</DataTable>
 </template>

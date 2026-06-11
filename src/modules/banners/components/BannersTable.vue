@@ -1,9 +1,8 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
-	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { BANNERS_TABLE_COLUMNS } from '../helpers'
 	import type { Banner } from '../types'
 
@@ -59,28 +58,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Edit"
-					:on-click="() => $emit('edit', toBanner(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:text-red-700"
-					aria-label="Delete"
-					:on-click="() => $emit('delete', toBanner(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions show-edit @edit="emit('edit', toBanner(row))" @delete="emit('delete', toBanner(row))" />
 		</template>
 	</DataTable>
 </template>

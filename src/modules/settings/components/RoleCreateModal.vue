@@ -5,12 +5,9 @@
 	import Modal from '@/components/profile/Modal.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
-	import SelectField from '@/shared/ui/SelectField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
-	import { api as productsApi } from '@/modules/products/api'
-	import type { CanvasProduct } from '@/modules/products/types'
 	import { api } from '../api'
 	import { createEmptyRole } from '../helpers/roles'
 	import type { Permission, Role } from '../types'
@@ -20,43 +17,31 @@
 
 	const saving = ref(false)
 	const loadingPermissions = ref(false)
-	const loadingProducts = ref(false)
 	const allPermissions = ref<Permission[]>([])
-	const products = ref<CanvasProduct[]>([])
-	const selectedPermissionName = ref<string | null>(null)
 	const permissionsRequestId = ref(0)
-	const productsRequestId = ref(0)
 	const triedSubmit = ref(false)
 
 	const form = reactive(createEmptyRole())
 
 	const fieldErrors = reactive({
 		name: '',
-		system_name: '',
 		permissions: ''
 	})
 
 	const resetLocalForm = () => {
 		Object.assign(form, createEmptyRole())
 		fieldErrors.name = ''
-		fieldErrors.system_name = ''
 		fieldErrors.permissions = ''
 		triedSubmit.value = false
-		selectedPermissionName.value = null
 	}
 
 	const validate = () => {
 		fieldErrors.name = ''
-		fieldErrors.system_name = ''
 		fieldErrors.permissions = ''
 		let ok = true
 
 		if (!form.name.trim()) {
 			fieldErrors.name = 'Укажите название'
-			ok = false
-		}
-		if (!form.system_name.trim()) {
-			fieldErrors.system_name = 'Укажите system name'
 			ok = false
 		}
 		if (!form.permissions.length) {
@@ -86,59 +71,57 @@
 			Object.assign(form, {
 				id: role.id ?? null,
 				name: role.name ?? '',
-				system_name: role.system_name ?? '',
-				free_shipping: !!role.free_shipping,
-				tax_exempt: !!role.tax_exempt,
 				active: role.active !== false,
-				is_system_role: !!role.is_system_role,
-				purchased_with_product: Number(role.purchased_with_product ?? 0),
 				permissions: Array.isArray(role.permissions)
 					? role.permissions
-							.map((p) => (typeof p === 'string' ? p : (p as { name?: string })?.name))
-							.filter((p): p is string => typeof p === 'string' && p.length > 0)
+							.map((permission) =>
+								typeof permission === 'string' ? permission : (permission as { name?: string })?.name
+							)
+							.filter((permission): permission is string => typeof permission === 'string' && permission.length > 0)
 					: []
 			})
 			fieldErrors.name = ''
-			fieldErrors.system_name = ''
 			fieldErrors.permissions = ''
 		},
 		{ immediate: true }
 	)
 
-	const productOptions = computed(() => [
-		{ label: 'Не выбран', value: 0 },
-		...products.value
-			.filter((product): product is CanvasProduct & { id: number } => product.id !== null)
-			.map((product) => ({
-				label: product.name,
-				value: product.id
-			}))
-	])
-
-	const permissionOptions = computed(() =>
+	const allPermissionNames = computed(() =>
 		allPermissions.value
-			.map((p) => p.name)
+			.map((permission) => permission.name)
 			.filter((name): name is string => typeof name === 'string' && name.length > 0)
-			.filter((name) => !(form.permissions || []).includes(name))
-			.map((name) => ({ label: name, value: name }))
 	)
 
-	const addPermission = (value: string | number | null) => {
-		selectedPermissionName.value = null
-		if (!value) return
-		const name = String(value)
-		if (!(form.permissions || []).includes(name)) form.permissions = [...(form.permissions || []), name]
+	const areAllPermissionsSelected = computed(
+		() =>
+			allPermissionNames.value.length > 0 &&
+			allPermissionNames.value.every((name) => form.permissions.includes(name))
+	)
+
+	const isPermissionSelected = (name: string) => form.permissions.includes(name)
+
+	const toggleAllPermissions = (checked: boolean) => {
+		form.permissions = checked ? [...allPermissionNames.value] : []
 		fieldErrors.permissions = ''
 	}
 
-	const removePermission = (name: string) => {
-		form.permissions = (form.permissions || []).filter((p) => p !== name)
+	const togglePermission = (name: string, checked: boolean) => {
+		if (checked) {
+			if (!form.permissions.includes(name)) {
+				form.permissions = [...form.permissions, name]
+			}
+		} else {
+			form.permissions = form.permissions.filter((permission) => permission !== name)
+		}
+
+		fieldErrors.permissions = ''
 	}
 
 	const loadPermissions = async () => {
 		const requestId = permissionsRequestId.value + 1
 		permissionsRequestId.value = requestId
 		loadingPermissions.value = true
+
 		try {
 			const result = await api.listPermissions({ limit: 1000, offset: 0 })
 			if (requestId !== permissionsRequestId.value) return
@@ -150,28 +133,11 @@
 		}
 	}
 
-	const loadProducts = async () => {
-		const requestId = productsRequestId.value + 1
-		productsRequestId.value = requestId
-		loadingProducts.value = true
-
-		try {
-			const result = await productsApi.listCanvasProducts({ limit: 1000, offset: 0 })
-			if (requestId !== productsRequestId.value) return
-			products.value = result.items || []
-		} finally {
-			if (requestId === productsRequestId.value) {
-				loadingProducts.value = false
-			}
-		}
-	}
-
 	watch(
 		() => props.open,
 		(open) => {
 			if (!open) return
 			loadPermissions()
-			loadProducts()
 		},
 		{ immediate: true }
 	)
@@ -185,13 +151,8 @@
 			const payload: Role = {
 				id: form.id ?? null,
 				name: form.name.trim(),
-				system_name: form.system_name.trim(),
-				free_shipping: !!form.free_shipping,
-				tax_exempt: !!form.tax_exempt,
 				active: !!form.active,
-				is_system_role: !!form.is_system_role,
-				purchased_with_product: Number(form.purchased_with_product ?? 0),
-				permissions: form.permissions || []
+				permissions: form.permissions
 			}
 
 			if (payload.id) {
@@ -218,7 +179,7 @@
 			<div class="flex items-start justify-between gap-4">
 				<div class="min-w-0">
 					<h3 class="text-lg font-semibold text-gray-900">
-						{{ props.role ? 'Редактировать role' : 'Добавить role' }}
+						{{ props.role ? 'Редактировать роль' : 'Добавить роль' }}
 					</h3>
 					<p class="mt-1 text-sm text-gray-600">Заполните поля и сохраните.</p>
 				</div>
@@ -233,66 +194,46 @@
 					label="Название"
 					required
 					name="name"
-					placeholder="название роли"
+					placeholder="Название роли"
 					:error-message="triedSubmit ? fieldErrors.name : ''"
 				/>
 
-				<TextField
-					v-model="form.system_name"
-					label="System name"
-					required
-					name="system_name"
-					placeholder="system_name"
-					:error-message="triedSubmit ? fieldErrors.system_name : ''"
-				/>
-
-				<SelectField
-					v-model="form.purchased_with_product"
-					label="Purchased with product"
-					name="purchased_with_product"
-					placeholder="Выберите продукт"
-					:options="productOptions"
-					:disabled="loadingProducts"
-				/>
-
-				<div class="flex flex-col gap-3 md:col-span-2">
-					<CheckboxField v-model="form.free_shipping" label="Free shipping" name="free_shipping" />
-					<CheckboxField v-model="form.tax_exempt" label="Tax exempt" name="tax_exempt" />
-					<CheckboxField v-model="form.active" label="Active" name="active" />
-					<CheckboxField v-model="form.is_system_role" label="System role" name="is_system_role" />
+				<div class="flex items-end pb-1">
+					<CheckboxField v-model="form.active" label="Активна" name="active" />
 				</div>
 
 				<div class="md:col-span-2">
-					<SelectField
-						:model-value="selectedPermissionName"
-						label="Права"
-						required
-						name="permissions"
-						placeholder="Выберите право"
-						:options="permissionOptions"
-						:disabled="loadingPermissions"
-						:error-message="triedSubmit ? fieldErrors.permissions : ''"
-						@update:model-value="addPermission"
-					/>
+					<label class="mb-1.5 block text-sm font-medium text-gray-700">
+						Права <span class="text-red-500">*</span>
+					</label>
 
-					<div v-if="(form.permissions || []).length" class="mt-3 flex flex-wrap gap-2">
-						<span
-							v-for="permission in form.permissions || []"
-							:key="permission"
-							class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
-						>
-							<span class="truncate max-w-[260px]">{{ permission }}</span>
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon"
-								class-name="h-5 w-5 text-gray-500 hover:text-red-600"
-								:on-click="() => removePermission(permission)"
-							>
-								✕
-							</Button>
-						</span>
+					<p v-if="loadingPermissions" class="text-sm text-gray-500">Загрузка прав...</p>
+
+					<div v-else-if="allPermissions.length" class="space-y-3 rounded-xl border border-gray-200 p-3">
+						<CheckboxField
+							:model-value="areAllPermissionsSelected"
+							label="Выбрать все права"
+							name="permissions_select_all"
+							@update:model-value="toggleAllPermissions"
+						/>
+
+						<div class="grid max-h-60 grid-cols-1 gap-2 overflow-y-auto md:grid-cols-2">
+						<CheckboxField
+							v-for="permission in allPermissions"
+							:key="permission.id ?? permission.name"
+							:model-value="isPermissionSelected(permission.name)"
+							:label="permission.name"
+							:name="`permission_${permission.name}`"
+							@update:model-value="(value) => togglePermission(permission.name, value)"
+						/>
+						</div>
 					</div>
+
+					<p v-else class="text-sm text-gray-500">Права не найдены.</p>
+
+					<p v-if="triedSubmit && fieldErrors.permissions" class="mt-1 text-xs text-red-500">
+						{{ fieldErrors.permissions }}
+					</p>
 				</div>
 
 				<div class="mt-2 flex items-center justify-end gap-3 md:col-span-2">

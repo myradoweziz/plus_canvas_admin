@@ -1,8 +1,6 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
 
-	import { EditIcon } from '@/shared/icons'
 	import { CONTACT_INFO_TABLE_COLUMNS } from '../helpers'
 	import type { ContactInfo } from '../types'
 
@@ -17,7 +15,14 @@
 </script>
 
 <template>
-	<DataTable :columns="CONTACT_INFO_TABLE_COLUMNS" :rows="rows" :loading="loading" empty-text="Пока нет данных.">
+	<DataTable
+		:columns="CONTACT_INFO_TABLE_COLUMNS"
+		:rows="rows"
+		:loading="loading"
+		empty-text="Пока нет данных."
+		clickable
+		@row-click="(row) => $emit('edit', row as ContactInfo)"
+	>
 		<template #cell-social_links="{ row }">
 			<div v-if="(row as ContactInfo).social_links?.length" class="flex flex-wrap gap-1">
 				<span
@@ -30,11 +35,6 @@
 				</span>
 			</div>
 			<span v-else class="text-sm text-gray-400">—</span>
-		</template>
-		<template #cell-actions="{ row }">
-			<Button type="button" variant="ghost" size="sm" :on-click="() => $emit('edit', row as ContactInfo)">
-				<EditIcon />
-			</Button>
 		</template>
 	</DataTable>
 </template>

@@ -8,6 +8,8 @@ import { api as canvasFormatsApi } from '@/modules/canvas-formats/api'
 import type { CanvasFormat } from '@/modules/canvas-formats/types/canvas-format'
 import { api as canvasFramesApi } from '@/modules/canvas-frames/api'
 import type { CanvasFrame } from '@/modules/canvas-frames/types/canvas-frame'
+import { canvasSizesApi } from '@/modules/canvas-sizes/api/canvas-sizes'
+import type { CanvasSize } from '@/modules/canvas-sizes/types/canvas-size'
 import { api as categoriesApi } from '@/modules/categories/api'
 import type { MainCategory } from '@/modules/categories/types'
 import { api as colorsApi } from '@/modules/colors/api'
@@ -21,6 +23,7 @@ type FormDictionariesCache = {
 	stocks: Stock[]
 	colors: Color[]
 	canvasFormats: CanvasFormat[]
+	canvasSizes: CanvasSize[]
 	canvasFrames: CanvasFrame[]
 	canvasEffects: CanvasEffect[]
 }
@@ -35,6 +38,7 @@ const fetchFormDictionaries = async (): Promise<FormDictionariesCache> => {
 		stocksResult,
 		colorsResult,
 		canvasFormatsResult,
+		canvasSizesResult,
 		canvasFramesResult,
 		canvasEffectsResult
 	] = await Promise.all([
@@ -43,6 +47,7 @@ const fetchFormDictionaries = async (): Promise<FormDictionariesCache> => {
 		stocksApi.listStocks({ limit: 100, offset: 0 }),
 		colorsApi.listColors({ limit: 100, offset: 0 }),
 		canvasFormatsApi.listCanvasFormats({ limit: 100, offset: 0 }),
+		canvasSizesApi.listCanvasSizes({ limit: 100, offset: 0 }),
 		canvasFramesApi.listCanvasFrames({ limit: 100, offset: 0 }),
 		canvasEffectsApi.listCanvasEffects({ limit: 100, offset: 0 })
 	])
@@ -53,6 +58,7 @@ const fetchFormDictionaries = async (): Promise<FormDictionariesCache> => {
 		stocks: stocksResult.items || [],
 		colors: colorsResult.items || [],
 		canvasFormats: canvasFormatsResult.items || [],
+		canvasSizes: canvasSizesResult.items || [],
 		canvasFrames: canvasFramesResult.items || [],
 		canvasEffects: canvasEffectsResult.items || []
 	}
@@ -65,6 +71,7 @@ export const useProductFormDictionaries = () => {
 	const stocks = ref<Stock[]>([])
 	const colors = ref<Color[]>([])
 	const canvasFormats = ref<CanvasFormat[]>([])
+	const canvasSizes = ref<CanvasSize[]>([])
 	const canvasFrames = ref<CanvasFrame[]>([])
 	const canvasEffects = ref<CanvasEffect[]>([])
 
@@ -74,6 +81,7 @@ export const useProductFormDictionaries = () => {
 		stocks.value = cache.stocks
 		colors.value = cache.colors
 		canvasFormats.value = cache.canvasFormats
+		canvasSizes.value = cache.canvasSizes
 		canvasFrames.value = cache.canvasFrames
 		canvasEffects.value = cache.canvasEffects
 	}
@@ -119,6 +127,7 @@ export const useProductFormDictionaries = () => {
 		stocks,
 		colors,
 		canvasFormats,
+		canvasSizes,
 		canvasFrames,
 		canvasEffects,
 		load,

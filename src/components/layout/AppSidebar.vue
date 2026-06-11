@@ -1,222 +1,25 @@
 <script setup>
 	import { computed, watch } from 'vue'
 	import { useRoute } from 'vue-router'
+	import { storeToRefs } from 'pinia'
 
+	import { adminMenuGroups, filterAdminMenuGroups } from '@/config/admin-menu'
 	import { useSidebar } from '@/composables/useSidebar'
+	import { useAuth } from '@/stores/auth'
 	import * as icons from '@/shared/icons'
 	import HeaderLogo from './header/HeaderLogo.vue'
 
 	const route = useRoute()
+	const auth = useAuth()
+	const { permissions, roles } = storeToRefs(auth)
 
 	const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar()
 
-	const menuGroups = [
-		{
-			items: [
-				{ icon: icons.BannerIcon, name: 'Баннеры', path: '/admin-panel/banners' },
-				{ icon: icons.ProductsIcon, name: 'Продукты', path: '/admin-panel/products' },
-				{
-					icon: icons.PieChartIcon,
-					name: 'Продажи',
-					path: '/admin-panel/orders',
-					subItems: [
-						{
-							icon: icons.OrdersIcon,
-							name: 'Заказы',
-							path: '/admin-panel/orders'
-						},
-						{
-							icon: icons.ShoppingCartIcon,
-							name: 'Корзины',
-							path: '/admin-panel/carts'
-						},
-						{
-							icon: icons.WishlistIcon,
-							name: 'Список желаний',
-							path: '/admin-panel/wishlists'
-						},
-						{
-							icon: icons.BestsellersIcon,
-							name: 'Бестселлеры',
-							path: '/admin-panel/bestsellers'
-						},
-						{
-							icon: icons.NeverPurchasedIcon,
-							name: 'Никогда не покупали',
-							path: '/admin-panel/never-purchased'
-						},
-						{
-							icon: icons.CountryReportIcon,
-							name: 'Отчёт по странам',
-							path: '/admin-panel/country-report'
-						}
-					]
-				},
-				{
-					icon: icons.CategoriesIcon,
-					name: 'Категории',
-					path: '/admin-panel/categories',
-					subItems: [
-						{
-							name: 'Главные категории',
-							path: '/admin-panel/categories/main-categories',
-							icon: icons.MainCategoriesIcon
-						},
-						{
-							name: 'Категории',
-							path: '/admin-panel/categories/featured-categories',
-							icon: icons.FeaturedCategoriesIcon
-						},
-						{ name: 'Подкатегории', path: '/admin-panel/categories/sub-categories', icon: icons.SubCategoriesIcon }
-					]
-				},
-				{ icon: icons.StocksIcon, name: 'Акция рекламный баннер', path: '/admin-panel/stocks' },
-				{ icon: icons.BrandsIcon, name: 'Теги товаров', path: '/admin-panel/product-tags' },
-				{ icon: icons.ColorsIcon, name: 'Цвета', path: '/admin-panel/colors' },
-				{ icon: icons.CanvasSizesIcon, name: 'Размеры холста', path: '/admin-panel/canvas-sizes' },
-				{ icon: icons.CanvasFormatsIcon, name: 'Форматы холста', path: '/admin-panel/canvas-formats' },
-				{ icon: icons.CanvasFramesIcon, name: 'Рамки', path: '/admin-panel/canvas-frames' },
-				{ icon: icons.CanvasEffectsIcon, name: 'Эффекты', path: '/admin-panel/canvas-effects' },
-				{ icon: icons.ChatIcon, name: 'FAQ', path: '/admin-panel/faqs' },
-				{ icon: icons.ContactInfoIcon, name: 'Контактная информация', path: '/admin-panel/contact-info' },
-				{
-					icon: icons.UsersIcon,
-					name: 'Пользователи',
-					path: '/admin-panel/settings/permissions',
-					subItems: [
-						{ icon: icons.PermissionsIcon, name: 'Права', path: '/admin-panel/settings/permissions' },
-						{ icon: icons.RolesIcon, name: 'Роли', path: '/admin-panel/settings/roles' },
-						{ icon: icons.UserCircleIcon, name: 'Пользователи', path: '/admin-panel/settings/users' },
-						{
-							icon: icons.UserActivityIcon,
-							name: 'Отчёт по пользователям',
-							path: '/admin-panel/settings/users-report'
-						},
-						{
-							icon: icons.TableIcon,
-							name: 'Отчёт по кол-ву заказов',
-							path: '/admin-panel/settings/users-report-by-count'
-						},
-						{
-							icon: icons.ListIcon,
-							name: 'Зарегистрированные клиенты',
-							path: '/admin-panel/settings/registered-customers'
-						},
-						{
-							icon: icons.InfoCircleIcon,
-							name: 'Онлайн-клиенты',
-							path: '/admin-panel/settings/online-customers'
-						}
-					]
-				},
-				{
-					icon: icons.PromotionsIcon,
-					name: 'Промоакции',
-					path: '/admin-panel/promotions/newsletter-subscribers',
-					subItems: [
-						{
-							icon: icons.NewsletterSubscribersIcon,
-							name: 'Подписчики рассылки',
-							path: '/admin-panel/promotions/newsletter-subscribers'
-						},
-						{ icon: icons.TurkishLiraIcon, name: 'Скидки', path: '/admin-panel/promotions/discounts' }
-					]
-				},
-				{
-					icon: icons.ConfigurationIcon,
-					name: 'Конфигурация',
-					path: '/admin-panel/configuration',
-					subItems: [
-						{
-							icon: icons.DiscountLimitationsIcon,
-							name: 'Ограничения скидок',
-							path: '/admin-panel/configuration/discount-limitations'
-						},
-						{ icon: icons.DiscountTypesIcon, name: 'Типы скидок', path: '/admin-panel/configuration/discount-types' },
-						{
-							icon: icons.StoreIcon,
-							name: 'Настройки магазина',
-							path: '/admin-panel/configuration/stores'
-						},
-						{
-							icon: icons.MailIcon,
-							name: 'Email-аккаунты',
-							path: '/admin-panel/configuration/email-accounts'
-						},
-						{
-							icon: icons.PlugInIcon,
-							name: 'Способы доставки',
-							path: '/admin-panel/configuration/shipping-methods'
-						},
-						{
-							icon: icons.CountriesIcon,
-							name: 'Страны',
-							path: '/admin-panel/configuration/countries'
-						},
-						{
-							icon: icons.WarningIcon,
-							name: 'Ограничения доставки по странам',
-							path: '/admin-panel/configuration/shipping-restrictions'
-						},
-						{
-							icon: icons.PlugInIcon,
-							name: 'Провайдер расчёта стоимости доставки',
-							path: '/admin-panel/configuration/shipping-providers'
-						},
-						{
-							icon: icons.ClockIcon,
-							name: 'Сроки доставки',
-							path: '/admin-panel/configuration/delivery-times'
-						},
-						{
-							icon: icons.CreditCardIcon,
-							name: 'Способы оплаты',
-							path: '/admin-panel/configuration/payment-methods'
-						},
-						{
-							icon: icons.WarningIcon,
-							name: 'Ограничения оплаты по странам',
-							path: '/admin-panel/configuration/payment-restrictions'
-						}
-					]
-				},
-				{
-					icon: icons.DocsIcon,
-					name: 'Управление контентом',
-					path: '/admin-panel/content-management',
-					subItems: [
-						{ icon: icons.PageIcon, name: 'Страницы', path: '/admin-panel/content-management/topics' },
-						{
-							icon: icons.EditIcon,
-							name: 'Шаблоны email-сообщений',
-							path: '/admin-panel/content-management/message-templates'
-						}
-					]
-				},
-				{
-					icon: icons.SystemIcon,
-					name: 'Системный раздел',
-					path: '/admin-panel/system',
-					subItems: [
-						{
-							icon: icons.ActivityLogIcon,
-							name: 'Лог активности',
-							path: '/admin-panel/system/activity-log'
-						},
-						{
-							icon: icons.SystemWarningsIcon,
-							name: 'Системные уведомления',
-							path: '/admin-panel/system/system-warnings'
-						}
-					]
-				}
-			]
-		}
-	]
+	const menuGroups = computed(() => filterAdminMenuGroups(adminMenuGroups, permissions.value, roles.value))
 
 	const allMenuPaths = computed(() => {
 		const paths = []
-		for (const group of menuGroups) {
+		for (const group of menuGroups.value) {
 			for (const item of group.items) {
 				if (item.path) paths.push(item.path)
 				item.subItems?.forEach((subItem) => paths.push(subItem.path))
@@ -235,7 +38,7 @@
 	}
 
 	const activeSubmenuKey = computed(() => {
-		for (const [groupIndex, group] of menuGroups.entries()) {
+		for (const [groupIndex, group] of menuGroups.value.entries()) {
 			const itemIndex = group.items.findIndex((item) => item.subItems?.some((subItem) => isActive(subItem.path)))
 
 			if (itemIndex >= 0) {
@@ -300,18 +103,18 @@
 		<div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
 			<nav class="mb-6">
 				<div class="flex flex-col gap-4">
-					<ul class="flex flex-col gap-4">
-						<li v-for="(item, index) in menuGroups[0].items" :key="item.name">
+					<ul v-for="(group, groupIndex) in menuGroups" :key="groupIndex" class="flex flex-col gap-4">
+						<li v-for="(item, index) in group.items" :key="item.name">
 							<button
 								v-if="item.subItems"
-								@click="toggleSubmenu(0, index)"
+								@click="toggleSubmenu(groupIndex, index)"
 								:class="[
 									'w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-									isSubmenuOpen(0, index) ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100',
+									isSubmenuOpen(groupIndex, index) ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-100',
 									!isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'
 								]"
 							>
-								<span :class="[isSubmenuOpen(0, index) ? 'text-blue-700' : 'text-gray-500']">
+								<span :class="[isSubmenuOpen(groupIndex, index) ? 'text-blue-700' : 'text-gray-500']">
 									<component :is="item.icon" />
 								</span>
 								<span v-if="isExpanded || isHovered || isMobileOpen" class="truncate">{{ item.name }}</span>
@@ -320,7 +123,7 @@
 									:class="[
 										'ml-auto w-5 h-5 transition-transform duration-200',
 										{
-											'rotate-180 text-blue-700': isSubmenuOpen(0, index)
+											'rotate-180 text-blue-700': isSubmenuOpen(groupIndex, index)
 										}
 									]"
 								/>
@@ -344,7 +147,7 @@
 								@before-leave="startTransition"
 								@after-leave="endTransition"
 							>
-								<div v-show="isSubmenuOpen(0, index) && (isExpanded || isHovered || isMobileOpen)">
+								<div v-show="isSubmenuOpen(groupIndex, index) && (isExpanded || isHovered || isMobileOpen)">
 									<ul class="mt-2 space-y-1 ml-9">
 										<li v-for="subItem in item.subItems" :key="subItem.name">
 											<router-link

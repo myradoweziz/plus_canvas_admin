@@ -8,10 +8,10 @@
 	import UserFormTabBar from '../components/user/UserFormTabBar.vue'
 	import UserOrdersTab from '../components/user/UserOrdersTab.vue'
 	import UserSendEmailForm from '../components/user/UserSendEmailForm.vue'
-	import UserSendMessageForm from '../components/user/UserSendMessageForm.vue'
+	// import UserSendMessageForm from '../components/user/UserSendMessageForm.vue'
+	import UserActivityLogsTab from '../components/user/UserActivityLogsTab.vue'
 	import UserShoppingCartTab from '../components/user/UserShoppingCartTab.vue'
 	import UserWishlistTab from '../components/user/UserWishlistTab.vue'
-	import UserActivityLogsTab from '../components/user/UserActivityLogsTab.vue'
 
 	import { api } from '../api'
 	import { getUserFormTabs, type UserFormTab } from '../helpers/user-form'
@@ -32,7 +32,7 @@
 		isCreate.value ? 'Добавить пользователя' : user.value?.name || `Пользователь #${userId.value ?? ''}`
 	)
 
-	const tabs = computed(() => getUserFormTabs(!isCreate.value && !!userId.value))
+	const tabs = computed(() => getUserFormTabs(!isCreate.value && !!userId.value, user.value?.roles))
 
 	const loadUser = async () => {
 		if (isCreate.value || !userId.value) {
@@ -62,6 +62,12 @@
 	watch(userId, () => {
 		activeTab.value = 'main'
 		loadUser()
+	})
+
+	watch(tabs, (currentTabs) => {
+		if (!currentTabs.some((tab) => tab.id === activeTab.value)) {
+			activeTab.value = 'main'
+		}
 	})
 </script>
 
@@ -95,11 +101,11 @@
 					:user-id="userId"
 					:user-email="user?.email"
 				/>
-				<UserSendMessageForm
+				<!-- <UserSendMessageForm
 					v-else-if="activeTab === 'sendMessage' && userId"
 					:user-id="userId"
 					:user-email="user?.email"
-				/>
+				/> -->
 			</div>
 		</div>
 	</div>

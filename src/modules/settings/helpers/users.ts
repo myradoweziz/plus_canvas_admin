@@ -6,7 +6,7 @@ export const USERS_TABLE_COLUMNS = [
 	{ key: 'is_active', label: 'Опубликован' },
 	{ key: 'created_at', label: 'Дата регистрации' },
 	{ key: 'last_activity_at', label: 'Последняя активность' },
-	{ key: 'actions', label: 'Редактировать' }
+	{ key: 'actions', label: 'Действия' }
 ]
 
 export const formatUserDate = (value?: string) => {

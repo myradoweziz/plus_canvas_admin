@@ -1,7 +1,11 @@
 import { downloadBlob, downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import { filterListParams } from '@/shared/api/createListApi'
-import { createEmptyCanvasProduct, resolveUploadImageCount } from '../helpers/product-form'
+import {
+	createEmptyCanvasProduct,
+	resolveCanvasSizes,
+	resolveUploadImageCount
+} from '../helpers/product-form'
 import { resolveProductImageUrl, type ProductImageValue } from '../helpers/product-image'
 import type {
 	CanvasProduct,
@@ -44,15 +48,8 @@ const toIdArray = (items: RelationItem[] | null | undefined): number[] => {
 }
 
 const normalizeActiveCanvasFormatId = (product: Record<string, unknown>): number | null => {
-	const collageLayoutId = toNullableNumber(
-		product.collage_layout_id ?? (product.collage_layout as { id?: number | null } | undefined)?.id ?? null
-	)
-	if (collageLayoutId != null) return null
-
 	const direct = toNullableNumber(
-		product.active_canvas_format_id ??
-			(product.active_canvas_format as { id?: number | null } | undefined)?.id ??
-			null
+		product.active_canvas_format_id ?? (product.active_canvas_format as { id?: number | null } | undefined)?.id ?? null
 	)
 	if (direct != null) return direct
 
@@ -218,7 +215,8 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		stock_id: product.stock_id ?? product.discount?.id ?? null,
 		colors: toIdArray(product.colors),
 		active_canvas_format_id: normalizeActiveCanvasFormatId(product),
-		canvas_formats: collageLayoutId != null ? [] : toIdArray(product.canvas_formats),
+		canvas_formats: toIdArray(product.canvas_formats),
+		canvas_sizes: toIdArray(product.canvas_sizes),
 		frames: toIdArray(product.frames),
 		effects: toIdArray(product.effects),
 		collage_layout_id: collageLayoutId,
@@ -288,8 +286,9 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		flag: product.flag,
 		stock_id: product.stock_id,
 		colors: product.colors,
-		active_canvas_format_id: product.collage_layout_id != null ? null : product.active_canvas_format_id,
-		canvas_formats: product.collage_layout_id != null ? [] : product.canvas_formats,
+		active_canvas_format_id: product.active_canvas_format_id,
+		canvas_formats: product.canvas_formats,
+		canvas_sizes: resolveCanvasSizes(product.main_category_type, product.canvas_sizes),
 		frames: product.frames,
 		effects: product.effects,
 		collage_layout_id: product.collage_layout_id,
@@ -350,12 +349,11 @@ function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 		'is_published'
 	]
 
-	const canvasFormats = payload.collage_layout_id != null ? [] : payload.canvas_formats
-
 	const data: Record<string, any> = {
 		...payload,
 		colors: JSON.stringify(payload.colors),
-		canvas_formats: JSON.stringify(canvasFormats),
+		canvas_formats: JSON.stringify(payload.canvas_formats),
+		canvas_sizes: JSON.stringify(payload.canvas_sizes),
 		frames: JSON.stringify(payload.frames),
 		effects: JSON.stringify(payload.effects),
 		product_tags: JSON.stringify(payload.product_tags)
@@ -366,7 +364,7 @@ function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 	omitNullFormValues(data)
 
 	data.collage_layout_id = payload.collage_layout_id ?? null
-	data.active_canvas_format_id = payload.collage_layout_id != null ? null : (payload.active_canvas_format_id ?? null)
+	data.active_canvas_format_id = payload.active_canvas_format_id ?? null
 
 	booleanFields.forEach((field) => {
 		if (data[field] !== undefined && data[field] !== null) {

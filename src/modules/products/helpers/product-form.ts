@@ -15,6 +15,11 @@ export const PERSONAL_CANVAS_CATEGORY_TYPE: CategoryType = 'Kişiye Özel Kanvas
 export const isPersonalCanvasCategory = (categoryType: string | null | undefined): boolean =>
 	categoryType === PERSONAL_CANVAS_CATEGORY_TYPE
 
+export const resolveCanvasSizes = (
+	mainCategoryType: string | null | undefined,
+	canvasSizes: number[]
+): number[] => (isPersonalCanvasCategory(mainCategoryType) ? canvasSizes : [])
+
 export const resolveUploadImageCount = (
 	collageLayoutId: number | null,
 	collageLayout?: CollageLayout | null
@@ -110,6 +115,7 @@ export const createEmptyCanvasProduct = (): CanvasProduct => ({
 	colors: [],
 	active_canvas_format_id: null,
 	canvas_formats: [],
+	canvas_sizes: [],
 	frames: [],
 	effects: [],
 	collage_layout_id: null,

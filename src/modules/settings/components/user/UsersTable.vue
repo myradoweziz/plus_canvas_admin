@@ -1,9 +1,8 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
-	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { formatUserDate, userDisplayName, USERS_TABLE_COLUMNS } from '../../helpers/users'
 	import type { User } from '../../types/user'
 
@@ -37,6 +36,8 @@
 		selectable
 		:selected-rows="selectedUsers"
 		@update:selected-rows="onUpdateSelected"
+		clickable
+		@row-click="(row) => emit('edit', toUser(row))"
 	>
 		<template #cell-email="{ row }">
 			<span class="text-gray-700">{{ toUser(row).email || '—' }}</span>
@@ -69,28 +70,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Редактировать"
-					:on-click="() => emit('edit', toUser(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-red-100"
-					aria-label="Удалить"
-					:on-click="() => emit('delete', toUser(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions @delete="emit('delete', toUser(row))" />
 		</template>
 	</DataTable>
 </template>

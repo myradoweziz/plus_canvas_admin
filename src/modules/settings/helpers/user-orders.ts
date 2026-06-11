@@ -4,6 +4,5 @@ export const USER_ORDERS_TABLE_COLUMNS = [
 	{ key: 'payment_status', label: 'Статус оплаты' },
 	{ key: 'delivery_status', label: 'Статус доставки' },
 	{ key: 'created_at', label: 'Дата' },
-	{ key: 'total', label: 'Сумма' },
-	{ key: 'actions', label: 'Открыть' }
+	{ key: 'total', label: 'Сумма' }
 ]

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 	import { useRouter } from 'vue-router'
 
-	import EditIcon from '@/shared/icons/EditIcon.vue'
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
 
 	import { NEVER_PURCHASED_TABLE_COLUMNS } from '../helpers'
@@ -30,6 +28,8 @@
 		:loading="loading"
 		empty-text="Все товары хотя бы раз были куплены."
 		:pagination="pagination"
+		clickable
+		@row-click="(row) => showProduct(toProduct(row).id)"
 	>
 		<template #cell-image="{ row }">
 			<div class="h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
@@ -46,19 +46,5 @@
 			<span class="font-medium text-gray-800">{{ toProduct(row).name }}</span>
 		</template>
 
-		<template #cell-actions="{ row }">
-			<div class="flex justify-end">
-				<Button
-					type="button"
-					size="icon"
-					variant="ghost"
-					aria-label="Edit"
-					class-name="hover:bg-green-100"
-					:on-click="() => showProduct(toProduct(row).id)"
-				>
-					<EditIcon />
-				</Button>
-			</div>
-		</template>
 	</DataTable>
 </template>

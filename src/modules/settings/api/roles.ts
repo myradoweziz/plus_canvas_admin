@@ -18,6 +18,7 @@ type RolePermissionItem = string | { name?: string | null }
 
 const toPermissionNames = (items: RolePermissionItem[] | null | undefined): string[] => {
 	if (!Array.isArray(items)) return []
+
 	return items
 		.map((item) => (typeof item === 'string' ? item : item.name))
 		.filter((name): name is string => typeof name === 'string' && name.length > 0)
@@ -26,26 +27,14 @@ const toPermissionNames = (items: RolePermissionItem[] | null | undefined): stri
 const normalizeRole = (item: any): Role => ({
 	id: item?.id ?? null,
 	name: String(item?.name ?? ''),
-	system_name: String(item?.system_name ?? ''),
-	free_shipping: !!item?.free_shipping,
-	tax_exempt: !!item?.tax_exempt,
 	active: item?.active !== false,
-	is_system_role: !!item?.is_system_role,
-	purchased_with_product: Number(
-		item?.purchased_with_product ?? item?.purchased_with_product_id ?? item?.product?.id ?? 0
-	),
 	permissions: toPermissionNames(item?.permissions)
 })
 
 function toRolePayload(role: Role): RolePayload {
 	return {
 		name: role.name.trim(),
-		system_name: role.system_name.trim(),
-		free_shipping: !!role.free_shipping,
-		tax_exempt: !!role.tax_exempt,
 		active: !!role.active,
-		is_system_role: !!role.is_system_role,
-		purchased_with_product: Number(role.purchased_with_product ?? 0),
 		permissions: role.permissions
 	}
 }

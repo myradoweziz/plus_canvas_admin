@@ -1,9 +1,7 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
-
-	import { EditIcon, TrashIcon } from '@/shared/icons'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 	import { ROLES_TABLE_COLUMNS } from '../helpers'
 	import type { Role } from '../types'
 
@@ -28,13 +26,11 @@
 		:loading="loading"
 		empty-text="Пока нет roles."
 		:pagination="pagination"
+		clickable
+		@row-click="(row) => $emit('edit', toRole(row))"
 	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toRole(row).name }}</span>
-		</template>
-
-		<template #cell-system_name="{ row }">
-			<span class="text-gray-700">{{ toRole(row).system_name || '—' }}</span>
 		</template>
 
 		<template #cell-active="{ row }">
@@ -48,28 +44,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Edit"
-					:on-click="() => $emit('edit', toRole(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:text-red-700"
-					aria-label="Delete"
-					:on-click="() => $emit('delete', toRole(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions @delete="$emit('delete', toRole(row))" />
 		</template>
 	</DataTable>
 </template>

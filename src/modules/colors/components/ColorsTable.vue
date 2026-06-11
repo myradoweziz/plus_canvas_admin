@@ -1,9 +1,7 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
-
-	import { EditIcon, TrashIcon } from '@/shared/icons'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 	import { COLORS_TABLE_COLUMNS } from '../helpers'
 	import type { Color } from '../types'
 
@@ -28,6 +26,8 @@
 		:loading="loading"
 		empty-text="Пока нет цветов."
 		:pagination="pagination"
+		clickable
+		@row-click="(row) => emit('edit', toColor(row))"
 	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toColor(row).name }}</span>
@@ -50,28 +50,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Edit"
-					:on-click="() => $emit('edit', toColor(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:text-red-700"
-					aria-label="Delete"
-					:on-click="() => $emit('delete', toColor(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions @delete="emit('delete', toColor(row))" />
 		</template>
 	</DataTable>
 </template>

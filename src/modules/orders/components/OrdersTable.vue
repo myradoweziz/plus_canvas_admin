@@ -1,9 +1,8 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
-	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { formatMoney, formatOrderDate, ORDERS_TABLE_COLUMNS, statusBadgeClass } from '../helpers'
 	import type { Order } from '../types'
 
@@ -42,6 +41,8 @@
 		selectable
 		:selected-rows="selectedOrders"
 		@update:selected-rows="onUpdateSelected"
+		clickable
+		@row-click="(row) => emit('open', toOrder(row))"
 	>
 		<template #cell-order_status="{ row }">
 			<StatusBadge :tone-class="statusBadgeClass(toOrder(row).order_status)" class="capitalize">
@@ -77,28 +78,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Редактировать"
-					:on-click="() => emit('open', toOrder(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:text-red-700"
-					aria-label="Удалить"
-					:on-click="() => emit('delete', toOrder(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions @delete="emit('delete', toOrder(row))" />
 		</template>
 	</DataTable>
 </template>

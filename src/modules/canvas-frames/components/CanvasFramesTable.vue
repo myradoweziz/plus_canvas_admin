@@ -1,9 +1,8 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
-	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { CANVAS_FRAMES_TABLE_COLUMNS } from '../helpers'
 	import type { CanvasFrame } from '../types'
 
@@ -28,6 +27,8 @@
 		:loading="loading"
 		empty-text="Пока нет рамок."
 		:pagination="pagination"
+		clickable
+		@row-click="(row) => emit('edit', toFrame(row))"
 	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ toFrame(row).name }}</span>
@@ -68,28 +69,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Edit"
-					:on-click="() => $emit('edit', toFrame(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:text-red-700"
-					aria-label="Delete"
-					:on-click="() => $emit('delete', toFrame(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions @delete="emit('delete', toFrame(row))" />
 		</template>
 	</DataTable>
 </template>

@@ -1,9 +1,7 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
-	import { EditIcon } from '@/shared/icons'
 	import { formatMoney, formatOrderDate, statusBadgeClass } from '@/modules/orders/helpers'
 	import type { Order } from '@/modules/orders/types'
 	import { USER_ORDERS_TABLE_COLUMNS } from '../../helpers/user-orders'
@@ -27,6 +25,8 @@
 		:loading="loading"
 		empty-text="Заказов не найдено."
 		:pagination="{ limit: orders.length || 1, offset: 0 }"
+		clickable
+		@row-click="(row) => emit('open', toOrder(row))"
 	>
 		<template #cell-order_number="{ row }">
 			<span class="font-medium text-gray-800">{{ toOrder(row).order_number }}</span>
@@ -57,20 +57,6 @@
 		<template #cell-total="{ row }">
 			<span class="font-medium text-gray-800">{{ formatMoney(toOrder(row).total) }}</span>
 		</template>
-
-		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Открыть заказ"
-					:on-click="() => emit('open', toOrder(row))"
-				>
-					<EditIcon />
-				</Button>
-			</div>
-		</template>
+
 	</DataTable>
 </template>

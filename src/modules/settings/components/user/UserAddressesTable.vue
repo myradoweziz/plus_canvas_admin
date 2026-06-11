@@ -1,8 +1,7 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 
-	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { USER_ADDRESSES_TABLE_COLUMNS } from '../../helpers/user-addresses'
 	import type { UserProfileAddress } from '../../types'
 
@@ -29,6 +28,8 @@
 		:loading="loading"
 		empty-text="Адресов не найдено."
 		:pagination="{ limit: addresses.length || 1, offset: 0 }"
+		clickable
+		@row-click="(row) => $emit('edit', toAddress(row))"
 	>
 		<template #cell-name="{ row }">
 			<span class="font-medium text-gray-800">{{ fullName(toAddress(row)) }}</span>
@@ -60,28 +61,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Редактировать"
-					:on-click="() => $emit('edit', toAddress(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:text-red-700"
-					aria-label="Удалить"
-					:on-click="() => $emit('delete', toAddress(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions @delete="$emit('delete', toAddress(row))" />
 		</template>
 	</DataTable>
 </template>

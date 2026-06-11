@@ -14,6 +14,7 @@
 	import { api as categoriesApi } from '@/modules/categories/api'
 	import type { FeaturedCategory, SubCategory } from '@/modules/categories/types'
 	import type { Color } from '@/modules/colors/types'
+	import { getCanvasFormatSizeLabel } from '@/modules/canvas-formats/types'
 	import { TurkishLiraIcon } from '@/shared/icons'
 	import { api } from '../../api'
 	import { useFieldErrors, useProductFormDictionaries } from '../../composables'
@@ -71,6 +72,7 @@
 		stocks,
 		colors,
 		canvasFormats,
+		canvasSizes,
 		canvasFrames,
 		canvasEffects,
 		load: loadDictionaries
@@ -80,6 +82,7 @@
 	const isApplyingProduct = ref(false)
 	const selectedColorId = ref<number | null>(null)
 	const selectedCanvasFormatId = ref<number | null>(null)
+	const selectedCanvasSizeId = ref<number | null>(null)
 	const selectedCanvasFrameId = ref<number | null>(null)
 	const selectedCanvasEffectId = ref<number | null>(null)
 
@@ -105,6 +108,7 @@
 			'image',
 			'colors',
 			'canvas_formats',
+			'canvas_sizes',
 			'active_canvas_format_id',
 			'frames',
 			'product_tags',
@@ -113,7 +117,6 @@
 	).forEach((field) => clearValidationErrorOnChange(field))
 
 	const showsCollageLayout = computed(() => isPersonalCanvasCategory(form.value.main_category_type))
-	const isCanvasFormatsDisabled = computed(() => form.value.collage_layout_id != null)
 
 	const syncUploadImageCount = () => {
 		form.value.upload_image_count = resolveUploadImageCount(
@@ -122,38 +125,17 @@
 		)
 	}
 
-	const clearCanvasFormats = () => {
-		form.value.canvas_formats = []
-		form.value.active_canvas_format_id = null
-	}
-
 	const onCollageLayoutUpdate = (layout: CollageLayout | null) => {
 		form.value.collage_layout = layout
 		if (layout?.id != null) {
 			clearFieldError('collage_layout_id')
-			clearCanvasFormats()
 		}
 		syncUploadImageCount()
 	}
 
-	watch(
-		() => form.value.collage_layout_id,
-		(collageLayoutId, previousCollageLayoutId) => {
-			if (collageLayoutId != null) {
-				clearCanvasFormats()
-				return
-			}
-
-			if (previousCollageLayoutId != null) {
-				clearCanvasFormats()
-			}
-		}
-	)
-
 	const removeCollageLayout = () => {
 		form.value.collage_layout_id = null
 		form.value.collage_layout = null
-		clearCanvasFormats()
 		syncUploadImageCount()
 	}
 
@@ -170,10 +152,14 @@
 
 		form.value.main_category_type = category?.category_type ?? ''
 
-		if (isPersonalCanvasCategory(form.value.main_category_type) && !isApplyingProduct.value) {
-			form.value.collage_layout_id = null
-			form.value.collage_layout = null
-			syncUploadImageCount()
+		if (!isApplyingProduct.value) {
+			if (isPersonalCanvasCategory(form.value.main_category_type)) {
+				form.value.collage_layout_id = null
+				form.value.collage_layout = null
+				syncUploadImageCount()
+			} else {
+				form.value.canvas_sizes = []
+			}
 		}
 	}
 
@@ -205,6 +191,11 @@
 			(item) => !form.value.canvas_formats.includes(Number(item.value))
 		)
 	)
+	const canvasSizeOptions = computed(() =>
+		toSelectOptions(canvasSizes.value, (item) => getCanvasFormatSizeLabel(item)).filter(
+			(item) => !form.value.canvas_sizes.includes(Number(item.value))
+		)
+	)
 	const selectedColors = computed(() =>
 		form.value.colors.map((id) => {
 			const color = colors.value.find((item) => item.id === id)
@@ -218,6 +209,10 @@
 	)
 	const getCanvasFormatLabel = (id: number) =>
 		canvasFormats.value.find((format) => format.id === id)?.name ?? `#${id}`
+	const getCanvasSizeLabel = (id: number) => {
+		const size = canvasSizes.value.find((item) => item.id === id)
+		return size ? getCanvasFormatSizeLabel(size) : `#${id}`
+	}
 	const canvasFrameOptions = computed(() =>
 		toSelectOptions(canvasFrames.value, (item) => item.name).filter(
 			(item) => !form.value.frames.includes(Number(item.value))
@@ -378,8 +373,6 @@
 	const isActiveCanvasFormat = (id: number) => form.value.active_canvas_format_id === id
 
 	const setActiveCanvasFormat = (id: number, active: boolean) => {
-		if (isCanvasFormatsDisabled.value) return
-
 		if (active) {
 			form.value.active_canvas_format_id = id
 			return
@@ -392,7 +385,7 @@
 
 	const addCanvasFormat = (value: string | number | null) => {
 		selectedCanvasFormatId.value = null
-		if (value === null || isCanvasFormatsDisabled.value) return
+		if (value === null) return
 
 		const id = Number(value)
 		if (Number.isFinite(id) && !form.value.canvas_formats.includes(id)) {
@@ -404,12 +397,24 @@
 	}
 
 	const removeCanvasFormat = (id: number) => {
-		if (isCanvasFormatsDisabled.value) return
-
 		form.value.canvas_formats = form.value.canvas_formats.filter((item) => item !== id)
 		if (form.value.active_canvas_format_id === id) {
 			form.value.active_canvas_format_id = form.value.canvas_formats[0] ?? null
 		}
+	}
+
+	const addCanvasSize = (value: string | number | null) => {
+		selectedCanvasSizeId.value = null
+		if (value === null) return
+
+		const id = Number(value)
+		if (Number.isFinite(id) && !form.value.canvas_sizes.includes(id)) {
+			form.value.canvas_sizes.push(id)
+		}
+	}
+
+	const removeCanvasSize = (id: number) => {
+		form.value.canvas_sizes = form.value.canvas_sizes.filter((item) => item !== id)
 	}
 
 	const addCanvasFrame = (value: string | number | null) => {
@@ -563,6 +568,37 @@
 			/>
 		</div>
 
+		<div v-if="showsCollageLayout" class="md:col-span-3">
+			<SelectField
+				:model-value="selectedCanvasSizeId"
+				label="Размеры холста"
+				name="canvas_sizes"
+				placeholder="Выберите размер"
+				:options="canvasSizeOptions"
+				:disabled="loadingDictionaries"
+				:error-message="validationErrors.canvas_sizes"
+				@update:model-value="addCanvasSize"
+			/>
+			<div v-if="form.canvas_sizes.length" class="mt-3 flex flex-wrap gap-2">
+				<span
+					v-for="sizeId in form.canvas_sizes"
+					:key="sizeId"
+					class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+				>
+					<span>{{ getCanvasSizeLabel(sizeId) }}</span>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						class-name="h-5 w-5 text-gray-500 hover:text-red-600"
+						:on-click="() => removeCanvasSize(sizeId)"
+					>
+						✕
+					</Button>
+				</span>
+			</div>
+		</div>
+
 		<div class="md:col-span-3">
 			<SingleImageUpload
 				v-model="form.image"
@@ -613,35 +649,27 @@
 				name="canvas_formats"
 				placeholder="Выберите формат"
 				:options="canvasFormatOptions"
-				:disabled="loadingDictionaries || isCanvasFormatsDisabled"
+				:disabled="loadingDictionaries"
 				:error-message="validationErrors.canvas_formats"
 				@update:model-value="addCanvasFormat"
 			/>
-			<p v-if="isCanvasFormatsDisabled" class="mt-1.5 text-xs text-gray-500">
-				Недоступно при выбранном коллаже.
-			</p>
 			<div v-if="form.canvas_formats.length" class="mt-3 flex flex-wrap gap-2">
 				<span
 					v-for="formatId in form.canvas_formats"
 					:key="formatId"
 					class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm text-gray-700"
-					:class="[
+					:class="
 						isActiveCanvasFormat(formatId)
 							? 'bg-blue-50 text-blue-800 ring-1 ring-blue-200'
-							: 'bg-gray-100',
-						isCanvasFormatsDisabled ? 'opacity-60' : ''
-					]"
+							: 'bg-gray-100'
+					"
 				>
-					<label
-						class="inline-flex items-center"
-						:class="isCanvasFormatsDisabled ? 'cursor-not-allowed' : 'cursor-pointer'"
-					>
+					<label class="inline-flex cursor-pointer items-center">
 						<input
 							type="checkbox"
-							class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed"
+							class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 							:name="`canvas_format_active_${formatId}`"
 							:checked="isActiveCanvasFormat(formatId)"
-							:disabled="isCanvasFormatsDisabled"
 							@change="setActiveCanvasFormat(formatId, ($event.target as HTMLInputElement).checked)"
 						/>
 						<span class="sr-only">Активный формат: {{ getCanvasFormatLabel(formatId) }}</span>
@@ -652,7 +680,6 @@
 						variant="ghost"
 						size="icon"
 						class-name="h-5 w-5 text-gray-500 hover:text-red-600"
-						:disabled="isCanvasFormatsDisabled"
 						:on-click="() => removeCanvasFormat(formatId)"
 					>
 						✕

@@ -1,4 +1,5 @@
 import { apiBase } from '@/shared'
+import { normalizeUserPermissions, normalizeUserRoles } from '@/shared/auth/user-access'
 import type { IAuthUser, IFormLogin } from '@/shared/types'
 import { defineStore } from 'pinia'
 import { computed, type ComputedRef, ref, type Ref } from 'vue'
@@ -8,9 +9,32 @@ import { useCookies } from 'vue3-cookies'
 interface IAuthStore {
 	isAuth: ComputedRef<boolean>
 	user: Ref<IAuthUser>
+	permissions: Ref<string[]>
+	roles: Ref<string[]>
+	profileLoaded: Ref<boolean>
 	getProfile: () => Promise<void>
-	login: (form: any) => Promise<boolean>
+	login: (form: IFormLogin) => Promise<boolean>
 	logout: () => void
+}
+
+const applyAuthPayload = (
+	payload: Record<string, unknown> | null | undefined,
+	target: {
+		user: Ref<IAuthUser>
+		permissions: Ref<string[]>
+		roles: Ref<string[]>
+	}
+) => {
+	const data = (payload?.user as Record<string, unknown> | undefined) ?? payload
+	if (!data) return
+
+	target.user.value = {
+		id: (data.id as number | null | undefined) ?? null,
+		name: String(data.name ?? ''),
+		email: data.email != null ? String(data.email) : ''
+	}
+	target.permissions.value = normalizeUserPermissions(data)
+	target.roles.value = normalizeUserRoles(data)
 }
 
 export const useAuth = defineStore('auth', (): IAuthStore => {
@@ -23,18 +47,18 @@ export const useAuth = defineStore('auth', (): IAuthStore => {
 		name: '',
 		email: ''
 	})
+	const permissions = ref<string[]>([])
+	const roles = ref<string[]>([])
+	const profileLoaded = ref(false)
 
 	const isAuth = computed((): boolean => !!user.value.id)
 
 	async function getProfile(): Promise<void> {
 		try {
-			const { data } = await apiBase.getProfile()
-
-			user.value = {
-				id: data.id || null,
-				name: data.name,
-				email: data.email
-			}
+			const response = await apiBase.getProfile()
+			const payload = (response?.data ?? response) as Record<string, unknown>
+			applyAuthPayload(payload, { user, permissions, roles })
+			profileLoaded.value = true
 		} catch (error) {
 			console.error(error)
 		}
@@ -42,15 +66,13 @@ export const useAuth = defineStore('auth', (): IAuthStore => {
 
 	async function login(form: IFormLogin): Promise<boolean> {
 		try {
-			const { data } = await apiBase.login(form)
+			const response = await apiBase.login(form)
+			const data = response?.data ?? response
 
 			cookies.set('plus_canvas_admin_authorization', data.access_token, 60000000)
 
-			user.value = {
-				email: data?.user?.email,
-				name: data?.user?.name,
-				id: data?.user?.id
-			}
+			applyAuthPayload(data as Record<string, unknown>, { user, permissions, roles })
+			profileLoaded.value = true
 			return true
 		} catch (error) {
 			console.error(error)
@@ -64,6 +86,9 @@ export const useAuth = defineStore('auth', (): IAuthStore => {
 			email: '',
 			id: null
 		}
+		permissions.value = []
+		roles.value = []
+		profileLoaded.value = false
 		cookies.remove('plus_canvas_admin_authorization')
 		router.push(`${ADMIN_PREFIX}/login`)
 	}
@@ -71,6 +96,9 @@ export const useAuth = defineStore('auth', (): IAuthStore => {
 	return {
 		isAuth,
 		user,
+		permissions,
+		roles,
+		profileLoaded,
 		getProfile,
 		login,
 		logout

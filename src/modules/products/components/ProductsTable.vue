@@ -1,9 +1,8 @@
 <script setup lang="ts">
-	import Button from '@/shared/ui/Button.vue'
 	import DataTable from '@/shared/ui/DataTable.vue'
+	import TableRowActions from '@/shared/ui/TableRowActions.vue'
 	import StatusBadge from '@/shared/ui/StatusBadge.vue'
 
-	import { EditIcon, TrashIcon } from '@/shared/icons'
 	import { getProductListImageUrl, PRODUCTS_TABLE_COLUMNS } from '../helpers'
 	import type { CanvasProduct } from '../types'
 
@@ -38,6 +37,8 @@
 		:selected-rows="selectedProducts"
 		:pagination="pagination"
 		@update:selected-rows="onUpdateSelected"
+		clickable
+		@row-click="(row) => emit('edit', toProduct(row))"
 	>
 		<template #cell-image="{ row }">
 			<img
@@ -68,28 +69,7 @@
 		</template>
 
 		<template #cell-actions="{ row }">
-			<div class="flex items-center justify-end gap-2">
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:bg-green-100"
-					aria-label="Edit"
-					:on-click="() => $emit('edit', toProduct(row))"
-				>
-					<EditIcon />
-				</Button>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					class-name="hover:text-red-700"
-					aria-label="Delete"
-					:on-click="() => $emit('delete', toProduct(row))"
-				>
-					<TrashIcon />
-				</Button>
-			</div>
+			<TableRowActions @delete="emit('delete', toProduct(row))" />
 		</template>
 	</DataTable>
 </template>
