@@ -1,11 +1,7 @@
 import { downloadBlob, downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import { filterListParams } from '@/shared/api/createListApi'
-import {
-	createEmptyCanvasProduct,
-	resolveCanvasSizes,
-	resolveUploadImageCount
-} from '../helpers/product-form'
+import { createEmptyCanvasProduct, resolveCanvasSizes, resolveUploadImageCount } from '../helpers/product-form'
 import { resolveProductImageUrl, type ProductImageValue } from '../helpers/product-image'
 import type {
 	CanvasProduct,
@@ -28,8 +24,8 @@ export type ListCanvasProductsParams = {
 	category_id?: number
 	sub_category_id?: number
 	product_tag_id?: number
-	limit: number
-	offset: number
+	limit?: number
+	offset?: number
 }
 
 export type ListCanvasProductsResult = {
@@ -254,7 +250,7 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 	}
 }
 
-async function listCanvasProducts(params: ListCanvasProductsParams): Promise<ListCanvasProductsResult> {
+async function listCanvasProducts(params: ListCanvasProductsParams = {}): Promise<ListCanvasProductsResult> {
 	const filteredParams = Object.fromEntries(
 		Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
 	)

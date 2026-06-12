@@ -12,6 +12,9 @@
 	import type { FeaturedCategory, SubCategory } from '@/modules/categories/types'
 	import { api as configurationApi } from '@/modules/configuration/api'
 	import type { NameSlugEntity } from '@/modules/configuration/types'
+	import { api as productsApi } from '@/modules/products/api'
+	import type { CanvasProduct } from '@/modules/products/types'
+	import { slugify } from '@/shared'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
 	import { TurkishLiraIcon } from '@/shared/icons'
 	import { api } from '../api'
@@ -25,40 +28,38 @@
 	const loadingDictionaries = ref(false)
 	const dictionariesRequestId = ref(0)
 	const discountTypes = ref<NameSlugEntity[]>([])
-	const discountLimitations = ref<NameSlugEntity[]>([])
 	const featuredCategories = ref<FeaturedCategory[]>([])
 	const subCategories = ref<SubCategory[]>([])
+	const products = ref<CanvasProduct[]>([])
 	const selectedFeaturedCategoryId = ref<number | null>(null)
 	const selectedSubCategoryId = ref<number | null>(null)
+	const selectedProductId = ref<number | null>(null)
+	const slugManuallyEdited = ref(false)
+	const lastGeneratedSlug = ref('')
 
 	const form = reactive({
 		id: null as number | null,
 		name: '',
+		slug: '',
 		discount_type_id: null as number | null,
 		is_percentage: true,
 		amount: 0 as number | string,
 		start_date: '',
 		end_date: '',
-		requires_promo_code: false,
-		promo_code: '',
-		discount_limitation_id: null as number | null,
-		usage_limit: 0 as number | string,
-		requirement_type: '',
+		is_active: true,
 		min_order_amount: 0 as number | string,
 		target_categories: [] as number[],
-		target_sub_categories: [] as number[]
+		target_sub_categories: [] as number[],
+		target_products: [] as number[]
 	})
 
 	const fieldErrors = reactive({
 		name: '',
+		slug: '',
 		discount_type_id: '',
 		amount: '',
 		start_date: '',
 		end_date: '',
-		promo_code: '',
-		discount_limitation_id: '',
-		usage_limit: '',
-		requirement_type: '',
 		min_order_amount: ''
 	})
 
@@ -66,23 +67,23 @@
 		Object.assign(form, {
 			id: null,
 			name: '',
+			slug: '',
 			discount_type_id: null,
 			is_percentage: true,
 			amount: 0,
 			start_date: '',
 			end_date: '',
-			requires_promo_code: false,
-			promo_code: '',
-			discount_limitation_id: null,
-			usage_limit: 0,
-			requirement_type: '',
+			is_active: true,
 			min_order_amount: 0,
 			target_categories: [],
-			target_sub_categories: []
+			target_sub_categories: [],
+			target_products: []
 		})
 		selectedFeaturedCategoryId.value = null
 		selectedSubCategoryId.value = null
-		subCategories.value = []
+		selectedProductId.value = null
+		slugManuallyEdited.value = false
+		lastGeneratedSlug.value = ''
 		Object.keys(fieldErrors).forEach((key) => {
 			fieldErrors[key as keyof typeof fieldErrors] = ''
 		})
@@ -90,12 +91,6 @@
 
 	const discountTypeOptions = computed(() =>
 		discountTypes.value
-			.filter((item): item is NameSlugEntity & { id: number } => item.id !== null)
-			.map((item) => ({ label: item.name, value: item.id }))
-	)
-
-	const discountLimitationOptions = computed(() =>
-		discountLimitations.value
 			.filter((item): item is NameSlugEntity & { id: number } => item.id !== null)
 			.map((item) => ({ label: item.name, value: item.id }))
 	)
@@ -114,6 +109,13 @@
 			.map((item) => ({ label: item.name, value: item.id }))
 	)
 
+	const productOptions = computed(() =>
+		products.value
+			.filter((item): item is CanvasProduct & { id: number } => item.id !== null)
+			.filter((item) => !form.target_products.includes(item.id))
+			.map((item) => ({ label: item.name, value: item.id }))
+	)
+
 	const selectedFeaturedCategories = computed(() =>
 		form.target_categories.map((id) => ({
 			id,
@@ -128,6 +130,13 @@
 		}))
 	)
 
+	const selectedProducts = computed(() =>
+		form.target_products.map((id) => ({
+			id,
+			label: products.value.find((item) => item.id === id)?.name ?? `#${id}`
+		}))
+	)
+
 	const validate = () => {
 		Object.keys(fieldErrors).forEach((key) => {
 			fieldErrors[key as keyof typeof fieldErrors] = ''
@@ -138,8 +147,12 @@
 			fieldErrors.name = 'Укажите название'
 			ok = false
 		}
+		if (!form.slug.trim()) {
+			fieldErrors.slug = 'Укажите slug'
+			ok = false
+		}
 		if (!form.discount_type_id) {
-			fieldErrors.discount_type_id = 'Выберите тип скидки'
+			fieldErrors.discount_type_id = 'Выберите тип акции'
 			ok = false
 		}
 		const amount = Number(form.amount)
@@ -155,19 +168,6 @@
 			fieldErrors.end_date = 'Укажите дату окончания'
 			ok = false
 		}
-		if (form.requires_promo_code && !form.promo_code.trim()) {
-			fieldErrors.promo_code = 'Укажите промокод'
-			ok = false
-		}
-		if (!form.discount_limitation_id) {
-			fieldErrors.discount_limitation_id = 'Выберите ограничение скидки'
-			ok = false
-		}
-		const usageLimit = Number(form.usage_limit)
-		if (!Number.isFinite(usageLimit) || usageLimit < 0) {
-			fieldErrors.usage_limit = 'Укажите корректный лимит использования'
-			ok = false
-		}
 		const minOrderAmount = Number(form.min_order_amount)
 		if (!Number.isFinite(minOrderAmount) || minOrderAmount < 0) {
 			fieldErrors.min_order_amount = 'Укажите корректную минимальную сумму заказа'
@@ -181,17 +181,17 @@
 		dictionariesRequestId.value = requestId
 		loadingDictionaries.value = true
 		try {
-			const [types, limitations, featuredResult, subResult] = await Promise.all([
+			const [types, featuredResult, subCategoriesResult, productsResult] = await Promise.all([
 				configurationApi.listDiscountTypes(),
-				configurationApi.listDiscountLimitations(),
-				categoriesApi.listFeaturedCategories({ limit: 500, offset: 0 }),
-				categoriesApi.listSubCategories({ limit: 500, offset: 0 })
+				categoriesApi.listFeaturedCategories(),
+				categoriesApi.listSubCategories({ limit: 1000, offset: 0 }),
+				productsApi.listCanvasProducts()
 			])
 			if (requestId !== dictionariesRequestId.value) return
 			discountTypes.value = types
-			discountLimitations.value = limitations
 			featuredCategories.value = featuredResult.items || []
-			subCategories.value = subResult.items || []
+			subCategories.value = subCategoriesResult.items || []
+			products.value = productsResult.items || []
 		} finally {
 			if (requestId === dictionariesRequestId.value) {
 				loadingDictionaries.value = false
@@ -227,6 +227,35 @@
 		form.target_sub_categories = form.target_sub_categories.filter((item) => item !== id)
 	}
 
+	const addProduct = (value: string | number | null) => {
+		selectedProductId.value = null
+		if (value === null) return
+
+		const id = Number(value)
+		if (Number.isFinite(id) && !form.target_products.includes(id)) {
+			form.target_products.push(id)
+		}
+	}
+
+	const removeProduct = (id: number) => {
+		form.target_products = form.target_products.filter((item) => item !== id)
+	}
+
+	const onSlugInput = () => {
+		slugManuallyEdited.value = true
+	}
+
+	watch(
+		() => form.name,
+		(name) => {
+			if (slugManuallyEdited.value) return
+
+			const generatedSlug = slugify(name ?? '')
+			lastGeneratedSlug.value = generatedSlug
+			form.slug = generatedSlug
+		}
+	)
+
 	watch(
 		() => [props.open, props.discount] as const,
 		([open, discount]) => {
@@ -239,22 +268,23 @@
 			Object.assign(form, {
 				id: discount.id ?? null,
 				name: discount.name ?? '',
+				slug: discount.slug ?? '',
 				discount_type_id: discount.discount_type_id,
 				is_percentage: !!discount.is_percentage,
 				amount: discount.amount ?? 0,
 				start_date: discount.start_date ?? '',
 				end_date: discount.end_date ?? '',
-				requires_promo_code: !!discount.requires_promo_code,
-				promo_code: discount.promo_code ?? '',
-				discount_limitation_id: discount.discount_limitation_id,
-				usage_limit: discount.usage_limit ?? 0,
-				requirement_type: discount.requirement_type ?? '',
+				is_active: discount.is_active !== false,
 				min_order_amount: discount.min_order_amount ?? 0,
 				target_categories: [...(discount.target_categories ?? [])],
-				target_sub_categories: [...(discount.target_sub_categories ?? [])]
+				target_sub_categories: [...(discount.target_sub_categories ?? [])],
+				target_products: [...(discount.target_products ?? [])]
 			})
 			selectedFeaturedCategoryId.value = null
 			selectedSubCategoryId.value = null
+			selectedProductId.value = null
+			slugManuallyEdited.value = true
+			lastGeneratedSlug.value = discount.slug ?? ''
 			Object.keys(fieldErrors).forEach((key) => {
 				fieldErrors[key as keyof typeof fieldErrors] = ''
 			})
@@ -282,19 +312,17 @@
 			const payload: Discount = {
 				id: form.id ?? null,
 				name: form.name.trim(),
+				slug: form.slug.trim(),
 				discount_type_id: form.discount_type_id,
 				is_percentage: form.is_percentage,
 				amount: Number(form.amount) || 0,
 				start_date: form.start_date,
 				end_date: form.end_date,
-				requires_promo_code: form.requires_promo_code,
-				promo_code: form.promo_code.trim(),
-				discount_limitation_id: form.discount_limitation_id,
-				usage_limit: Number(form.usage_limit) || 0,
-				requirement_type: form.requirement_type.trim(),
+				is_active: form.is_active,
 				min_order_amount: Number(form.min_order_amount) || 0,
 				target_categories: [...form.target_categories],
-				target_sub_categories: [...form.target_sub_categories]
+				target_sub_categories: [...form.target_sub_categories],
+				target_products: [...form.target_products]
 			}
 
 			if (payload.id) {
@@ -348,55 +376,38 @@
 					/>
 				</div>
 
+				<div class="md:col-span-2">
+					<TextField
+						v-model="form.slug"
+						label="Slug"
+						required
+						name="slug"
+						placeholder="summer-sale"
+						:error-message="fieldErrors.slug"
+						@update:model-value="onSlugInput"
+					/>
+				</div>
+
 				<SelectField
 					v-model="form.discount_type_id"
-					label="Тип скидки"
+					label="Тип акции"
 					required
 					name="discount_type_id"
-					placeholder="Выберите тип скидки"
+					placeholder="Выберите тип акции"
 					:options="discountTypeOptions"
 					:disabled="loadingDictionaries"
 					:error-message="fieldErrors.discount_type_id"
 				/>
 
-				<SelectField
-					v-model="form.discount_limitation_id"
-					label="Ограничение скидки"
-					required
-					name="discount_limitation_id"
-					placeholder="Выберите ограничение"
-					:options="discountLimitationOptions"
-					:disabled="loadingDictionaries"
-					:error-message="fieldErrors.discount_limitation_id"
-				/>
-
 				<TextField
 					v-model.number="form.amount"
-					label="Размер скидки"
+					label="Значение (% или ₺)"
 					required
 					name="amount"
 					type="number"
 					min="0"
 					step="0.01"
 					:error-message="fieldErrors.amount"
-				/>
-
-				<TextField
-					v-model.number="form.usage_limit"
-					label="Лимит использования"
-					required
-					name="usage_limit"
-					type="number"
-					min="0"
-					:error-message="fieldErrors.usage_limit"
-				/>
-
-				<TextField
-					v-model="form.requirement_type"
-					label="Requirement type"
-					name="requirement_type"
-					placeholder="Requirement type"
-					:error-message="fieldErrors.requirement_type"
 				/>
 
 				<TextField
@@ -432,27 +443,10 @@
 					v-model="form.is_percentage"
 					label="Процентная скидка"
 					name="is_percentage"
-					class="md:col-span-1"
+					class="md:col-span-2"
 				/>
 
-				<CheckboxField
-					v-model="form.requires_promo_code"
-					label="Требуется промокод"
-					name="requires_promo_code"
-					class="md:col-span-1"
-				/>
-
-				<div class="md:col-span-2">
-					<TextField
-						v-model="form.promo_code"
-						label="Промокод"
-						name="promo_code"
-						placeholder="PROMO2026"
-						:required="form.requires_promo_code"
-						:disabled="!form.requires_promo_code"
-						:error-message="fieldErrors.promo_code"
-					/>
-				</div>
+				<CheckboxField v-model="form.is_active" label="Активна" name="is_active" class="md:col-span-1" />
 
 				<div class="md:col-span-2">
 					<SelectField
@@ -487,7 +481,7 @@
 				<div class="md:col-span-2">
 					<SelectField
 						:model-value="selectedSubCategoryId"
-						label="Подкategории"
+						label="Подкатегории"
 						name="target_sub_categories"
 						placeholder="Выберите подкатегорию"
 						:options="subCategoryOptions"
@@ -496,17 +490,47 @@
 					/>
 					<div v-if="selectedSubCategories.length" class="mt-3 flex flex-wrap gap-2">
 						<span
-							v-for="category in selectedSubCategories"
-							:key="category.id"
+							v-for="subCategory in selectedSubCategories"
+							:key="subCategory.id"
 							class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
 						>
-							{{ category.label }}
+							{{ subCategory.label }}
 							<Button
 								type="button"
 								variant="ghost"
 								size="icon"
 								class-name="h-5 w-5 text-gray-500 hover:text-red-600"
-								:on-click="() => removeSubCategory(category.id)"
+								:on-click="() => removeSubCategory(subCategory.id)"
+							>
+								✕
+							</Button>
+						</span>
+					</div>
+				</div>
+
+				<div class="md:col-span-2">
+					<SelectField
+						:model-value="selectedProductId"
+						label="Товары"
+						name="target_products"
+						placeholder="Выберите товар"
+						:options="productOptions"
+						:disabled="loadingDictionaries"
+						@update:model-value="addProduct"
+					/>
+					<div v-if="selectedProducts.length" class="mt-3 flex flex-wrap gap-2">
+						<span
+							v-for="product in selectedProducts"
+							:key="product.id"
+							class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+						>
+							{{ product.label }}
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								class-name="h-5 w-5 text-gray-500 hover:text-red-600"
+								:on-click="() => removeProduct(product.id)"
 							>
 								✕
 							</Button>

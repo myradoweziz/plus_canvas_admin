@@ -209,6 +209,12 @@ export const adminMenuGroups: AdminMenuGroup[] = [
 						name: 'Скидки',
 						path: '/admin-panel/promotions/discounts',
 						permission: ADMIN_PERMISSIONS.discounts
+					},
+					{
+						icon: icons.CouponsIcon,
+						name: 'Купоны',
+						path: '/admin-panel/promotions/coupons',
+						permission: ADMIN_PERMISSIONS.coupons
 					}
 				]
 			},

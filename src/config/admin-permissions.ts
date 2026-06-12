@@ -28,6 +28,7 @@ export const ADMIN_PERMISSIONS = {
 	onlineCustomers: 'online_customers',
 	newsletterSubscribers: 'newsletter_subscribers',
 	discounts: 'discounts',
+	coupons: 'coupons',
 	discountLimitations: 'discount_limitations',
 	discountTypes: 'discount_types',
 	stores: 'stores',

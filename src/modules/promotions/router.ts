@@ -3,6 +3,7 @@ import { Layouts } from '@/layouts/layouts.types'
 const Module = () => import('./Module.vue')
 const NewsletterSubscribers = () => import('./pages/NewsletterSubscribers.vue')
 const Discounts = () => import('./pages/Discounts.vue')
+const Coupons = () => import('./pages/Coupons.vue')
 
 const moduleRoute = {
 	path: '/admin-panel/promotions',
@@ -17,6 +18,11 @@ const moduleRoute = {
 			path: 'discounts',
 			component: Discounts,
 			meta: { title: 'Скидки', layout: Layouts.admin }
+		},
+		{
+			path: 'coupons',
+			component: Coupons,
+			meta: { title: 'Купоны', layout: Layouts.admin }
 		}
 	]
 }

@@ -6,15 +6,15 @@
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import CollageLayoutSvgImport from '@/shared/ui/CollageLayoutSvgImport.vue'
-	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
+	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
+	import { getCanvasFormatSizeLabel } from '@/modules/canvas-formats/types'
 	import { api as categoriesApi } from '@/modules/categories/api'
 	import type { FeaturedCategory, SubCategory } from '@/modules/categories/types'
 	import type { Color } from '@/modules/colors/types'
-	import { getCanvasFormatSizeLabel } from '@/modules/canvas-formats/types'
 	import { TurkishLiraIcon } from '@/shared/icons'
 	import { api } from '../../api'
 	import { useFieldErrors, useProductFormDictionaries } from '../../composables'
@@ -119,10 +119,7 @@
 	const showsCollageLayout = computed(() => isPersonalCanvasCategory(form.value.main_category_type))
 
 	const syncUploadImageCount = () => {
-		form.value.upload_image_count = resolveUploadImageCount(
-			form.value.collage_layout_id,
-			form.value.collage_layout
-		)
+		form.value.upload_image_count = resolveUploadImageCount(form.value.collage_layout_id, form.value.collage_layout)
 	}
 
 	const onCollageLayoutUpdate = (layout: CollageLayout | null) => {
@@ -207,8 +204,7 @@
 			}
 		})
 	)
-	const getCanvasFormatLabel = (id: number) =>
-		canvasFormats.value.find((format) => format.id === id)?.name ?? `#${id}`
+	const getCanvasFormatLabel = (id: number) => canvasFormats.value.find((format) => format.id === id)?.name ?? `#${id}`
 	const getCanvasSizeLabel = (id: number) => {
 		const size = canvasSizes.value.find((item) => item.id === id)
 		return size ? getCanvasFormatSizeLabel(size) : `#${id}`
@@ -568,37 +564,6 @@
 			/>
 		</div>
 
-		<div v-if="showsCollageLayout" class="md:col-span-3">
-			<SelectField
-				:model-value="selectedCanvasSizeId"
-				label="Размеры холста"
-				name="canvas_sizes"
-				placeholder="Выберите размер"
-				:options="canvasSizeOptions"
-				:disabled="loadingDictionaries"
-				:error-message="validationErrors.canvas_sizes"
-				@update:model-value="addCanvasSize"
-			/>
-			<div v-if="form.canvas_sizes.length" class="mt-3 flex flex-wrap gap-2">
-				<span
-					v-for="sizeId in form.canvas_sizes"
-					:key="sizeId"
-					class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
-				>
-					<span>{{ getCanvasSizeLabel(sizeId) }}</span>
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon"
-						class-name="h-5 w-5 text-gray-500 hover:text-red-600"
-						:on-click="() => removeCanvasSize(sizeId)"
-					>
-						✕
-					</Button>
-				</span>
-			</div>
-		</div>
-
 		<div class="md:col-span-3">
 			<SingleImageUpload
 				v-model="form.image"
@@ -658,11 +623,7 @@
 					v-for="formatId in form.canvas_formats"
 					:key="formatId"
 					class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm text-gray-700"
-					:class="
-						isActiveCanvasFormat(formatId)
-							? 'bg-blue-50 text-blue-800 ring-1 ring-blue-200'
-							: 'bg-gray-100'
-					"
+					:class="isActiveCanvasFormat(formatId) ? 'bg-blue-50 text-blue-800 ring-1 ring-blue-200' : 'bg-gray-100'"
 				>
 					<label class="inline-flex cursor-pointer items-center">
 						<input
@@ -681,6 +642,36 @@
 						size="icon"
 						class-name="h-5 w-5 text-gray-500 hover:text-red-600"
 						:on-click="() => removeCanvasFormat(formatId)"
+					>
+						✕
+					</Button>
+				</span>
+			</div>
+		</div>
+		<div v-if="!form.canvas_formats?.length" class="md:col-span-3">
+			<SelectField
+				:model-value="selectedCanvasSizeId"
+				label="Размеры холста"
+				name="canvas_sizes"
+				placeholder="Выберите размер"
+				:options="canvasSizeOptions"
+				:disabled="loadingDictionaries"
+				:error-message="validationErrors.canvas_sizes"
+				@update:model-value="addCanvasSize"
+			/>
+			<div v-if="form.canvas_sizes.length" class="mt-3 flex flex-wrap gap-2">
+				<span
+					v-for="sizeId in form.canvas_sizes"
+					:key="sizeId"
+					class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+				>
+					<span>{{ getCanvasSizeLabel(sizeId) }}</span>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						class-name="h-5 w-5 text-gray-500 hover:text-red-600"
+						:on-click="() => removeCanvasSize(sizeId)"
 					>
 						✕
 					</Button>
@@ -719,7 +710,7 @@
 			</div>
 		</div>
 
-		<div class="md:col-span-3">
+		<div v-if="!showsCollageLayout" class="md:col-span-3">
 			<SelectField
 				:model-value="selectedCanvasEffectId"
 				label="Эффекты"
