@@ -160,14 +160,7 @@
 			fieldErrors.amount = 'Укажите корректный размер скидки'
 			ok = false
 		}
-		if (!form.start_date) {
-			fieldErrors.start_date = 'Укажите дату начала'
-			ok = false
-		}
-		if (!form.end_date) {
-			fieldErrors.end_date = 'Укажите дату окончания'
-			ok = false
-		}
+
 		const minOrderAmount = Number(form.min_order_amount)
 		if (!Number.isFinite(minOrderAmount) || minOrderAmount < 0) {
 			fieldErrors.min_order_amount = 'Укажите корректную минимальную сумму заказа'
@@ -316,8 +309,8 @@
 				discount_type_id: form.discount_type_id,
 				is_percentage: form.is_percentage,
 				amount: Number(form.amount) || 0,
-				start_date: form.start_date,
-				end_date: form.end_date,
+				start_date: form.start_date || null,
+				end_date: form.end_date || null,
 				is_active: form.is_active,
 				min_order_amount: Number(form.min_order_amount) || 0,
 				target_categories: [...form.target_categories],
@@ -424,7 +417,6 @@
 				<TextField
 					v-model="form.start_date"
 					label="Дата начала"
-					required
 					name="start_date"
 					type="datetime-local"
 					:error-message="fieldErrors.start_date"
@@ -433,7 +425,6 @@
 				<TextField
 					v-model="form.end_date"
 					label="Дата окончания"
-					required
 					name="end_date"
 					type="datetime-local"
 					:error-message="fieldErrors.end_date"
