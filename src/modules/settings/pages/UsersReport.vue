@@ -8,6 +8,8 @@
 	import TextField from '@/shared/ui/TextField.vue'
 	import CustomerReportTable from '../components/CustomerReportTable.vue'
 
+	import { toast } from 'vue3-toastify'
+
 	import {
 		DELIVERY_STATUS_FILTER_OPTIONS,
 		ORDER_STATUS_FILTER_OPTIONS,
@@ -18,6 +20,7 @@
 	import type { CustomerReportItem } from '../types'
 
 	const loading = ref(false)
+	const exporting = ref(false)
 	const rows = ref<CustomerReportItem[]>([])
 	const totalCount = ref(0)
 	const limit = ref(15)
@@ -74,6 +77,44 @@
 		offset.value = value
 		await load()
 	}
+
+	const exportExcel = async () => {
+		exporting.value = true
+		try {
+			await api.exportCustomerReportExcel({
+				date_from: filters.value.date_from || undefined,
+				date_to: filters.value.date_to || undefined,
+				order_status: filters.value.order_status ?? undefined,
+				payment_status: filters.value.payment_status ?? undefined,
+				delivery_status: filters.value.delivery_status ?? undefined
+			})
+			toast.success('Excel файл скачан')
+		} catch (error) {
+			console.error(error)
+			toast.error('Ошибка при экспорте в Excel')
+		} finally {
+			exporting.value = false
+		}
+	}
+
+	const exportXml = async () => {
+		exporting.value = true
+		try {
+			await api.exportCustomerReportXml({
+				date_from: filters.value.date_from || undefined,
+				date_to: filters.value.date_to || undefined,
+				order_status: filters.value.order_status ?? undefined,
+				payment_status: filters.value.payment_status ?? undefined,
+				delivery_status: filters.value.delivery_status ?? undefined
+			})
+			toast.success('XML файл скачан')
+		} catch (error) {
+			console.error(error)
+			toast.error('Ошибка при экспорте в XML')
+		} finally {
+			exporting.value = false
+		}
+	}
 </script>
 
 <template>
@@ -83,7 +124,32 @@
 			subtitle="Статистика заказов по пользователям."
 			:icon="UserActivityIcon"
 			:total="totalCount"
-		/>
+		>
+			<template #actions>
+				<div class="flex flex-wrap items-center gap-2">
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						:disabled="exporting || totalCount === 0"
+						:loading="exporting"
+						:on-click="exportExcel"
+					>
+						Экспорт Excel
+					</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						:disabled="exporting || totalCount === 0"
+						:loading="exporting"
+						:on-click="exportXml"
+					>
+						Экспорт XML
+					</Button>
+				</div>
+			</template>
+		</Banner>
 
 		<form
 			class="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200 bg-white p-4 md:grid-cols-3 xl:grid-cols-5"

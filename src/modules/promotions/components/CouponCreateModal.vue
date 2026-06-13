@@ -140,14 +140,7 @@
 			fieldErrors.usage_limit = 'Укажите корректный лимит использований'
 			ok = false
 		}
-		if (!form.start_date) {
-			fieldErrors.start_date = 'Укажите дату начала'
-			ok = false
-		}
-		if (!form.end_date) {
-			fieldErrors.end_date = 'Укажите дату окончания'
-			ok = false
-		}
+
 		return ok
 	}
 
@@ -225,8 +218,8 @@
 				amount: Number(form.amount) || 0,
 				min_order_amount: Number(form.min_order_amount) || 0,
 				usage_limit: Number(form.usage_limit) || 0,
-				start_date: form.start_date,
-				end_date: form.end_date,
+				start_date: form.start_date || null,
+				end_date: form.end_date || null,
 				user_ids: [...form.user_ids],
 				is_active: form.is_active
 			}
@@ -326,7 +319,6 @@
 				<TextField
 					v-model="form.start_date"
 					label="Дата начала"
-					required
 					name="start_date"
 					type="datetime-local"
 					:error-message="fieldErrors.start_date"
@@ -335,7 +327,6 @@
 				<TextField
 					v-model="form.end_date"
 					label="Дата окончания"
-					required
 					name="end_date"
 					type="datetime-local"
 					:error-message="fieldErrors.end_date"
