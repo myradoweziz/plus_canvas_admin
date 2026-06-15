@@ -710,7 +710,7 @@
 			</div>
 		</div>
 
-		<div v-if="!showsCollageLayout" class="md:col-span-3">
+		<div v-if="showsCollageLayout" class="md:col-span-3">
 			<SelectField
 				:model-value="selectedCanvasEffectId"
 				label="Эффекты"
