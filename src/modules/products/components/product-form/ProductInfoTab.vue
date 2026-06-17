@@ -148,7 +148,8 @@
 		{ label: 'Вертикальная сетка (Portrait Grid)', value: 'grid-portrait' },
 		{ label: 'Сердце (Heart)', value: 'heart' },
 		{ label: '1 Большой + Мелкие вокруг', value: '1-large-surrounded' },
-		{ label: '3-х панельный (3-split)', value: '3-split' }
+		{ label: '3-х панельный (3-split)', value: '3-split' },
+		{ label: '2-х панельный вертикальный (2-split-vertical)', value: '2-split-vertical' }
 	]
 
 	const mainCategoryOptions = computed(() => toSelectOptions(mainCategories.value, (item) => item.name))
@@ -450,6 +451,17 @@
 			saving.value = false
 		}
 	}
+
+	watch(
+		() => form.value.layout_template,
+		(newVal) => {
+			if (newVal === '2-split-vertical') {
+				form.value.upload_image_count = 2
+			} else if (newVal === '3-split') {
+				form.value.upload_image_count = 3
+			}
+		}
+	)
 </script>
 
 <template>
