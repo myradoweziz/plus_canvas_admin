@@ -5,7 +5,6 @@
 
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
-	import CollageLayoutSvgImport from '@/shared/ui/CollageLayoutSvgImport.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
 	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import TextareaField from '@/shared/ui/TextareaField.vue'
@@ -23,16 +22,13 @@
 		getValidationErrors,
 		isPersonalCanvasCategory,
 		PRODUCT_TYPE_OPTIONS,
-		resolveUploadImageCount,
 		validateProductInfo
 	} from '../../helpers'
-	import type { CanvasProduct, CollageLayout } from '../../types'
+	import type { CanvasProduct } from '../../types'
 
 	defineOptions({ name: 'ProductInfoTab' })
 
 	const PRODUCT_FIELD_ALIASES: Record<string, string> = {
-		collage_layout: 'collage_layout_id',
-		'collage_layout.id': 'collage_layout_id'
 	}
 
 	const form = defineModel<CanvasProduct>('form', { required: true })
@@ -111,31 +107,11 @@
 			'canvas_sizes',
 			'active_canvas_format_id',
 			'frames',
-			'product_tags',
-			'collage_layout_id'
+			'product_tags'
 		] as const
 	).forEach((field) => clearValidationErrorOnChange(field))
 
 	const showsCollageLayout = computed(() => isPersonalCanvasCategory(form.value.main_category_type))
-
-	const syncUploadImageCount = () => {
-		form.value.upload_image_count = resolveUploadImageCount(form.value.collage_layout_id, form.value.collage_layout)
-	}
-
-	const onCollageLayoutUpdate = (layout: CollageLayout | null) => {
-		form.value.collage_layout = layout
-		if (layout?.id != null) {
-			clearFieldError('collage_layout_id')
-		}
-		syncUploadImageCount()
-	}
-
-	const removeCollageLayout = () => {
-		form.value.collage_layout_id = null
-		form.value.collage_layout = null
-		syncUploadImageCount()
-	}
-
 	const syncMainCategoryMeta = (mainCategoryId: number | null) => {
 		if (!mainCategoryId) {
 			form.value.main_category_type = ''
@@ -150,11 +126,8 @@
 		form.value.main_category_type = category?.category_type ?? ''
 
 		if (!isApplyingProduct.value) {
-			if (isPersonalCanvasCategory(form.value.main_category_type)) {
-				form.value.collage_layout_id = null
-				form.value.collage_layout = null
-				syncUploadImageCount()
-			} else {
+			if (!isPersonalCanvasCategory(form.value.main_category_type)) {
+				form.value.upload_image_count = 0
 				form.value.canvas_sizes = []
 			}
 		}
@@ -167,6 +140,16 @@
 				label: getLabel(item),
 				value: item.id
 			}))
+
+	const layoutTemplateOptions = [
+		{ label: 'Стандартный (Auto Grid)', value: '' },
+		{ label: 'Квадратная сетка (Square Grid)', value: 'grid-square' },
+		{ label: 'Горизонтальная сетка (Landscape Grid)', value: 'grid-landscape' },
+		{ label: 'Вертикальная сетка (Portrait Grid)', value: 'grid-portrait' },
+		{ label: 'Сердце (Heart)', value: 'heart' },
+		{ label: '1 Большой + Мелкие вокруг', value: '1-large-surrounded' },
+		{ label: '3-х панельный (3-split)', value: '3-split' }
+	]
 
 	const mainCategoryOptions = computed(() => toSelectOptions(mainCategories.value, (item) => item.name))
 	const featuredCategoryOptions = computed(() => toSelectOptions(featuredCategories.value, (item) => item.name))
@@ -311,11 +294,8 @@
 				form.value.category_id = null
 				form.value.sub_category_id = null
 
-				const category = mainCategories.value.find((item) => item.id === mainCategoryId)
-				if (isPersonalCanvasCategory(category?.category_type)) {
-					form.value.collage_layout_id = null
-					form.value.collage_layout = null
-					syncUploadImageCount()
+				if (isPersonalCanvasCategory(form.value.main_category_type)) {
+					form.value.upload_image_count = 0
 				}
 			}
 
@@ -554,13 +534,22 @@
 		/>
 
 		<div v-if="showsCollageLayout" class="md:col-span-3 space-y-4">
-			<CollageLayoutSvgImport
-				v-model="form.collage_layout_id"
-				:current-layout="form.collage_layout"
-				:disabled="loadingDictionaries"
-				:error-message="validationErrors.collage_layout_id ?? ''"
-				@update:current-layout="onCollageLayoutUpdate"
-				@remove="removeCollageLayout"
+			<TextField
+				v-model.number="form.upload_image_count"
+				label="Количество загружаемых изображений"
+				name="upload_image_count"
+				type="number"
+				min="1"
+				placeholder="Сколько фото должен загрузить клиент?"
+				:error-message="validationErrors.upload_image_count"
+			/>
+			<SelectField
+				v-model="form.layout_template"
+				label="Шаблон дизайна (Layout Template)"
+				name="layout_template"
+				placeholder="Выберите шаблон"
+				:options="layoutTemplateOptions"
+				:error-message="validationErrors.layout_template"
 			/>
 		</div>
 
@@ -710,7 +699,7 @@
 			</div>
 		</div>
 
-		<div v-if="showsCollageLayout" class="md:col-span-3">
+		<div class="md:col-span-3">
 			<SelectField
 				:model-value="selectedCanvasEffectId"
 				label="Эффекты"

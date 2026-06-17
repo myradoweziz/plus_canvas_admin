@@ -56,15 +56,7 @@
 			</div>
 		</template>
 
-		<template #cell-image_url="{ row }">
-			<img
-				v-if="toCanvasFormat(row).image_url"
-				:src="toCanvasFormat(row).image_url"
-				:alt="toCanvasFormat(row).name"
-				class="h-16 w-24 rounded-lg object-cover ring-1 ring-gray-200"
-			/>
-			<span v-else class="text-sm text-gray-400">—</span>
-		</template>
+
 
 		<template #cell-is_active="{ row }">
 			<StatusBadge

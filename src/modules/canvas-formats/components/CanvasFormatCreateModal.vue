@@ -6,7 +6,6 @@
 	import Button from '@/shared/ui/Button.vue'
 	import CheckboxField from '@/shared/ui/CheckboxField.vue'
 	import SelectField from '@/shared/ui/SelectField.vue'
-	import SingleImageUpload from '@/shared/ui/SingleImageUpload.vue'
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { canvasSizesApi } from '@/modules/canvas-sizes/api/canvas-sizes'
@@ -34,12 +33,21 @@
 		id: null as number | null,
 		name: '',
 		slug: '',
-		image: '',
-		image_url: '',
 		is_active: true,
 		sort_order: 0 as number | string,
+		layout_template: '',
 		sizes: [] as CanvasFormatSize[]
 	})
+
+	const layoutTemplateOptions = [
+		{ label: 'Стандартный (Auto Grid)', value: '' },
+		{ label: 'Квадратная сетка (Square Grid)', value: 'grid-square' },
+		{ label: 'Горизонтальная сетка (Landscape Grid)', value: 'grid-landscape' },
+		{ label: 'Вертикальная сетка (Portrait Grid)', value: 'grid-portrait' },
+		{ label: 'Сердце (Heart)', value: 'heart' },
+		{ label: '1 Большой + Мелкие вокруг', value: '1-large-surrounded' },
+		{ label: '3-х панельный (3-split)', value: '3-split' }
+	]
 
 	const fieldErrors = reactive({
 		name: '',
@@ -53,10 +61,9 @@
 			id: null,
 			name: '',
 			slug: '',
-			image: '',
-			image_url: '',
 			is_active: true,
 			sort_order: 0,
+			layout_template: '',
 			sizes: []
 		})
 		fieldErrors.name = ''
@@ -109,10 +116,9 @@
 				id: canvasFormat.id ?? null,
 				name: canvasFormat.name ?? '',
 				slug: canvasFormat.slug ?? '',
-				image: canvasFormat.image_url ?? canvasFormat.image ?? '',
-				image_url: canvasFormat.image_url ?? canvasFormat.image ?? '',
 				is_active: !!canvasFormat.is_active,
 				sort_order: canvasFormat.sort_order ?? 0,
+				layout_template: canvasFormat.layout_template ?? '',
 				sizes: canvasFormat.sizes.map((size) => ({
 					id: size.id,
 					sort_order: size.sort_order
@@ -239,9 +245,9 @@
 				id: form.id ?? null,
 				name: form.name.trim(),
 				slug: form.slug.trim(),
-				image: form.image || form.image_url || '',
 				is_active: !!form.is_active,
 				sort_order: Number(form.sort_order) || 0,
+				layout_template: form.layout_template ?? '',
 				sizes: (form.sizes || []).map((size, index) => ({
 					...size,
 					sort_order: size.sort_order ?? index + 1
@@ -322,17 +328,19 @@
 					/>
 				</div>
 
-				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
-
-				<div class="md:col-span-2">
-					<SingleImageUpload
-						v-model="form.image"
-						label="Изображение"
-						accept="image/svg+xml"
-						description="Необязательно. Файл будет загружен сразу, в форму сохранится URL."
-						:uploader="mediaApi.uploadImages"
+				<div class="md:col-span-1">
+					<SelectField
+						v-model="form.layout_template"
+						label="Шаблон (Layout Template)"
+						name="layout_template"
+						placeholder="Выберите шаблон"
+						:options="layoutTemplateOptions"
 					/>
 				</div>
+
+				<CheckboxField v-model="form.is_active" label="Активно" name="is_active" class="md:col-span-2" />
+
+
 
 				<div class="md:col-span-2">
 					<SelectField

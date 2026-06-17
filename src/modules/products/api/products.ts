@@ -1,7 +1,7 @@
 import { downloadBlob, downloadTextFile } from '@/composables'
 import { getTotal, request } from '@/shared'
 import { filterListParams } from '@/shared/api/createListApi'
-import { createEmptyCanvasProduct, resolveCanvasSizes, resolveUploadImageCount } from '../helpers/product-form'
+import { createEmptyCanvasProduct, resolveCanvasSizes } from '../helpers/product-form'
 import { resolveProductImageUrl, type ProductImageValue } from '../helpers/product-image'
 import type {
 	CanvasProduct,
@@ -12,7 +12,6 @@ import type {
 	CanvasProductPayload,
 	CanvasProductSeo
 } from '../types/product'
-import { collageLayoutsApi } from './collage-layouts'
 
 const CANVAS_PRODUCTS_URL = '/api/admin/canvas-products'
 const CANVAS_PRODUCTS_IMAGES_URL = '/api/admin/media/upload/'
@@ -189,10 +188,6 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 	const defaults = createEmptyCanvasProduct()
 	const productDiscount = normalizeCanvasProductDiscount(product)
 	const productDetails = normalizeCanvasProductDetails(product)
-	const collageLayout = product.collage_layout
-		? collageLayoutsApi.normalizeCollageLayout(product.collage_layout as Record<string, unknown>)
-		: null
-	const collageLayoutId = product.collage_layout_id ?? collageLayout?.id ?? null
 
 	return {
 		...defaults,
@@ -215,9 +210,8 @@ function normalizeCanvasProduct(product: Record<string, any>): CanvasProduct {
 		canvas_sizes: toIdArray(product.canvas_sizes),
 		frames: toIdArray(product.frames),
 		effects: toIdArray(product.effects),
-		collage_layout_id: collageLayoutId,
-		collage_layout: collageLayout,
-		upload_image_count: resolveUploadImageCount(collageLayoutId, collageLayout),
+		upload_image_count: Number(product.upload_image_count) || 0,
+		layout_template: product.layout_template ?? '',
 		product_type: toProductType(product.product_type),
 		admin_comment: product.admin_comment ?? '',
 		sku: product.sku ?? '',
@@ -287,8 +281,8 @@ function toCanvasProductPayload(product: CanvasProduct): CanvasProductPayload {
 		canvas_sizes: resolveCanvasSizes(product.main_category_type, product.canvas_sizes),
 		frames: product.frames,
 		effects: product.effects,
-		collage_layout_id: product.collage_layout_id,
-		upload_image_count: resolveUploadImageCount(product.collage_layout_id, product.collage_layout),
+		upload_image_count: Number(product.upload_image_count) || 0,
+		layout_template: product.layout_template ?? '',
 		product_type: product.product_type,
 		admin_comment: product.admin_comment,
 		sku: product.sku,
@@ -359,7 +353,7 @@ function toCanvasProductFormData(product: CanvasProduct): Record<string, any> {
 
 	omitNullFormValues(data)
 
-	data.collage_layout_id = payload.collage_layout_id ?? null
+
 	data.active_canvas_format_id = payload.active_canvas_format_id ?? null
 
 	booleanFields.forEach((field) => {
