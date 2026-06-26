@@ -34,6 +34,7 @@
 
 	const imageInputRef = ref<HTMLInputElement | null>(null)
 	const uploadingImage = ref(false)
+	const showHtml = ref(false)
 
 	const editor = useEditor({
 		content: props.modelValue || '',
@@ -204,7 +205,7 @@
 			]"
 		>
 			<div
-				v-if="editor"
+				v-if="editor && !showHtml"
 				class="flex flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 p-2"
 				role="toolbar"
 				aria-label="Панель форматирования"
@@ -416,7 +417,34 @@
 				</button>
 			</div>
 
-			<EditorContent :editor="editor" />
+			<div v-if="editor && showHtml" class="flex items-center gap-1 border-b border-gray-200 bg-gray-50 p-2">
+				<span class="text-xs text-gray-500 font-medium px-2">HTML Source Code</span>
+			</div>
+
+			<div class="relative">
+				<button 
+					type="button" 
+					@click="showHtml = !showHtml" 
+					class="absolute top-2 right-2 z-10 rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
+				>
+					{{ showHtml ? 'Rich Text' : 'HTML' }}
+				</button>
+
+				<EditorContent v-show="!showHtml" :editor="editor" />
+				
+				<textarea 
+					v-if="showHtml" 
+					class="w-full min-h-[300px] p-4 text-sm font-mono text-gray-800 border-0 focus:ring-0 resize-y bg-gray-50" 
+					:value="modelValue" 
+					@input="(e) => { 
+						const val = (e.target as HTMLTextAreaElement).value; 
+						emit('update:modelValue', val); 
+						editor?.commands.setContent(val, { emitUpdate: false });
+					}" 
+					:disabled="disabled"
+					placeholder="Enter raw HTML here..."
+				></textarea>
+			</div>
 		</div>
 
 		<input ref="imageInputRef" type="file" accept="image/*" class="hidden" @change="onImageSelected" />

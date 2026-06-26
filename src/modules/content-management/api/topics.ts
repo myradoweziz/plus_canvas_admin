@@ -14,9 +14,6 @@ const listTopics = createListApi<Topic, ListTopicsParams>({ url: TOPICS_URL })
 
 function toTopicPayload(topic: Topic): TopicPayload {
 	return {
-		system_name: topic.system_name,
-		is_password_protected: topic.is_password_protected,
-		password: topic.is_password_protected ? topic.password : '',
 		include_in_sitemap: topic.include_in_sitemap,
 		include_in_top_menu: topic.include_in_top_menu,
 		title: topic.title,
@@ -25,12 +22,12 @@ function toTopicPayload(topic: Topic): TopicPayload {
 		meta_title: topic.meta_title,
 		meta_description: topic.meta_description,
 		meta_keywords: topic.meta_keywords,
-		store_id: Number(topic.store_id) || 0
 	}
 }
 
 async function getTopicById(id: number): Promise<Topic> {
-	return await request({ url: `${TOPICS_URL}/${id}`, method: 'GET' })
+	const response: any = await request({ url: `${TOPICS_URL}/${id}`, method: 'GET' })
+	return response.data || response
 }
 
 async function createTopic(topic: Topic): Promise<Topic> {
