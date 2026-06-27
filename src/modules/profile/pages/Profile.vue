@@ -5,6 +5,7 @@
 	import Banner from '@/shared/ui/Banner.vue'
 	import Button from '@/shared/ui/Button.vue'
 	import TextField from '@/shared/ui/TextField.vue'
+	import UserAddressesTab from '@/modules/settings/components/user/UserAddressesTab.vue'
 
 	import { apiBase } from '@/shared'
 
@@ -51,7 +52,7 @@
 		form.value = {
 			name: profile.value?.name ? String(profile.value.name) : '',
 			email: profile.value?.email ? String(profile.value.email) : '',
-			phone_number: profile.value?.phone_number ? String(profile.value.phone_number) : '',
+			phone_number: profile.value?.phone_number ? String(profile.value.phone_number) : '+90 ',
 			password: '',
 			password_confirmation: ''
 		}
@@ -130,7 +131,7 @@
 </script>
 
 <template>
-	<form class="space-y-6" @submit.prevent="save">
+	<div class="space-y-6">
 		<Banner title="Профиль" subtitle="Данные вашей учётной записи."> </Banner>
 
 		<section class="rounded-2xl border border-gray-200 bg-white p-6">
@@ -138,7 +139,8 @@
 
 			<div v-else-if="error" class="text-sm text-red-600">Не удалось загрузить профиль.</div>
 
-			<form v-else @submit.prevent="save" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+			<div v-else>
+				<form @submit.prevent="save" class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<div class="min-w-0">
 					<div class="text-xs font-medium uppercase tracking-wide text-gray-500">Имя</div>
 					<div v-if="!editing" class="mt-1 truncate text-sm font-medium text-gray-900">{{ profile?.name || '—' }}</div>
@@ -161,7 +163,7 @@
 						{{ profile?.phone_number || '—' }}
 					</div>
 					<div v-else class="mt-2">
-						<TextField v-model.trim="form.phone_number" name="phone_number" placeholder="Телефон" />
+						<TextField v-model.trim="form.phone_number" name="phone_number" placeholder="+90 5XX XXX XX XX" />
 					</div>
 				</div>
 
@@ -193,22 +195,7 @@
 					</div>
 				</div>
 
-				<div class="md:col-span-2">
-					<div class="text-xs font-medium uppercase tracking-wide text-gray-500">Адреса</div>
-					<div class="mt-2 space-y-2">
-						<div v-if="!profile?.addresses?.length" class="text-sm text-gray-600">Адресов нет.</div>
-						<div
-							v-for="(address, idx) in profile?.addresses || []"
-							:key="idx"
-							class="rounded-xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-800"
-						>
-							<div class="font-medium">{{ address.city || '—' }}</div>
-							<div class="mt-0.5 text-gray-700">{{ address.address || '—' }}</div>
-							<div v-if="address.is_default" class="mt-1 text-xs font-medium text-blue-700">Адрес по умолчанию</div>
-						</div>
-					</div>
-				</div>
-				<div class="flex items-center gap-2">
+				<div class="flex items-center gap-2 md:col-span-2">
 					<Button
 						type="button"
 						variant="outline"
@@ -222,7 +209,13 @@
 						Сохранить
 					</Button>
 				</div>
-			</form>
+				</form>
+
+				<div class="mt-8 border-t border-gray-100 pt-6">
+					<div class="mb-4 text-xs font-medium uppercase tracking-wide text-gray-500">Адреса</div>
+					<UserAddressesTab v-if="profile?.id" :user-id="profile.id" :user="profile as any" />
+				</div>
+			</div>
 		</section>
-	</form>
+	</div>
 </template>

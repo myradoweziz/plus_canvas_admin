@@ -58,7 +58,7 @@
 			first_name: '',
 			last_name: '',
 			email: '',
-			phone_number: '',
+			phone_number: '+90 ',
 			fax_number: '',
 			address: '',
 			city: '',
@@ -131,7 +131,8 @@
 
 			resetLocalForm()
 			fillFromUser()
-		}
+		},
+		{ immediate: true }
 	)
 
 	const onSubmit = async () => {
@@ -219,7 +220,7 @@
 					v-model="form.phone_number"
 					label="Телефон"
 					name="phone_number"
-					placeholder="+7 ..."
+					placeholder="+90 5XX XXX XX XX"
 					:error-message="triedSubmit ? fieldErrors.phone_number : ''"
 				/>
 

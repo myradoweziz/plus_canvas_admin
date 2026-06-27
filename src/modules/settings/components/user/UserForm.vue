@@ -68,7 +68,7 @@
 			admin_comment: '',
 			is_tax_exempt: false,
 			email: '',
-			phone_number: '',
+			phone_number: '+90 ',
 			is_active: true,
 			password: '',
 			password_confirmation: '',
@@ -256,7 +256,7 @@
 			placeholder="user@example.com"
 			:error-message="triedSubmit ? fieldErrors.email : ''"
 		/>
-		<TextField v-model="form.phone_number" label="Телефон" type="tel" name="phone_number" placeholder="Необязательно" />
+		<TextField v-model="form.phone_number" label="Телефон" type="tel" name="phone_number" placeholder="+90 5XX XXX XX XX" />
 
 		<div class="flex flex-col gap-3 md:col-span-1">
 			<CheckboxField v-model="form.is_active" label="Активен" name="is_active" />
