@@ -8,6 +8,7 @@ export const subCategoriesApi = {
 	createSubCategory,
 	updateSubCategory,
 	deleteSubCategory,
+	bulkDeleteSubCategories,
 	reorderSubCategories,
 	exportSubCategoriesXml
 }
@@ -67,6 +68,10 @@ async function updateSubCategory(category: SubCategory): Promise<SubCategory> {
 
 async function deleteSubCategory(id: number): Promise<void> {
 	await request({ url: `${SUB_CATEGORIES_URL}/${id}`, method: 'DELETE' })
+}
+
+async function bulkDeleteSubCategories(ids: number[]): Promise<void> {
+	await request({ url: `${SUB_CATEGORIES_URL}/bulk-delete`, method: 'POST', data: { ids } })
 }
 
 type ReorderSubCategoriesPayload = {

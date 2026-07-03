@@ -103,6 +103,14 @@ async function deleteUser(id: number): Promise<void> {
 	await request({ url: `${USERS_URL}/${id}`, method: 'DELETE' })
 }
 
+async function bulkDeleteUsers(ids: number[]): Promise<void> {
+	await request({
+		url: `${USERS_URL}/bulk-delete`,
+		method: 'POST',
+		data: { ids }
+	})
+}
+
 async function sendUserEmail(id: number, payload: SendUserEmailPayload): Promise<void> {
 	await request({
 		url: `${USERS_URL}/${id}/send-email`,
@@ -178,6 +186,7 @@ export const usersApi = {
 	createUser,
 	updateUser,
 	deleteUser,
+	bulkDeleteUsers,
 	sendUserEmail,
 	sendUserMessage,
 	getUserOrders,

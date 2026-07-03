@@ -8,6 +8,7 @@ export const featuredCategoriesApi = {
 	createFeaturedCategory,
 	updateFeaturedCategory,
 	deleteFeaturedCategory,
+	bulkDeleteFeaturedCategories,
 	reorderFeaturedCategories,
 	exportFeaturedCategoriesXml
 }
@@ -75,6 +76,10 @@ async function updateFeaturedCategory(category: FeaturedCategory): Promise<Featu
 
 async function deleteFeaturedCategory(id: number): Promise<void> {
 	await request({ url: `${FEATURED_CATEGORIES_URL}/${id}`, method: 'DELETE' })
+}
+
+async function bulkDeleteFeaturedCategories(ids: number[]): Promise<void> {
+	await request({ url: `${FEATURED_CATEGORIES_URL}/bulk-delete`, method: 'POST', data: { ids } })
 }
 
 type ReorderFeaturedCategoriesPayload = {

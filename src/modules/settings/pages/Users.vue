@@ -173,6 +173,21 @@
 			loadingDeleteModal.value = false
 		}
 	}
+
+	const bulkDelete = async () => {
+		if (!selectedUsers.value.length) return
+		if (!confirm(`Вы действительно хотите удалить ${selectedUsers.value.length} выбранных пользователей?`)) return
+
+		try {
+			const ids = selectedUsers.value.map((u) => u.id!)
+			await usersApi.bulkDeleteUsers(ids)
+			toast.success('Выбранные пользователи удалены')
+			selectedUsers.value = []
+			await load()
+		} catch {
+			toast.error('Не удалось удалить выбранных пользователей')
+		}
+	}
 </script>
 
 <template>
@@ -180,6 +195,16 @@
 		<Banner title="Пользователи" subtitle="Список пользователей и управление ими." :icon="UsersIcon" :total="total">
 			<template #actions>
 				<div class="flex flex-wrap items-center gap-2">
+					<Button
+						v-if="selectedUsers.length"
+						type="button"
+						size="sm"
+						class="bg-red-600 hover:bg-red-700 text-white"
+						:on-click="bulkDelete"
+					>
+						Удалить выбранные ({{ selectedUsers.length }})
+					</Button>
+
 					<Button type="button" size="sm" variant="outline" :disabled="!selectedUsers.length" :on-click="exportExcel">
 						Экспорт Excel{{ selectedUsers.length ? ` (${selectedUsers.length})` : '' }}
 					</Button>

@@ -8,6 +8,7 @@ export const mainCategoriesApi = {
 	createMainCategory,
 	updateMainCategory,
 	deleteMainCategory,
+	bulkDeleteMainCategories,
 	reorderMainCategories,
 	exportMainCategoriesXml
 }
@@ -104,6 +105,10 @@ async function updateMainCategory(category: MainCategory): Promise<MainCategory>
 
 async function deleteMainCategory(id: number): Promise<void> {
 	await request({ url: `${MAIN_CATEGORIES_URL}/${id}`, method: 'DELETE' })
+}
+
+async function bulkDeleteMainCategories(ids: number[]): Promise<void> {
+	await request({ url: `${MAIN_CATEGORIES_URL}/bulk-delete`, method: 'POST', data: { ids } })
 }
 
 type ReorderMainCategoriesPayload = {

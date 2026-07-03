@@ -124,6 +124,21 @@
 		}
 	}
 
+	const bulkDelete = async () => {
+		if (!selectedCategories.value.length) return
+		if (!confirm(`Вы действительно хотите удалить ${selectedCategories.value.length} выбранных подкатегорий?`)) return
+
+		try {
+			const ids = selectedCategories.value.map((c) => c.id!)
+			await api.bulkDeleteSubCategories(ids)
+			toast.success('Выбранные подкатегории удалены')
+			selectedCategories.value = []
+			await load()
+		} catch {
+			toast.error('Не удалось удалить выбранные подкатегории')
+		}
+	}
+
 	const reorderSubCategories = async (orderedSubCategories: SubCategory[]) => {
 		toast.info('Порядок изменён. Сохраняю...')
 		try {
@@ -190,6 +205,15 @@
 		>
 			<template #actions>
 				<div class="flex items-center gap-2">
+					<Button
+						v-if="selectedCategories.length"
+						type="button"
+						size="sm"
+						class="bg-red-600 hover:bg-red-700 text-white"
+						:on-click="bulkDelete"
+					>
+						Удалить выбранные ({{ selectedCategories.length }})
+					</Button>
 					<Button
 						type="button"
 						size="sm"
