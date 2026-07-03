@@ -201,6 +201,22 @@
 		{ immediate: true }
 	)
 
+	watch(
+		() => form.discount_type_id,
+		(newVal) => {
+			if (!newVal) return
+			const selected = discountTypes.value.find((t) => t.id === newVal)
+			if (selected) {
+				const text = `${selected.name} ${selected.slug}`.toLowerCase()
+				if (/percent|prosent|yüzde|procent|процент|%/.test(text)) {
+					form.is_percentage = true
+				} else if (/sum|summa|tutar|flat|сумма|₺|tl/.test(text)) {
+					form.is_percentage = false
+				}
+			}
+		}
+	)
+
 	onBeforeUnmount(() => {
 		dictionariesRequestId.value += 1
 	})
