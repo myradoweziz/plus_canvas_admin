@@ -10,7 +10,8 @@ export const LAYOUT_TEMPLATE_OPTIONS = [
 	{ label: '2 parçalı yatay (2 квадрата горизонтально)', value: '2-square-horizontal' },
 	{ label: 'Panorama 3/1 (широкий горизонтальный)', value: 'panorama-3-1' },
 	{ label: 'Yatay 2/1 (горизонтальный 2:1)', value: 'yatay-2-1' },
-	{ label: '3 parçalı panorama (равные панели)', value: '3-panel-equal' },
+	{ label: '3 parçalı panorama yatay (горизонтальные панели)', value: '3-panel-equal' },
+	{ label: '3 parçalı panorama dikey (вертикальные панели)', value: '3-panel-portrait' },
 	{ label: '3 parçalı yatay (3 квадрата в ряд)', value: '3-square-horizontal' },
 	{ label: '3 parçalı dikey (3 квадрата в столбец)', value: '3-square-vertical' },
 	{ label: 'Dikey 1/2 (узкий вертикальный)', value: 'dikey-1-2' },
@@ -27,6 +28,7 @@ export function uploadCountForLayoutTemplate(template: string): number | undefin
 			return 2
 		case '3-split':
 		case '3-panel-equal':
+		case '3-panel-portrait':
 		case '3-square-horizontal':
 		case '3-square-vertical':
 			return 3
