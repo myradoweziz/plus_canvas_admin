@@ -11,6 +11,7 @@
 	import TextField from '@/shared/ui/TextField.vue'
 
 	import { getCanvasFormatSizeLabel } from '@/modules/canvas-formats/types'
+	import { LAYOUT_TEMPLATE_OPTIONS, uploadCountForLayoutTemplate } from '@/modules/canvas-formats/constants/layout-templates'
 	import { api as categoriesApi } from '@/modules/categories/api'
 	import type { FeaturedCategory, SubCategory } from '@/modules/categories/types'
 	import type { Color } from '@/modules/colors/types'
@@ -141,16 +142,7 @@
 				value: item.id
 			}))
 
-	const layoutTemplateOptions = [
-		{ label: 'Стандартный (Auto Grid)', value: '' },
-		{ label: 'Квадратная сетка (Square Grid)', value: 'grid-square' },
-		{ label: 'Горизонтальная сетка (Landscape Grid)', value: 'grid-landscape' },
-		{ label: 'Вертикальная сетка (Portrait Grid)', value: 'grid-portrait' },
-		{ label: 'Сердце (Heart)', value: 'heart' },
-		{ label: '1 Большой + Мелкие вокруг', value: '1-large-surrounded' },
-		{ label: '3-х панельный (3-split)', value: '3-split' },
-		{ label: '2-х панельный вертикальный (2-split-vertical)', value: '2-split-vertical' }
-	]
+	const layoutTemplateOptions = LAYOUT_TEMPLATE_OPTIONS
 
 	const mainCategoryOptions = computed(() => toSelectOptions(mainCategories.value, (item) => item.name))
 	const featuredCategoryOptions = computed(() => toSelectOptions(featuredCategories.value, (item) => item.name))
@@ -455,11 +447,8 @@
 	watch(
 		() => form.value.layout_template,
 		(newVal) => {
-			if (newVal === '2-split-vertical') {
-				form.value.upload_image_count = 2
-			} else if (newVal === '3-split') {
-				form.value.upload_image_count = 3
-			}
+			const count = uploadCountForLayoutTemplate(newVal)
+			if (count != null) form.value.upload_image_count = count
 		}
 	)
 </script>

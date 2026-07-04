@@ -13,6 +13,7 @@
 	import { slugify } from '@/shared'
 	import { mediaApi } from '@/shared/api/media'
 	import { getFirstBackendValidationMessage } from '@/shared/api/validation'
+	import { LAYOUT_TEMPLATE_OPTIONS } from '../constants/layout-templates'
 	import { api } from '../api'
 	import { type CanvasFormat, type CanvasFormatSize, getCanvasFormatSizeLabel } from '../types'
 
@@ -39,16 +40,7 @@
 		sizes: [] as CanvasFormatSize[]
 	})
 
-	const layoutTemplateOptions = [
-		{ label: 'Стандартный (Auto Grid)', value: '' },
-		{ label: 'Квадратная сетка (Square Grid)', value: 'grid-square' },
-		{ label: 'Горизонтальная сетка (Landscape Grid)', value: 'grid-landscape' },
-		{ label: 'Вертикальная сетка (Portrait Grid)', value: 'grid-portrait' },
-		{ label: 'Сердце (Heart)', value: 'heart' },
-		{ label: '1 Большой + Мелкие вокруг', value: '1-large-surrounded' },
-		{ label: '3-х панельный (3-split)', value: '3-split' },
-		{ label: '2-х панельный вертикальный (2-split-vertical)', value: '2-split-vertical' }
-	]
+	const layoutTemplateOptions = LAYOUT_TEMPLATE_OPTIONS
 
 	const fieldErrors = reactive({
 		name: '',
