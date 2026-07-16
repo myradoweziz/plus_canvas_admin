@@ -86,6 +86,16 @@
 		return ok
 	}
 
+	const apiBase = String(import.meta.env.VITE_APP_BASE_URL ?? '').replace(/\/+$/, '')
+
+	const resolveMediaUrl = (raw: string) => {
+		const value = String(raw ?? '').trim()
+		if (!value) return ''
+		if (value.startsWith('http') || value.startsWith('blob:') || value.startsWith('data:')) return value
+		if (value.startsWith('/')) return `${apiBase}${value}`
+		return `${apiBase}/storage/${value.replace(/^\/+/, '')}`
+	}
+
 	watch(
 		() => [props.open, props.frame] as const,
 		([open, frame]) => {
@@ -98,7 +108,8 @@
 				id: frame.id ?? null,
 				name: frame.name ?? '',
 				color_hex: frame.color_hex ?? '#000000',
-				image: frame.image_url ?? frame.image ?? '',
+				image: resolveMediaUrl(frame.image_url ?? frame.image ?? ''),
+				image_url: resolveMediaUrl(frame.image_url ?? frame.image ?? ''),
 				price: frame.price ?? 0,
 				sort_order: frame.sort_order ?? 0,
 				is_active: !!frame.is_active

@@ -18,6 +18,16 @@
 	}>()
 
 	const toFrame = (row: unknown) => row as CanvasFrame
+
+	const apiBase = String(import.meta.env.VITE_APP_BASE_URL ?? '').replace(/\/+$/, '')
+
+	const frameThumbSrc = (frame: CanvasFrame) => {
+		const raw = String(frame.image_url ?? frame.image ?? '').trim()
+		if (!raw) return ''
+		if (raw.startsWith('http') || raw.startsWith('blob:') || raw.startsWith('data:')) return raw
+		if (raw.startsWith('/')) return `${apiBase}${raw}`
+		return `${apiBase}/storage/${raw.replace(/^\/+/, '')}`
+	}
 </script>
 
 <template>
@@ -45,12 +55,16 @@
 		</template>
 
 		<template #cell-image_url="{ row }">
-			<img
-				v-if="toFrame(row).image_url"
-				:src="toFrame(row).image_url"
-				:alt="toFrame(row).name"
-				class="h-16 w-24 rounded-lg object-cover ring-1 ring-gray-200"
-			/>
+			<div
+				v-if="frameThumbSrc(toFrame(row))"
+				class="flex h-16 w-24 items-center justify-center rounded-lg bg-gray-100 ring-1 ring-gray-200 p-1"
+			>
+				<img
+					:src="frameThumbSrc(toFrame(row))"
+					:alt="toFrame(row).name"
+					class="max-h-full max-w-full object-contain"
+				/>
+			</div>
 			<span v-else class="text-sm text-gray-400">—</span>
 		</template>
 
