@@ -34,7 +34,13 @@
 		</div>
 
 		<div v-if="previewSrc" class="mt-4 flex items-start gap-4">
-			<img :src="previewSrc" :alt="previewAlt || label" class="h-16 w-24 rounded-lg object-cover ring-1 ring-gray-200" />
+			<img
+				:src="previewSrc"
+				:alt="previewAlt || label"
+				class="h-16 w-24 rounded-lg object-cover ring-1 ring-gray-200"
+				@error="onPreviewError"
+				@load="onPreviewLoad"
+			/>
 		</div>
 
 		<p v-if="errorMessage || localError" class="mt-2 text-xs text-red-500">{{ errorMessage || localError }}</p>
@@ -92,17 +98,34 @@
 
 	watch(
 		() => props.modelValue,
-		() => {
-			// если уже получили url, локальный preview больше не нужен
-			revokePreview()
+		(next, prev) => {
+			// Keep blob preview until the remote URL actually paints (avoids broken icon flash).
+			if (!next || next.startsWith('blob:') || next === prev) return
+			if (!localPreviewUrl.value) return
+			// Do not revoke yet — wait for @load / @error on the <img>.
 		}
 	)
 
 	onBeforeUnmount(revokePreview)
 
 	const previewSrc = computed(() => {
-		return props.modelValue || localPreviewUrl.value || props.currentUrl || ''
+		// Prefer local blob while remote URL may be unreachable (wrong APP_URL host/port).
+		return localPreviewUrl.value || props.modelValue || props.currentUrl || ''
 	})
+
+	const onPreviewLoad = () => {
+		if (props.modelValue && !props.modelValue.startsWith('blob:')) {
+			revokePreview()
+		}
+	}
+
+	const onPreviewError = () => {
+		// Remote URL failed — keep blob if we still have it; otherwise clear broken remote.
+		if (localPreviewUrl.value) return
+		if (props.modelValue) {
+			localError.value = 'Не удалось загрузить превью изображения'
+		}
+	}
 
 	const onPick = (event: Event) => {
 		const input = event.target as HTMLInputElement
