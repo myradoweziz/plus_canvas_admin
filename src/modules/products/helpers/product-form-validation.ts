@@ -49,10 +49,6 @@ export const validateProductInfo = (form: CanvasProduct): Record<string, string>
 		errors.image = 'Изображение обязательно.'
 	}
 
-	if (!form.colors.length) {
-		errors.colors = 'Выберите хотя бы один цвет.'
-	}
-
 	return errors
 }
 

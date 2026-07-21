@@ -44,6 +44,10 @@
 		clickable
 		@row-click="(row) => emit('open', toOrder(row))"
 	>
+		<template #cell-order_number="{ row }">
+			<span class="font-medium text-gray-800">{{ toOrder(row).order_number }}</span>
+		</template>
+
 		<template #cell-order_status="{ row }">
 			<StatusBadge :tone-class="statusBadgeClass(toOrder(row).order_status)" class="capitalize">
 				{{ toOrder(row).order_status }}

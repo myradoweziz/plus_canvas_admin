@@ -3,6 +3,7 @@ export * from './order-display'
 export * from './order-statuses'
 
 export const ORDERS_TABLE_COLUMNS = [
+	{ key: 'order_number', label: '№ заказа' },
 	{ key: 'order_status', label: 'Статус заказа' },
 	{ key: 'payment_status', label: 'Статус оплаты' },
 	{ key: 'delivery_status', label: 'Статус доставки' },

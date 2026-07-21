@@ -568,7 +568,6 @@
 			<SelectField
 				:model-value="selectedColorId"
 				label="Цвета"
-				required
 				name="colors"
 				placeholder="Выберите цвет"
 				:options="colorOptions"
